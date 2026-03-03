@@ -814,6 +814,7 @@ function onDrop(e,col){
   // volta de 13
   if(oldCol===13&&newCol!==13){p.termino='';if(p.pct===100)p.pct=90;}
   fbSalvarProjeto(p);
+  renderAll();
   showToast(`✅ "${p.nome.length>28?p.nome.slice(0,26)+'…':p.nome}" → ${colLabel(newCol)}`);
 }
 function cardClick(e,id){if(e.detail===0)return;openDet(id);}
@@ -1108,15 +1109,15 @@ function toggleE(pid,idx){
   if(p.pct===100){if(!p.termino)p.termino=td();}
   else{p.termino='';}
   fbSalvarProjeto(p);
-  openDet(pid);
+  renderAll(); openDet(pid);
 }
 function setEP(pid,idx,v){
   const p=DB.find(x=>x.id===pid);if(!p)return;
   p.etapas[idx].prazo=v;
   fbSalvarProjeto(p);
-  openDet(pid);
+  renderAll(); openDet(pid);
 }
-function setER(pid,idx,v){const p=DB.find(x=>x.id===pid);if(!p)return;p.etapas[idx].r=v;fbSalvarProjeto(p);openDet(pid);}
+function setER(pid,idx,v){const p=DB.find(x=>x.id===pid);if(!p)return;p.etapas[idx].r=v;fbSalvarProjeto(p);renderAll();openDet(pid);}
 
 // ── CANCELAR ──
 function abrirCanc(id){cancId=id;document.getElementById('fCancMotivo').value='';cm('ovDet');document.getElementById('ovCanc').classList.add('on');}
@@ -1124,12 +1125,12 @@ function confirmarCanc(){
   const p=DB.find(x=>x.id===cancId);if(!p)return;
   p.cancelado=true; p.cancelEm=td(); p.cancelMotivo=document.getElementById('fCancMotivo').value;
   const pc=DB.find(x=>x.id===cancId); if(pc) fbSalvarProjeto(pc);
-  cm('ovCanc'); showToast('🚫 Projeto cancelado e movido para a aba Cancelados');
+  cm('ovCanc'); renderAll(); showToast('🚫 Projeto cancelado e movido para a aba Cancelados');
 }
 function reativarP(id){
   const p=DB.find(x=>x.id===id);if(!p)return;
   p.cancelado=false; p.cancelEm=''; p.cancelMotivo='';
-  fbSalvarProjeto(p); showToast('↩️ Projeto reativado!');
+  fbSalvarProjeto(p); renderAll(); showToast('↩️ Projeto reativado!');
 }
 
 // ── MODAL NEW/EDIT ──
@@ -1215,7 +1216,7 @@ function salvar(){
 
   const etapas=ETPS_DEF.map((e,i)=>{
     const old=editId?(DB.find(x=>x.id===editId)?.etapas[i]||{}):{}; 
-    const prazoVal=document.getElementById('ep'+i)?.value||null;
+    const prazoVal=document.getElementById('ep'+i)?.value||null; // YYYY-MM-DD ou null
     return{lb:e.lb,r:document.getElementById('er'+i)?.value||e.r,prazo:prazoVal,inicio:prazoVal,fim:old.fim||null,done:old.done||false};
   });
 
@@ -1241,12 +1242,13 @@ function salvar(){
   fbSalvarProjeto(proj);
   fbSalvarNxt();
   cm('ovNew');
+  renderAll(); // atualiza UI imediatamente sem esperar Firebase
   showToast(editId?'✅ Projeto atualizado!':'✅ Projeto criado!');
 }
 
 function delP(id){
   if(!confirm('Remover permanentemente?'))return;
-  DB=DB.filter(p=>p.id!==id); fbExcluirProjeto(id); showToast('🗑️ Projeto removido');
+  DB=DB.filter(p=>p.id!==id); fbExcluirProjeto(id); renderAll(); showToast('🗑️ Projeto removido');
 }
 function cm(id){document.getElementById(id).classList.remove('on')}
 
@@ -1302,10 +1304,12 @@ function normalizar(p){
 // Usamos set no nó individual para evitar sobrescrever dados de outros usuários
 function fbSalvarProjeto(proj){
   if(!fbProjetos){ showToast('⚠️ Sem conexão com Firebase'); return; }
+  // Limpar undefined (Firebase rejeita undefined values)
+  const limpo = JSON.parse(JSON.stringify(proj, (k,v) => v === undefined ? null : v));
   setStatus('sync','Salvando...');
-  fbProjetos.child('p' + proj.id).set(proj)
+  fbProjetos.child('p' + limpo.id).set(limpo)
     .then(()  => setStatus('online','Salvo ✓'))
-    .catch(e  => { setStatus('offline','Erro ao salvar'); console.error(e); });
+    .catch(e  => { setStatus('offline','Erro ao salvar: '+e.message); console.error(e); });
 }
 
 // ── EXCLUIR UM PROJETO ──
@@ -1329,14 +1333,62 @@ function escutarFirebase(db){
   fbProjetos = db.ref('projetos');
   fbNxtRef   = db.ref('nxt');
 
-  // Listener principal — recebe todas as mudanças em tempo real
-  fbProjetos.on('value', snap => {
+  // Carregamento inicial: busca todos os projetos uma vez
+  // Depois usa child_added/changed/removed para atualizações incrementais
+  // Isso evita sobrescrever o DB local com snapshot parcial
+
+  let carregouInicial = false;
+
+  // 1. Carga inicial completa
+  fbProjetos.once('value', snap => {
     const data = snap.val();
     DB = data ? Object.values(data).map(normalizar) : [];
+    carregouInicial = true;
     renderAll();
+    // Garantir kanban ativo na primeira carga
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+    document.getElementById('view-kanban').classList.add('on');
+    document.querySelectorAll('.si').forEach(n=>n.classList.remove('on'));
+    document.querySelectorAll('.si').forEach(n=>{
+      if(n.getAttribute('onclick')==="nav('kanban')") n.classList.add('on');
+    });
+    document.getElementById('pageTitle').textContent='Quadro Kanban';
+
+    // 2. Após carga inicial, escuta mudanças incrementais
+    // child_added dispara para cada filho existente + novos
+    // Usamos flag para ignorar os existentes (já carregados pelo once)
+    let ignorarExistentes = Object.keys(data||{});
+
+    fbProjetos.on('child_added', snap => {
+      if(!carregouInicial) return;
+      const key = snap.key;
+      // Ignorar projetos que já estavam no snapshot inicial
+      if(ignorarExistentes.includes(key)){
+        ignorarExistentes = ignorarExistentes.filter(k=>k!==key);
+        return;
+      }
+      const p = normalizar(snap.val());
+      // Adicionar apenas se não existe já (evita duplicata)
+      if(!DB.find(x=>x.id===p.id)) DB.push(p);
+      renderAll();
+    });
+
+    fbProjetos.on('child_changed', snap => {
+      if(!carregouInicial) return;
+      const p = normalizar(snap.val());
+      DB = DB.map(x => x.id===p.id ? p : x);
+      renderAll();
+    });
+
+    fbProjetos.on('child_removed', snap => {
+      if(!carregouInicial) return;
+      const p = snap.val();
+      DB = DB.filter(x => x.id !== p.id);
+      renderAll();
+    });
   });
 
-  // Sincronizar NXT entre abas/usuários
+  // NXT — só atualiza se o valor remoto for maior (nunca reduz)
   fbNxtRef.on('value', snap => {
     const v = parseInt(snap.val()) || 1;
     if(v > NXT) NXT = v;
@@ -1411,8 +1463,6 @@ if(savedUrl){
   document.getElementById('setupOv').style.display = 'flex';
   renderAll();
 }
-// Garantir que kanban é a view inicial
-nav('kanban');
 
 </script>
 </body>
