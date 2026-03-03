@@ -57,7 +57,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font
 .sc-l{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
 .sc-v{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1}
 .sc-s{font-size:10px;color:var(--mu);margin-top:2px}
-.sc-i{position:absolute;right:11px;top:11px;font-size:22px;opacity:.1}
+.sc-i{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:32px;opacity:.18}
 /* TABLE */
 .tw{background:#fff;border-radius:var(--r);border:1px solid var(--bdr);overflow:hidden;overflow-x:auto}
 table{width:100%;border-collapse:collapse}
@@ -248,8 +248,7 @@ tr.canc-row td{opacity:.55}
   </div>
   <nav class="sb-nav">
     <div class="sb-sec">Principal</div>
-    <div class="si on" onclick="nav('dashboard')"><span class="si-ic">📊</span><span>Dashboard</span></div>
-    <div class="si" onclick="nav('kanban')"><span class="si-ic">🗂️</span><span>Kanban</span></div>
+    <div class="si on" onclick="nav('kanban')"><span class="si-ic">🗂️</span><span>Kanban</span></div>
     <div class="si" onclick="nav('projetos')"><span class="si-ic">📋</span><span>Lista de Projetos</span></div>
     <div class="si" onclick="nav('timeline')"><span class="si-ic">📅</span><span>Cronograma</span></div>
     <div class="sb-sec">Análise</div>
@@ -264,7 +263,7 @@ tr.canc-row td{opacity:.55}
 
 <div class="main">
   <div class="tp">
-    <div class="tp-title" id="pageTitle">Dashboard</div>
+    <div class="tp-title" id="pageTitle">Quadro Kanban</div>
     <div class="tp-r">
       <span class="tp-date" id="topDate"></span>
       <button class="btn bg2 bsm" onclick="exportCSV()">⬇️ Exportar CSV</button>
@@ -274,18 +273,9 @@ tr.canc-row td{opacity:.55}
 
   <div class="cnt">
 
-    <!-- DASHBOARD -->
-    <div class="view on" id="view-dashboard">
-      <div class="sts" id="statsGrid"></div>
-      <div class="sh"><div class="st">Projetos — Visão Geral</div><button class="btn bg2 bsm" onclick="nav('kanban')">Ver Kanban →</button></div>
-      <div class="tw"><table>
-        <thead><tr><th>Projeto / Curso</th><th>Recursos</th><th>Responsável(is)</th><th>Coluna Atual</th><th>Situação</th><th>Criado em</th><th>Prazo</th><th>Atraso Eq.</th><th>Aguard. Cl.</th><th>Progresso</th><th></th></tr></thead>
-        <tbody id="dashTbl"></tbody>
-      </table></div>
-    </div>
-
-    <!-- KANBAN -->
-    <div class="view" id="view-kanban">
+    <!-- KANBAN (página principal) -->
+    <div class="view on" id="view-kanban">
+      <div id="statsGrid" class="sts" style="margin-bottom:18px"></div>
       <div class="sh"><div class="st">Quadro Kanban — Fluxo de Produção EAD</div></div>
       <div class="fbox">
         <div class="fbox-row">
@@ -375,7 +365,7 @@ tr.canc-row td{opacity:.55}
       <div class="kg" id="kpiGrid"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div class="kk"><div class="kkt">Etapas — Tempo Médio (dias)</div><div id="etapaBars"></div></div>
-        <div class="kk"><div class="kkt">Projetos por Tipo</div><div id="tipoBars"></div></div>
+        <div class="kk"><div class="kkt">Projetos por Recurso</div><div id="tipoBars"></div></div>
       </div>
     </div>
 
@@ -674,7 +664,7 @@ let DB=[];
 let NXT=1, editId=null, cancId=null, dragId=null;
 
 // ── NAV ──
-const PT={dashboard:'Dashboard',kanban:'Quadro Kanban',projetos:'Lista de Projetos',timeline:'Cronograma',kpis:'KPIs & Indicadores',atrasos:'Relatório de Atrasos',cancelados:'Projetos Cancelados'};
+const PT={kanban:'Quadro Kanban',projetos:'Lista de Projetos',timeline:'Cronograma',kpis:'KPIs & Indicadores',atrasos:'Relatório de Atrasos',cancelados:'Projetos Cancelados'};
 function nav(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.getElementById('view-'+id).classList.add('on');
@@ -688,7 +678,7 @@ function nav(id){
 function activeDB(){return DB.filter(p=>!p.cancelado)}
 function cancelDB(){return DB.filter(p=>p.cancelado)}
 
-// ── DASHBOARD ──
+// ── STATS (KPI cards — exibidos no topo do Kanban) ──
 function rDash(){
   const act=activeDB();
   const conc=act.filter(p=>calcSit(p)==='concluido').length;
@@ -697,8 +687,9 @@ function rDash(){
   const canc=cancelDB().length;
   const waitCl=act.filter(p=>(p.etapas||[]).some(e=>e.r==='cl'&&!e.done&&e.prazo&&new Date(e.prazo)<new Date())).length;
   const total=act.length;
-
-  document.getElementById('statsGrid').innerHTML=`
+  const el=document.getElementById('statsGrid');
+  if(!el) return;
+  el.innerHTML=`
     <div class="sc cb"><div class="sc-l">Total Ativos</div><div class="sc-v">${total}</div><div class="sc-s">projetos</div><div class="sc-i">🗂️</div></div>
     <div class="sc cr"><div class="sc-l">Em Andamento</div><div class="sc-v">${and}</div><div class="sc-s">em curso</div><div class="sc-i">🔄</div></div>
     <div class="sc cg"><div class="sc-l">Concluídos</div><div class="sc-v">${conc}</div><div class="sc-s">finalizados</div><div class="sc-i">✅</div></div>
@@ -706,24 +697,6 @@ function rDash(){
     <div class="sc cp"><div class="sc-l">Aguard. Cliente</div><div class="sc-v">${waitCl}</div><div class="sc-s">validação pendente</div><div class="sc-i">⏳</div></div>
     <div class="sc cgr"><div class="sc-l">Cancelados</div><div class="sc-v">${canc}</div><div class="sc-s"><a href="#" onclick="nav('cancelados');return false" style="color:var(--mu)">ver relatório</a></div><div class="sc-i">🚫</div></div>
   `;
-
-  const rows=[...act].sort((a,b)=>new Date(b.criado)-new Date(a.criado)).slice(0,12);
-  document.getElementById('dashTbl').innerHTML=rows.map(p=>{
-    const{eq,cl}=delInf(p);
-    return`<tr>
-      <td><strong>${p.nome}</strong><br><small style="color:var(--mu)">${p.area||''}</small></td>
-      <td>${recTags(p.recursos)}</td>
-      <td>${avList(p.resps)}</td>
-      <td><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:${colDot(p.col)};display:inline-block;flex-shrink:0"></span><span style="font-size:11.5px">${colLabel(p.col)}</span></span></td>
-      <td>${sitBdg(p)}</td>
-      <td>${fd(p.criado)}</td>
-      <td style="${calcSit(p)==='atrasado'?'color:var(--red);font-weight:700':''}">${fd(p.prazo)}</td>
-      <td>${eq>0?`<span class="db deq">⚠️${eq}d</span>`:`<span class="db dok">—</span>`}</td>
-      <td>${cl>0?`<span class="db dcl">⏳${cl}d</span>`:`<span class="db dok">—</span>`}</td>
-      <td>${progH(p)}</td>
-      <td><button class="btn bg2 bsm" onclick="openDet(${p.id})">Ver</button></td>
-    </tr>`;
-  }).join('');
 }
 
 // ── KANBAN ──
@@ -743,7 +716,7 @@ function rKanban(){
         const{eq,cl}=delInf(p);
         return`<div class="kcard" draggable="true" data-id="${p.id}"
           ondragstart="onDragStart(event,${p.id})" ondragend="onDragEnd()" onclick="cardClick(event,${p.id})">
-          ${tagH(p.tipo)}
+          ${recTags(p.recursos)}
           <div class="kcard-t">${p.nome}</div>
           <div class="kdates">
             <span>📌 ${fd(p.criado)}</span>
@@ -926,20 +899,67 @@ function rKPIs(){
     dn(avg,'var(--blue)','Progresso Médio',`média de conclusão`)+
     `<div class="kk"><div class="kkt">Distribuição por Situação</div><div style="display:flex;align-items:center;gap:16px;padding:6px 0"><svg viewBox="0 0 100 100" width="100" height="100">${arcs}</svg><div>${leg}</div></div></div>`;
 
-  const eps=[['Reunião Inicial',2],['Elaboração PI',7],['Revisão PI',4],['Rev. Textual PI',3],['Entrega PI',1],['Validação PI',5],['Desenho/Rot.',8],['Valid. DI Ref.',4],['Prod. Gráficos',12],['Entrega Review',1],['Solic. Ajustes',5],['Impl. Ajustes',6],['Validação Final',4],['Rev. Textual',3],['Homologação',3],['Instalação SIRH',1]];
-  const mx=Math.max(...eps.map(([,d])=>d));
-  document.getElementById('etapaBars').innerHTML=eps.map(([n,d])=>`
+  // Calcular tempo médio real de cada etapa a partir de projetos concluídos
+  const etapaMedArr = ETPS_DEF.map((e,i)=>{
+    const amostras=[];
+    activeDB().concat(cancelDB()).forEach(p=>{
+      const et=(p.etapas||[])[i];
+      if(et&&et.done&&et.prazo&&et.fim){
+        const dias=Math.max(0,Math.round((new Date(et.fim)-new Date(et.prazo))/(864e5)));
+        // usa diferença entre prazo definido e fim real como proxy de duração
+        amostras.push(dias);
+      }
+      // alternativa: se tem prazo e fim, usar diferença
+      if(et&&et.done&&et.inicio&&et.fim){
+        const dias=Math.max(1,Math.round((new Date(et.fim)-new Date(et.inicio))/(864e5)));
+        amostras.push(dias);
+      }
+    });
+    // dedup simples (pode ter duplicatas pelo duplo push acima — usar apenas inicio→fim)
+    const amostrasLimpo=[];
+    activeDB().concat(cancelDB()).forEach(p=>{
+      const et=(p.etapas||[])[i];
+      if(et&&et.done&&et.inicio&&et.fim){
+        const dias=Math.max(1,Math.round((new Date(et.fim)-new Date(et.inicio))/(864e5)));
+        amostrasLimpo.push(dias);
+      }
+    });
+    const media=amostrasLimpo.length
+      ? Math.round(amostrasLimpo.reduce((a,b)=>a+b,0)/amostrasLimpo.length)
+      : null;
+    const nomeAbrev=[
+      'Reunião Inicial','Elaboração PI','Revisão PI','Rev. Textual PI',
+      'Entrega PI','Validação PI','Desenho/Rot.','Valid. DI Ref.',
+      'Prod. Gráficos','Entrega Review','Solic. Ajustes','Impl. Ajustes',
+      'Validação Final','Rev. Textual','Homologação','Instalação SIRH'
+    ][i]||e.lb;
+    return{n:nomeAbrev, d:media, r:e.r};
+  });
+  const comDados=etapaMedArr.filter(e=>e.d!==null);
+  const mx=comDados.length?Math.max(...comDados.map(e=>e.d),1):1;
+  document.getElementById('etapaBars').innerHTML=etapaMedArr.map(e=>`
     <div style="margin-bottom:7px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>${n}</span><strong>${d}d</strong></div>
-      <div style="height:5px;background:var(--bdr);border-radius:3px;overflow:hidden"><div style="height:100%;width:${d/mx*100}%;background:${n.includes('Valid')||n.includes('Solic')||n.includes('Entrega')?'var(--org)':'var(--blue)'};border-radius:3px"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">
+        <span>${e.n}</span>
+        <strong>${e.d!==null?e.d+'d':'—'}</strong>
+      </div>
+      <div style="height:5px;background:var(--bdr);border-radius:3px;overflow:hidden">
+        ${e.d!==null?`<div style="height:100%;width:${e.d/mx*100}%;background:${e.r==='cl'?'var(--org)':'var(--blue)'};border-radius:3px"></div>`:''}
+      </div>
+      ${e.d===null?'<div style="font-size:10px;color:var(--mu)">Sem dados ainda</div>':''}
     </div>`).join('');
 
-  const tps=Object.entries(TIMAP).map(([k,t])=>({l:t.l,n:act.filter(p=>p.tipo===k).length})).filter(t=>t.n>0);
-  const mx2=Math.max(...tps.map(t=>t.n),1);
-  document.getElementById('tipoBars').innerHTML=tps.map((t,i)=>`
+  // Contar projetos por recurso
+  const recCount={};
+  act.forEach(p=>(p.recursos||[]).forEach(r=>{recCount[r]=(recCount[r]||0)+1;}));
+  const tps=Object.entries(recCount).sort((a,b)=>b[1]-a[1]);
+  const mx2=tps.length?Math.max(...tps.map(([,n])=>n),1):1;
+  document.getElementById('tipoBars').innerHTML=tps.length===0
+    ?'<div style="color:var(--mu);font-size:12px;padding:8px 0">Nenhum dado ainda</div>'
+    :tps.map(([rec,n],i)=>`
     <div style="margin-bottom:9px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>${t.l}</span><strong>${t.n}</strong></div>
-      <div style="height:6px;background:var(--bdr);border-radius:3px;overflow:hidden"><div style="height:100%;width:${t.n/mx2*100}%;background:${COLS_AV[i%COLS_AV.length]};border-radius:3px"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>${rec}</span><strong>${n}</strong></div>
+      <div style="height:6px;background:var(--bdr);border-radius:3px;overflow:hidden"><div style="height:100%;width:${n/mx2*100}%;background:${COLS_AV[i%COLS_AV.length]};border-radius:3px"></div></div>
     </div>`).join('');
 }
 
@@ -1391,6 +1411,8 @@ if(savedUrl){
   document.getElementById('setupOv').style.display = 'flex';
   renderAll();
 }
+// Garantir que kanban é a view inicial
+nav('kanban');
 
 </script>
 </body>
