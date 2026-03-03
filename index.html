@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestão de Projetos EAD · Firjan SENAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#E8002D;--dark:#0D0D0D;--blue:#003DA5;
+  --bg:#F2F1ED;--surface:#fff;--s2:#EEEDE8;
+  --bdr:#DDD;--txt:#1A1A1A;--mu:#6B6860;
+  --green:#1A8A4A;--yel:#D97706;--pur:#7C3AED;
+  --org:#EA580C;--cyan:#0891B2;--gray:#6B7280;
+  --r:10px;--sh:0 2px 10px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font-size:13.5px;min-height:100vh}
+.wrap{display:flex;min-height:100vh}
+/* SIDEBAR */
+.sb{width:236px;background:var(--dark);color:#fff;display:flex;flex-direction:column;position:fixed;height:100vh;z-index:200}
+.sb-logo{padding:22px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-badge{display:inline-block;background:var(--red);color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:10px;letter-spacing:2px;padding:3px 9px;border-radius:3px;margin-bottom:6px}
+.sb-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;line-height:1.35}
+.sb-sub{font-size:11px;color:rgba(255,255,255,.3);margin-top:2px}
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto}
+.sb-sec{font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,.25);padding:10px 18px 3px;font-weight:700;text-transform:uppercase}
+.si{display:flex;align-items:center;gap:8px;padding:9px 18px;color:rgba(255,255,255,.5);cursor:pointer;font-size:13px;border-left:3px solid transparent;transition:all .15s}
+.si:hover{background:rgba(255,255,255,.05);color:#fff}
+.si.on{color:#fff;background:rgba(232,0,45,.12);border-left-color:var(--red)}
+.si-ic{font-size:15px;width:18px;text-align:center}
+.sb-foot{padding:12px 18px;border-top:1px solid rgba(255,255,255,.07);font-size:10px;color:rgba(255,255,255,.2)}
+/* MAIN */
+.main{margin-left:236px;flex:1;display:flex;flex-direction:column;min-width:0}
+.tp{background:#fff;border-bottom:1px solid var(--bdr);padding:13px 26px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.tp-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+.tp-r{display:flex;gap:8px;align-items:center}
+.tp-date{font-size:11px;color:var(--mu)}
+/* BUTTONS */
+.btn{padding:7px 15px;border-radius:7px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.br{background:var(--red);color:#fff}.br:hover{background:#c4001f;transform:translateY(-1px)}
+.bb{background:var(--blue);color:#fff}.bb:hover{background:#002f80}
+.bg2{background:transparent;border:1px solid var(--bdr);color:var(--txt)}.bg2:hover{background:var(--s2)}
+.bgray{background:#6B7280;color:#fff}.bgray:hover{background:#4B5563}
+.bsm{padding:4px 10px;font-size:11.5px}
+.bd{background:#FEE2E2;color:#991B1B;border:none}.bd:hover{background:#FECACA}
+/* CONTENT */
+.cnt{padding:22px 26px;flex:1}
+.view{display:none}.view.on{display:block}
+/* STATS */
+.sts{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-bottom:22px}
+.sc{background:#fff;border-radius:var(--r);padding:15px;border:1px solid var(--bdr);position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc.cr::before{background:var(--red)}.sc.cb::before{background:var(--blue)}
+.sc.cg::before{background:var(--green)}.sc.cy::before{background:var(--yel)}
+.sc.cp::before{background:var(--pur)}.sc.cgr::before{background:var(--gray)}
+.sc-l{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
+.sc-v{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.sc-s{font-size:10px;color:var(--mu);margin-top:2px}
+.sc-i{position:absolute;right:11px;top:11px;font-size:22px;opacity:.1}
+/* TABLE */
+.tw{background:#fff;border-radius:var(--r);border:1px solid var(--bdr);overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead{background:var(--dark)}
+th{text-align:left;padding:10px 13px;font-family:'Syne',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.55);white-space:nowrap}
+td{padding:10px 13px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAF9}
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-and{background:#FEF3C7;color:#92400E}
+.b-conc{background:#DCFCE7;color:#15803D}
+.b-atq{background:#FEE2E2;color:#991B1B}
+.b-canc{background:#F3F4F6;color:#374151;text-decoration:line-through}
+.b-ag{background:#FFF3CD;color:#856404}
+.tag{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}
+.tdi{background:#fce7f3;color:#be185d}
+.tvi{background:#fef3c7;color:#b45309}
+.ttr{background:#e0f2fe;color:#0369a1}
+.tav{background:#f3e8ff;color:#7e22ce}
+.tco{background:#dcfce7;color:#15803d}
+.tca{background:#fff7ed;color:#c2410c}
+/* KANBAN */
+.kb{display:flex;gap:11px;overflow-x:auto;padding-bottom:12px;align-items:flex-start}
+.kc{background:var(--s2);border-radius:var(--r);padding:11px;border:1px solid var(--bdr);min-height:300px;min-width:185px;flex:0 0 185px}
+.kc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kc-t{font-family:'Syne',sans-serif;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:5px;line-height:1.3}
+.kc-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.kc-n{background:var(--bdr);color:var(--mu);font-size:10px;font-weight:700;padding:1px 6px;border-radius:12px;flex-shrink:0}
+.kcard{background:#fff;border-radius:8px;padding:10px;margin-bottom:8px;border:1px solid var(--bdr);cursor:grab;transition:all .18s;box-shadow:var(--sh)}
+.kcard:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.09)}
+.kcard.dragging{opacity:.3;transform:rotate(2deg) scale(.96);pointer-events:none}
+.kcard-t{font-weight:600;font-size:11.5px;margin:5px 0 6px;line-height:1.35}
+.kdates{font-size:10px;color:var(--mu);display:flex;flex-direction:column;gap:2px;margin-bottom:6px}
+.kdates .ov{color:var(--red);font-weight:700}
+.kdates .wc{color:var(--org);font-weight:700}
+.pbar{height:3px;background:var(--bdr);border-radius:2px;overflow:hidden;margin-top:6px}
+.pf{height:100%;border-radius:2px;transition:width .4s}
+.kc.drag-over{background:#E8F0FE;border:2px dashed var(--blue)}
+/* AVATAR */
+.av{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;flex-shrink:0}
+/* MULTI-SELECT RESPONSÁVEIS */
+.resp-wrap{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.resp-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:500;border:1px solid var(--bdr);background:var(--s2);cursor:pointer;transition:all .15s;user-select:none}
+.resp-chip.sel{background:var(--blue);color:#fff;border-color:var(--blue)}
+/* PROGRESS */
+.pw{display:flex;align-items:center;gap:6px}
+.pb{flex:1;height:6px;background:var(--bdr);border-radius:3px;overflow:hidden;min-width:60px}
+.pf2{height:100%;border-radius:3px;transition:width .4s}
+.pp{font-size:11px;font-weight:600;color:var(--mu);width:28px}
+/* FILTER */
+.fb{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.chip{padding:4px 11px;border-radius:20px;border:1px solid var(--bdr);background:#fff;cursor:pointer;font-size:11.5px;font-weight:500;color:var(--mu);transition:all .15s}
+.chip.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+.chip:hover:not(.on){border-color:#aaa;color:var(--txt)}
+.drag-hint{font-size:10.5px;color:var(--mu);opacity:.7}
+/* SECTION */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.st{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+/* MODAL */
+.ov2{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.ov2.on{display:flex}
+.modal{background:#fff;border-radius:14px;width:720px;max-width:96vw;max-height:92vh;overflow-y:auto;animation:sup .22s ease}
+@keyframes sup{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mhd{padding:20px 24px 13px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.mt{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.mcl{background:none;border:none;font-size:20px;cursor:pointer;color:var(--mu);padding:2px 6px;border-radius:5px;line-height:1}
+.mcl:hover{background:var(--s2)}
+.mbody{padding:20px 24px}
+.mft{padding:13px 24px;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end;background:#fff;position:sticky;bottom:0}
+/* FORM */
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.ff{grid-column:1/-1}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fl{font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.fi,.fs,.fta{padding:8px 12px;border:1px solid var(--bdr);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--txt);background:var(--bg);outline:none;transition:border-color .15s}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--blue);background:#fff}
+.fta{resize:vertical;min-height:68px}
+/* TABS */
+.tabs{display:flex;gap:1px;border-bottom:2px solid var(--bdr);margin-bottom:16px}
+.tab{padding:8px 15px;cursor:pointer;font-size:13px;font-weight:500;color:var(--mu);border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s}
+.tab.on{color:var(--red);border-bottom-color:var(--red);font-weight:700}
+/* ETAPA TABLE */
+.et{width:100%;border-collapse:collapse;font-size:12px}
+.et th{background:var(--s2);padding:7px 9px;text-align:left;font-weight:700;font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--mu)}
+.et td{padding:6px 9px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.et tr:last-child td{border-bottom:none}
+.et tr.done-row td{background:#F0FDF4}
+.et tr.done-row td:first-child span{text-decoration:line-through;color:var(--mu)}
+.et tr.ov-row td{background:#FFF5F5}
+.chk{width:16px;height:16px;border-radius:50%;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:9px;flex-shrink:0;transition:all .2s}
+.chk.done{background:var(--green);border-color:var(--green);color:#fff}
+.chk.cwait{background:var(--yel);border-color:var(--yel);color:#fff}
+/* GANTT */
+.gw{background:#fff;border-radius:var(--r);border:1px solid var(--bdr);overflow-x:auto}
+.gt{width:100%;border-collapse:collapse;min-width:920px}
+.gt th{background:var(--dark);color:rgba(255,255,255,.55);font-size:9.5px;padding:9px;text-align:center;border-right:1px solid rgba(255,255,255,.07);font-family:'Syne',sans-serif;letter-spacing:.5px}
+.gt th.pj{text-align:left;width:190px}
+.gt td{padding:6px 9px;border-bottom:1px solid var(--bdr);border-right:1px solid var(--bdr);font-size:12px}
+.gt td.pj{font-weight:500}
+.gt td.bc{padding:4px 2px}
+.gbar{height:20px;border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:9px;font-weight:700;color:#fff}
+/* DELAY BADGE */
+.db{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:10.5px;font-weight:600}
+.deq{background:#FEE2E2;color:#991B1B}
+.dcl{background:#FFF7ED;color:#9A3412}
+.dok{background:#DCFCE7;color:#15803D}
+/* SITUACAO BADGE em etapa */
+.sit{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:12px;font-size:10.5px;font-weight:600;white-space:nowrap}
+.sit-pend{background:#F3F4F6;color:#6B7280}
+.sit-and{background:#FEF3C7;color:#92400E}
+.sit-ov{background:#FEE2E2;color:#991B1B}
+.sit-done{background:#DCFCE7;color:#15803D}
+.sit-wait{background:#FFF3CD;color:#856404}
+/* KPI */
+.kg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.kk{background:#fff;border-radius:var(--r);border:1px solid var(--bdr);padding:18px}
+.kkt{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:13px}
+.leg{display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:5px}
+.ld{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* DETAIL */
+.dl2r{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.dl{display:flex;gap:10px;margin-bottom:8px}
+.dll{font-size:11px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.4px;width:120px;flex-shrink:0;padding-top:1px}
+.dlv{font-size:13px}
+.ii{padding:3px 7px;border:1px solid var(--bdr);border-radius:5px;font-size:11px;width:120px;font-family:'DM Sans',sans-serif;background:var(--bg);outline:none}
+.ii:focus{border-color:var(--blue);background:#fff}
+.iis{padding:3px 7px;border:1px solid var(--bdr);border-radius:5px;font-size:11px;font-family:'DM Sans',sans-serif;background:var(--bg);outline:none}
+.iis:focus{border-color:var(--blue);background:#fff}
+hr.dv{border:none;border-top:1px solid var(--bdr);margin:14px 0}
+.dcard{background:var(--s2);border-radius:8px;padding:10px;text-align:center}
+.dcard-l{font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.dcard-v{font-weight:700;font-size:13px}
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--dark);color:#fff;padding:11px 18px;border-radius:8px;font-size:13px;z-index:900;transform:translateY(70px);opacity:0;transition:all .3s;border-left:4px solid var(--red);box-shadow:0 8px 28px rgba(0,0,0,.2)}
+.toast.on{transform:translateY(0);opacity:1}
+/* CANCELADO row */
+tr.canc-row td{opacity:.55}
+/* FILTROS AVANÇADOS */
+.fbox{background:#fff;border-radius:var(--r);border:1px solid var(--bdr);padding:14px 18px;margin-bottom:16px}
+.fbox-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.fg-sm{display:flex;flex-direction:column;gap:4px;min-width:160px;flex:1}
+.fl-sm{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.fi-sm{padding:6px 10px;border:1px solid var(--bdr);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--txt);background:var(--bg);outline:none}
+.fi-sm:focus{border-color:var(--blue);background:#fff}
+.btn-lim{padding:6px 12px;border-radius:6px;border:1px solid var(--bdr);background:transparent;cursor:pointer;font-size:12px;color:var(--mu);font-family:'DM Sans',sans-serif;white-space:nowrap;align-self:flex-end}
+.btn-lim:hover{background:var(--s2)}
+/* MULTI SELECT RECURSOS */
+.rec-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.rec-chip{display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--bdr);background:var(--s2);cursor:pointer;transition:all .15s;user-select:none;line-height:1.2}
+.rec-chip.sel{background:var(--blue);color:#fff;border-color:var(--blue)}
+/* TAG recursos */
+.rec-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;background:#E0F2FE;color:#075985;margin:1px}
+@media(max-width:1300px){.sts{grid-template-columns:repeat(3,1fr)}.kg{grid-template-columns:1fr 1fr}}
+/* FIREBASE STATUS */
+.fb-bar{position:fixed;top:0;left:0;right:0;height:3px;background:var(--bdr);z-index:9999}
+.fb-bar-fill{height:100%;background:var(--green);width:0;transition:width .4s}
+.fb-status{position:fixed;bottom:64px;right:22px;background:#fff;border:1px solid var(--bdr);border-radius:8px;padding:8px 14px;font-size:12px;display:flex;align-items:center;gap:7px;box-shadow:var(--sh);z-index:800;transition:opacity .3s}
+.fb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fb-dot.online{background:var(--green);box-shadow:0 0 0 3px rgba(26,138,74,.2)}
+.fb-dot.offline{background:var(--red)}
+.fb-dot.sync{background:var(--yel);animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+/* SETUP MODAL */
+.setup-ov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.setup-box{background:#fff;border-radius:16px;padding:36px 40px;width:540px;max-width:96vw;text-align:center}
+.setup-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:6px}
+.setup-sub{color:var(--mu);font-size:13px;margin-bottom:28px;line-height:1.5}
+.setup-step{background:var(--s2);border-radius:10px;padding:14px 18px;text-align:left;margin-bottom:14px;font-size:12.5px;line-height:1.7}
+.setup-step strong{font-size:13px;color:var(--dark)}
+.setup-step code{background:#E8E8E8;padding:1px 6px;border-radius:4px;font-family:monospace;font-size:11.5px;word-break:break-all}
+.setup-inp{width:100%;padding:10px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;margin-top:6px;outline:none}
+.setup-inp:focus{border-color:var(--blue)}
+.setup-btn{width:100%;padding:12px;background:var(--red);color:#fff;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-top:16px;transition:background .15s}
+.setup-btn:hover{background:#c4001f}
+.setup-err{color:var(--red);font-size:12px;margin-top:8px;min-height:18px}
+@media(max-width:960px){.sb{width:50px}.main{margin-left:50px}.sb-title,.sb-sub,.sb-sec,.sb-badge,.si span{display:none}.si{justify-content:center;padding:11px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-badge">FIRJAN SENAI</div>
+    <div class="sb-title">Gestão de Projetos<br>EAD</div>
+    <div class="sb-sub">Educação a Distância · 2025</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Principal</div>
+    <div class="si on" onclick="nav('dashboard')"><span class="si-ic">📊</span><span>Dashboard</span></div>
+    <div class="si" onclick="nav('kanban')"><span class="si-ic">🗂️</span><span>Kanban</span></div>
+    <div class="si" onclick="nav('projetos')"><span class="si-ic">📋</span><span>Lista de Projetos</span></div>
+    <div class="si" onclick="nav('timeline')"><span class="si-ic">📅</span><span>Cronograma</span></div>
+    <div class="sb-sec">Análise</div>
+    <div class="si" onclick="nav('kpis')"><span class="si-ic">📈</span><span>KPIs &amp; Indicadores</span></div>
+    <div class="si" onclick="nav('atrasos')"><span class="si-ic">⚠️</span><span>Rel. de Atrasos</span></div>
+    <div class="si" onclick="nav('cancelados')"><span class="si-ic">🚫</span><span>Cancelados</span></div>
+    <div class="sb-sec">Ações</div>
+    <div class="si" onclick="openNew()"><span class="si-ic">➕</span><span>Novo Projeto</span></div>
+  </nav>
+  <div class="sb-foot">v3.0 · Firjan SENAI EAD</div>
+</aside>
+
+<div class="main">
+  <div class="tp">
+    <div class="tp-title" id="pageTitle">Dashboard</div>
+    <div class="tp-r">
+      <span class="tp-date" id="topDate"></span>
+      <button class="btn bg2 bsm" onclick="exportCSV()">⬇️ Exportar CSV</button>
+      <button class="btn br" onclick="openNew()">+ Novo Projeto</button>
+    </div>
+  </div>
+
+  <div class="cnt">
+
+    <!-- DASHBOARD -->
+    <div class="view on" id="view-dashboard">
+      <div class="sts" id="statsGrid"></div>
+      <div class="sh"><div class="st">Projetos — Visão Geral</div><button class="btn bg2 bsm" onclick="nav('kanban')">Ver Kanban →</button></div>
+      <div class="tw"><table>
+        <thead><tr><th>Projeto / Curso</th><th>Recursos</th><th>Responsável(is)</th><th>Coluna Atual</th><th>Situação</th><th>Criado em</th><th>Prazo</th><th>Atraso Eq.</th><th>Aguard. Cl.</th><th>Progresso</th><th></th></tr></thead>
+        <tbody id="dashTbl"></tbody>
+      </table></div>
+    </div>
+
+    <!-- KANBAN -->
+    <div class="view" id="view-kanban">
+      <div class="sh"><div class="st">Quadro Kanban — Fluxo de Produção EAD</div></div>
+      <div class="fbox">
+        <div class="fbox-row">
+          <div class="fg-sm"><label class="fl-sm">Responsável</label>
+            <select class="fi-sm" id="kFiltResp" onchange="applyKFilts()">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div class="fg-sm"><label class="fl-sm">Situação</label>
+            <select class="fi-sm" id="kFiltSit" onchange="applyKFilts()">
+              <option value="">Todas</option>
+              <option value="aguardando">⏳ Aguardando</option>
+              <option value="andamento">🔄 Em Andamento</option>
+              <option value="atrasado">⚠️ Atrasado</option>
+              <option value="concluido">✅ Concluído</option>
+            </select>
+          </div>
+          <div class="fg-sm"><label class="fl-sm">Coluna</label>
+            <select class="fi-sm" id="kFiltCol" onchange="applyKFilts()">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="fg-sm"><label class="fl-sm">Criado após</label>
+            <input class="fi-sm" type="date" id="kFiltDe" onchange="applyKFilts()">
+          </div>
+          <div class="fg-sm"><label class="fl-sm">Criado até</label>
+            <input class="fi-sm" type="date" id="kFiltAte" onchange="applyKFilts()">
+          </div>
+          <button class="btn-lim" onclick="limparKFilts()">✕ Limpar</button>
+        </div>
+        <div style="margin-top:6px;font-size:10.5px;color:var(--mu)">✦ Arraste os cards entre as colunas para mover o status</div>
+      </div>
+      <div class="kb" id="kanbanBoard"></div>
+    </div>
+
+    <!-- LISTA -->
+    <div class="view" id="view-projetos">
+      <div class="sh"><div class="st">Lista de Projetos</div></div>
+      <div class="fbox">
+        <div class="fbox-row">
+          <div class="fg-sm"><label class="fl-sm">Responsável</label>
+            <select class="fi-sm" id="lFiltResp" onchange="applyLFilts()">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div class="fg-sm"><label class="fl-sm">Situação</label>
+            <select class="fi-sm" id="lFiltSit" onchange="applyLFilts()">
+              <option value="">Todas</option>
+              <option value="aguardando">⏳ Aguardando</option>
+              <option value="andamento">🔄 Em Andamento</option>
+              <option value="atrasado">⚠️ Atrasado</option>
+              <option value="concluido">✅ Concluído</option>
+            </select>
+          </div>
+          <div class="fg-sm"><label class="fl-sm">Coluna</label>
+            <select class="fi-sm" id="lFiltCol" onchange="applyLFilts()">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="fg-sm"><label class="fl-sm">Criado após</label>
+            <input class="fi-sm" type="date" id="lFiltDe" onchange="applyLFilts()">
+          </div>
+          <div class="fg-sm"><label class="fl-sm">Criado até</label>
+            <input class="fi-sm" type="date" id="lFiltAte" onchange="applyLFilts()">
+          </div>
+          <button class="btn-lim" onclick="limparLFilts()">✕ Limpar</button>
+        </div>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>Projeto</th><th>Recursos</th><th>Responsável(is)</th><th>Coluna</th><th>Situação</th><th>Criado</th><th>Início</th><th>Prazo</th><th>Término</th><th>Eq.</th><th>Cl.</th><th>Prog.</th><th></th></tr></thead>
+        <tbody id="listTbl"></tbody>
+      </table></div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="view" id="view-timeline">
+      <div class="sh"><div class="st">Cronograma Geral — 2025</div></div>
+      <div class="gw"><table class="gt">
+        <thead><tr><th class="pj">Projeto</th><th>Jan</th><th>Fev</th><th>Mar</th><th>Abr</th><th>Mai</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Set</th><th>Out</th><th>Nov</th><th>Dez</th></tr></thead>
+        <tbody id="ganttBody"></tbody>
+      </table></div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="view" id="view-kpis">
+      <div class="st" style="margin-bottom:16px">KPIs &amp; Indicadores de Produção EAD</div>
+      <div class="kg" id="kpiGrid"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="kk"><div class="kkt">Etapas — Tempo Médio (dias)</div><div id="etapaBars"></div></div>
+        <div class="kk"><div class="kkt">Projetos por Tipo</div><div id="tipoBars"></div></div>
+      </div>
+    </div>
+
+    <!-- ATRASOS -->
+    <div class="view" id="view-atrasos">
+      <div class="st" style="margin-bottom:16px">Relatório de Atrasos — Equipe &amp; Cliente</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div class="kk"><div class="kkt" style="color:var(--red)">⚠️ Atrasos por Equipe</div><div id="atrasosEq"></div></div>
+        <div class="kk"><div class="kkt" style="color:var(--org)">⏳ Aguardando Cliente</div><div id="atrasosCl"></div></div>
+      </div>
+      <div class="st" style="margin-bottom:13px">Detalhe por Etapa</div>
+      <div class="tw"><table>
+        <thead><tr><th>Projeto</th><th>Etapa</th><th>Tipo</th><th>Prazo</th><th>Dias Atraso</th><th>Responsável</th></tr></thead>
+        <tbody id="atrasosDetail"></tbody>
+      </table></div>
+    </div>
+
+    <!-- CANCELADOS -->
+    <div class="view" id="view-cancelados">
+      <div class="st" style="margin-bottom:16px">🚫 Projetos Cancelados</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px" id="cancelStats"></div>
+      <div class="tw"><table>
+        <thead><tr><th>Projeto</th><th>Recursos</th><th>Responsável(is)</th><th>Criado</th><th>Cancelado em</th><th>Coluna na Cancelamento</th><th>Progresso</th><th>Motivo</th><th></th></tr></thead>
+        <tbody id="cancelTbl"></tbody>
+      </table></div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- MODAL: NOVO/EDITAR -->
+<div class="ov2" id="ovNew">
+<div class="modal">
+  <div class="mhd">
+    <div class="mt" id="mNewTitle">Novo Projeto EAD</div>
+    <button class="mcl" onclick="cm('ovNew')">✕</button>
+  </div>
+  <div class="mbody">
+    <div class="tabs">
+      <div class="tab on" onclick="stab(0,this)">📁 Dados Gerais</div>
+      <div class="tab" onclick="stab(1,this)">🗓️ Datas &amp; Prazos</div>
+      <div class="tab" onclick="stab(2,this)">👥 Equipe &amp; Etapas</div>
+    </div>
+    <!-- TAB 0 -->
+    <div id="tab0">
+      <div class="fg2">
+        <div class="fg ff"><label class="fl">Nome do Projeto / Curso *</label><input class="fi" id="fn" placeholder="Ex: Segurança do Trabalho — Módulo 3"></div>
+        <div class="fg ff">
+          <label class="fl">Tipos de Recurso — selecione um ou mais</label>
+          <div class="rec-wrap" id="recChips"></div>
+        </div>
+        <div class="fg ff"><label class="fl">Descrição / Objetivo</label><textarea class="fta" id="fd" placeholder="Objetivo, público-alvo, contexto..."></textarea></div>
+      </div>
+    </div>
+    <!-- TAB 1 -->
+    <div id="tab1" style="display:none">
+      <div class="fg2">
+        <div class="fg"><label class="fl">Data de Criação do Card</label><div style="display:flex;gap:5px"><input class="fi" type="number" id="fcr_d" placeholder="DD" min="1" max="31" style="width:58px"><input class="fi" type="number" id="fcr_m" placeholder="MM" min="1" max="12" style="width:58px"><input class="fi" type="number" id="fcr_a" placeholder="AAAA" min="2020" max="2099" style="width:80px"></div></div>
+        <div class="fg"><label class="fl">Coluna Inicial</label>
+          <select class="fs" id="fcol">
+            <option value="0">Aguardando Reunião Inicial</option>
+            <option value="1">Aguardando Material Base</option>
+            <option value="2">Fazer Cronograma</option>
+            <option value="3">Projeto Instrucional (PI)</option>
+            <option value="4">Validação - PI</option>
+            <option value="5">Fila de Espera - Produção</option>
+            <option value="6">Desenvolvimento</option>
+            <option value="7">Validação - Desenvolvimento</option>
+            <option value="8">Revisão Textual/Tradução</option>
+            <option value="9">PELD</option>
+            <option value="10">Autoria Digital</option>
+            <option value="11">Homologação/Instalação</option>
+            <option value="12">Pré-Medição</option>
+            <option value="13">Upload BDOC - Files e Scorm</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Data de Início Real</label><div style="display:flex;gap:5px"><input class="fi" type="number" id="fi_d" placeholder="DD" min="1" max="31" style="width:58px"><input class="fi" type="number" id="fi_m" placeholder="MM" min="1" max="12" style="width:58px"><input class="fi" type="number" id="fi_a" placeholder="AAAA" min="2020" max="2099" style="width:80px"></div></div>
+        <div class="fg"><label class="fl">Prazo de Entrega (Contrato)</label><div style="display:flex;gap:5px"><input class="fi" type="number" id="fp_d" placeholder="DD" min="1" max="31" style="width:58px"><input class="fi" type="number" id="fp_m" placeholder="MM" min="1" max="12" style="width:58px"><input class="fi" type="number" id="fp_a" placeholder="AAAA" min="2020" max="2099" style="width:80px"></div></div>
+        <div class="fg"><label class="fl">Data de Término Real</label><div style="display:flex;gap:5px"><input class="fi" type="number" id="fte_d" placeholder="DD" min="1" max="31" style="width:58px"><input class="fi" type="number" id="fte_m" placeholder="MM" min="1" max="12" style="width:58px"><input class="fi" type="number" id="fte_a" placeholder="AAAA" min="2020" max="2099" style="width:80px"></div></div>
+        <div class="fg"><label class="fl">% Concluído</label><input class="fi" type="number" id="fpc" min="0" max="100" value="0"></div>
+        <div class="fg ff"><label class="fl">Observação sobre Prazo</label><textarea class="fta" id="fpo" placeholder="Ex: cliente solicitou extensão..."></textarea></div>
+      </div>
+    </div>
+    <!-- TAB 2 -->
+    <div id="tab2" style="display:none">
+      <div class="fg" style="margin-bottom:16px">
+        <label class="fl">Responsável(is) — selecione um ou mais</label>
+        <div class="resp-wrap" id="respChips"></div>
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:11px;margin-bottom:8px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px">Etapas de Produção</div>
+      <div id="etapasForm"></div>
+    </div>
+  </div>
+  <div class="mft">
+    <button class="btn bg2" onclick="cm('ovNew')">Cancelar</button>
+    <button class="btn br" onclick="salvar()">💾 Salvar Projeto</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: DETALHE -->
+<div class="ov2" id="ovDet">
+<div class="modal" style="width:800px">
+  <div class="mhd">
+    <div class="mt" id="detTitle">Detalhes</div>
+    <button class="mcl" onclick="cm('ovDet')">✕</button>
+  </div>
+  <div class="mbody" id="detBody"></div>
+  <div class="mft" id="detFt"></div>
+</div>
+</div>
+
+<!-- MODAL: CANCELAR -->
+<div class="ov2" id="ovCanc">
+<div class="modal" style="width:440px">
+  <div class="mhd"><div class="mt">🚫 Cancelar Projeto</div><button class="mcl" onclick="cm('ovCanc')">✕</button></div>
+  <div class="mbody">
+    <p style="margin-bottom:14px;color:var(--mu);font-size:13px">O projeto ficará visível na aba <strong>Cancelados</strong> para relatórios futuros.</p>
+    <div class="fg"><label class="fl">Motivo do Cancelamento</label><textarea class="fta" id="fCancMotivo" placeholder="Descreva o motivo..." style="min-height:90px"></textarea></div>
+  </div>
+  <div class="mft">
+    <button class="btn bg2" onclick="cm('ovCanc')">Voltar</button>
+    <button class="btn bgray" onclick="confirmarCanc()">🚫 Confirmar Cancelamento</button>
+  </div>
+</div>
+</div>
+
+<!-- Firebase status bar -->
+<div class="fb-bar"><div class="fb-bar-fill" id="fbBarFill"></div></div>
+<div class="fb-status" id="fbStatus" style="opacity:0">
+  <div class="fb-dot offline" id="fbDot"></div>
+  <span id="fbLabel">Conectando...</span>
+</div>
+<!-- Setup modal (aparece na 1ª vez) -->
+<div class="setup-ov" id="setupOv" style="display:none">
+  <div class="setup-box">
+    <div class="setup-logo">🔥 Configurar Firebase</div>
+    <div class="setup-sub">Cole a URL do seu Realtime Database abaixo.<br>Isso só precisa ser feito uma vez — depois fica salvo.</div>
+    <div class="setup-step">
+      <strong>Como obter sua URL:</strong><br>
+      1. Acesse <code>console.firebase.google.com</code><br>
+      2. Crie um projeto (grátis) → clique em <code>Realtime Database</code><br>
+      3. Clique em <code>Criar banco de dados</code> → escolha <code>Iniciar no modo de teste</code><br>
+      4. Copie a URL que aparece no topo, ex:<br>
+      <code>https://meu-projeto-12345-default-rtdb.firebaseio.com</code>
+    </div>
+    <input class="setup-inp" id="setupUrl" placeholder="https://seu-projeto-default-rtdb.firebaseio.com" autocomplete="off">
+    <div class="setup-err" id="setupErr"></div>
+    <button class="setup-btn" onclick="conectarFirebase()">🔗 Conectar e Salvar</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+//  CONSTANTS
+// ══════════════════════════════════════════════
+const NOMES = ['Daniel David','Cláudio','Thiago','Mateus','Maria Emília','Simone','Ângelo','Fabiana','Maria Julia','Ana Paula','Tatiana','Fatima'];
+
+const RECURSOS = ['Edição Articulate','Manutenção','Gráficos/Imagens','Web Storyline','Web Rise Básico','Web Rise Intermediário','Web Rise Avançado','Encapsulamento','Questionário','Tradução','Projeto Gráfico','Personagem','Apostila/E-book','Autoria Digital'];
+
+const COLUNAS = [
+  {k:0,  l:'Aguardando Reunião Inicial',      dot:'#94A3B8'},
+  {k:1,  l:'Aguardando Material Base',         dot:'#64748B'},
+  {k:2,  l:'Fazer Cronograma',                 dot:'#6366F1'},
+  {k:3,  l:'Projeto Instrucional (PI)',         dot:'#8B5CF6'},
+  {k:4,  l:'Validação - PI',                   dot:'#EC4899'},
+  {k:5,  l:'Fila de Espera - Produção',        dot:'#F59E0B'},
+  {k:6,  l:'Desenvolvimento',                  dot:'#003DA5'},
+  {k:7,  l:'Validação - Desenvolvimento',      dot:'#0891B2'},
+  {k:8,  l:'Revisão Textual/Tradução',         dot:'#10B981'},
+  {k:9,  l:'PELD',                             dot:'#14B8A6'},
+  {k:10, l:'Autoria Digital',                  dot:'#F97316'},
+  {k:11, l:'Homologação/Instalação',           dot:'#84CC16'},
+  {k:12, l:'Pré-Medição',                      dot:'#22C55E'},
+  {k:13, l:'Upload BDOC - Files e Scorm',      dot:'#1A8A4A'},
+];
+
+const ETPS_DEF = [
+  {lb:'Reunião Inicial',               r:'eq'},
+  {lb:'Elaboração do PI',              r:'eq'},
+  {lb:'Revisão do PI',                 r:'eq'},
+  {lb:'Revisão Textual do PI',         r:'eq'},
+  {lb:'Entrega do PI ao cliente',      r:'eq'},
+  {lb:'Validação do PI',               r:'cl'},
+  {lb:'Desenho/Roteirização',          r:'eq'},
+  {lb:'Validação DI Referência',       r:'cl'},
+  {lb:'Produção de Recursos Gráficos', r:'eq'},
+  {lb:'Entrega do Review ao cliente',  r:'eq'},
+  {lb:'Solicitação de Ajustes',        r:'cl'},
+  {lb:'Implementação de Ajustes',      r:'eq'},
+  {lb:'Validação Final',               r:'cl'},
+  {lb:'Revisão Textual',               r:'eq'},
+  {lb:'Homologação',                   r:'cl'},
+  {lb:'Instalação no SIRH',            r:'eq'},
+];
+
+const TIMAP = {
+  di:    {l:'Design Instrucional',c:'tdi'},
+  video: {l:'Produção de Vídeo', c:'tvi'},
+  trilha:{l:'Trilha',            c:'ttr'},
+  aval:  {l:'Avaliação',         c:'tav'},
+  cont:  {l:'Conteúdo',          c:'tco'},
+  cap:   {l:'Capacitação',       c:'tca'},
+};
+
+const COLS_AV = ['#E8002D','#003DA5','#1A8A4A','#D97706','#7C3AED','#0891B2','#be185d','#c2410c','#0369a1','#15803d','#b45309','#7e22ce'];
+
+// ── UTILS ──
+function recTags(recs){
+  if(!recs||!recs.length) return'<span style="color:var(--mu);font-size:11px">—</span>';
+  return(recs||[]).map(r=>`<span class="rec-tag">${r}</span>`).join('');
+}
+function avHtml(name){
+  let h=0; for(let c of name)h=(h*31+c.charCodeAt(0))%COLS_AV.length;
+  const ini=name.split(' ').slice(0,2).map(n=>n[0]).join('').toUpperCase();
+  return `<div class="av" style="background:${COLS_AV[h]}" title="${name}">${ini}</div>`;
+}
+function avList(resps){
+  return `<div style="display:flex;flex-wrap:wrap;gap:3px">${(resps||[]).map(avHtml).join('')}</div>`;
+}
+function tagH(t){const m=TIMAP[t]||{l:t,c:'tdi'};return`<span class="tag ${m.c}">${m.l}</span>`}
+function fd(d){if(!d)return'—';try{const[y,m,day]=d.split('-');return`${day}/${m}/${y}`}catch{return d}}
+function td(){return new Date().toISOString().split('T')[0]}
+// Converte DD,MM,AAAA → 'YYYY-MM-DD' ou '' se incompleto
+function dma2iso(d,m,a){
+  const dd=parseInt(d),mm=parseInt(m),aa=parseInt(a);
+  if(!dd||!mm||!aa||aa<2020||aa>2099) return'';
+  return`${aa}-${String(mm).padStart(2,'0')}-${String(dd).padStart(2,'0')}`;
+}
+// Preenche campos d/m/a a partir de 'YYYY-MM-DD'
+function iso2dma(iso,prefix){
+  if(!iso||!iso.includes('-')){['d','m','a'].forEach(s=>{const e=document.getElementById(prefix+'_'+s);if(e)e.value='';});return;}
+  const[y,mo,dy]=iso.split('-');
+  const ed=document.getElementById(prefix+'_d'),em=document.getElementById(prefix+'_m'),ea=document.getElementById(prefix+'_a');
+  if(ed)ed.value=parseInt(dy)||'';if(em)em.value=parseInt(mo)||'';if(ea)ea.value=parseInt(y)||'';
+}
+function getDateField(prefix){
+  const d=document.getElementById(prefix+'_d')?.value;
+  const m=document.getElementById(prefix+'_m')?.value;
+  const a=document.getElementById(prefix+'_a')?.value;
+  return dma2iso(d,m,a);
+}
+function dd(a,b){if(!a||!b)return 0;return Math.max(0,Math.round((new Date(b)-new Date(a))/(864e5)))}
+function colLabel(k){return COLUNAS[k]?.l||'—'}
+function colDot(k){return COLUNAS[k]?.dot||'#ccc'}
+
+// Situação automática baseada em datas e etapas
+function calcSit(p){
+  if(p.cancelado) return 'cancelado';
+  if(p.pct===100 || p.col===13) return 'concluido';
+  // atraso: prazo passou e não concluído
+  if(p.prazo && new Date(p.prazo)<new Date() && p.pct<100) return 'atrasado';
+  // em andamento: tem data de início ou etapas em curso
+  if(p.inicio || (p.etapas||[]).some(e=>e.done)) return 'andamento';
+  return 'aguardando';
+}
+
+function sitBdg(p){
+  const s=calcSit(p);
+  const map={
+    concluido:`<span class="bdg b-conc">✅ Concluído</span>`,
+    atrasado:`<span class="bdg b-atq">⚠️ Atrasado</span>`,
+    andamento:`<span class="bdg b-and">🔄 Em Andamento</span>`,
+    cancelado:`<span class="bdg b-canc">🚫 Cancelado</span>`,
+    aguardando:`<span class="bdg b-ag">⏳ Aguardando</span>`,
+  };
+  return map[s]||`<span class="bdg b-ag">${s}</span>`;
+}
+
+function delInf(p){
+  let eq=0,cl=0;
+  (p.etapas||[]).forEach(e=>{
+    if(!e.done&&e.prazo&&new Date(e.prazo)<new Date()){
+      const d=dd(e.prazo,td());
+      if(e.r==='eq')eq+=d; else cl+=d;
+    }
+  });
+  if(!eq&&calcSit(p)==='atrasado') eq=dd(p.prazo,td());
+  return{eq,cl};
+}
+
+function progH(p,mw='80px'){
+  const pct=p.pct||0;
+  const col=pct===100?'var(--green)':calcSit(p)==='atrasado'?'var(--red)':'var(--blue)';
+  return`<div class="pw" style="min-width:${mw}"><div class="pb"><div class="pf2" style="width:${pct}%;background:${col}"></div></div><span class="pp">${pct}%</span></div>`;
+}
+
+function mkE(dones,prazos){
+  return ETPS_DEF.map((e,i)=>({lb:e.lb,r:e.r,prazo:prazos[i]||null,inicio:prazos[i]||null,fim:dones[i]?prazos[i]||null:null,done:dones[i]||false}));
+}
+
+// ── DATA ──
+let DB=[];
+let NXT=1, editId=null, cancId=null, dragId=null;
+
+// ── NAV ──
+const PT={dashboard:'Dashboard',kanban:'Quadro Kanban',projetos:'Lista de Projetos',timeline:'Cronograma',kpis:'KPIs & Indicadores',atrasos:'Relatório de Atrasos',cancelados:'Projetos Cancelados'};
+function nav(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('view-'+id).classList.add('on');
+  document.querySelectorAll('.si').forEach(n=>n.classList.remove('on'));
+  document.querySelectorAll('.si').forEach(n=>{if(n.getAttribute('onclick')===`nav('${id}')`)n.classList.add('on');});
+  document.getElementById('pageTitle').textContent=PT[id]||id;
+  renderAll();
+}
+
+// ── ACTIVE DB (excluindo cancelados para views normais) ──
+function activeDB(){return DB.filter(p=>!p.cancelado)}
+function cancelDB(){return DB.filter(p=>p.cancelado)}
+
+// ── DASHBOARD ──
+function rDash(){
+  const act=activeDB();
+  const conc=act.filter(p=>calcSit(p)==='concluido').length;
+  const and=act.filter(p=>calcSit(p)==='andamento').length;
+  const atq=act.filter(p=>calcSit(p)==='atrasado').length;
+  const canc=cancelDB().length;
+  const waitCl=act.filter(p=>(p.etapas||[]).some(e=>e.r==='cl'&&!e.done&&e.prazo&&new Date(e.prazo)<new Date())).length;
+  const total=act.length;
+
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="sc cb"><div class="sc-l">Total Ativos</div><div class="sc-v">${total}</div><div class="sc-s">projetos</div><div class="sc-i">🗂️</div></div>
+    <div class="sc cr"><div class="sc-l">Em Andamento</div><div class="sc-v">${and}</div><div class="sc-s">em curso</div><div class="sc-i">🔄</div></div>
+    <div class="sc cg"><div class="sc-l">Concluídos</div><div class="sc-v">${conc}</div><div class="sc-s">finalizados</div><div class="sc-i">✅</div></div>
+    <div class="sc cy"><div class="sc-l">Atrasados</div><div class="sc-v">${atq}</div><div class="sc-s">requerem atenção</div><div class="sc-i">⚠️</div></div>
+    <div class="sc cp"><div class="sc-l">Aguard. Cliente</div><div class="sc-v">${waitCl}</div><div class="sc-s">validação pendente</div><div class="sc-i">⏳</div></div>
+    <div class="sc cgr"><div class="sc-l">Cancelados</div><div class="sc-v">${canc}</div><div class="sc-s"><a href="#" onclick="nav('cancelados');return false" style="color:var(--mu)">ver relatório</a></div><div class="sc-i">🚫</div></div>
+  `;
+
+  const rows=[...act].sort((a,b)=>new Date(b.criado)-new Date(a.criado)).slice(0,12);
+  document.getElementById('dashTbl').innerHTML=rows.map(p=>{
+    const{eq,cl}=delInf(p);
+    return`<tr>
+      <td><strong>${p.nome}</strong><br><small style="color:var(--mu)">${p.area||''}</small></td>
+      <td>${recTags(p.recursos)}</td>
+      <td>${avList(p.resps)}</td>
+      <td><span style="display:inline-flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:50%;background:${colDot(p.col)};display:inline-block;flex-shrink:0"></span><span style="font-size:11.5px">${colLabel(p.col)}</span></span></td>
+      <td>${sitBdg(p)}</td>
+      <td>${fd(p.criado)}</td>
+      <td style="${calcSit(p)==='atrasado'?'color:var(--red);font-weight:700':''}">${fd(p.prazo)}</td>
+      <td>${eq>0?`<span class="db deq">⚠️${eq}d</span>`:`<span class="db dok">—</span>`}</td>
+      <td>${cl>0?`<span class="db dcl">⏳${cl}d</span>`:`<span class="db dok">—</span>`}</td>
+      <td>${progH(p)}</td>
+      <td><button class="btn bg2 bsm" onclick="openDet(${p.id})">Ver</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── KANBAN ──
+function rKanban(){
+  populateFiltSelects();
+  const flt=applyFilt(activeDB(),getKFilts());
+  document.getElementById('kanbanBoard').innerHTML=COLUNAS.map(col=>{
+    const cards=flt.filter(p=>p.col===col.k);
+    return`<div class="kc" data-col="${col.k}"
+      ondragover="onDragOver(event,this)" ondragleave="onDragLeave(this)" ondrop="onDrop(event,this)">
+      <div class="kc-hd">
+        <div class="kc-t"><span class="kc-dot" style="background:${col.dot}"></span>${col.l}</div>
+        <span class="kc-n">${cards.length}</span>
+      </div>
+      ${cards.map(p=>{
+        const sit=calcSit(p);
+        const{eq,cl}=delInf(p);
+        return`<div class="kcard" draggable="true" data-id="${p.id}"
+          ondragstart="onDragStart(event,${p.id})" ondragend="onDragEnd()" onclick="cardClick(event,${p.id})">
+          ${tagH(p.tipo)}
+          <div class="kcard-t">${p.nome}</div>
+          <div class="kdates">
+            <span>📌 ${fd(p.criado)}</span>
+            ${p.inicio?`<span>▶️ ${fd(p.inicio)}</span>`:''}
+            <span class="${sit==='atrasado'?'ov':''}">🏁 ${fd(p.prazo)}</span>
+            ${eq>0?`<span class="ov">⚠️Eq:+${eq}d</span>`:''}
+            ${cl>0?`<span class="wc">⏳Cl:+${cl}d</span>`:''}
+          </div>
+          <div class="pbar"><div class="pf" style="width:${p.pct}%;background:${p.pct===100?'var(--green)':sit==='atrasado'?'var(--red)':'var(--blue)'}"></div></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
+            ${avList(p.resps)}
+            <span style="font-size:10.5px;font-weight:600;color:var(--mu)">${p.pct}%</span>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+// Preencher selects de filtro com dados dinâmicos
+function populateFiltSelects(){
+  const resps=[...new Set(activeDB().flatMap(p=>p.resps||[]))].sort();
+  ['kFiltResp','lFiltResp'].forEach(id=>{
+    const s=document.getElementById(id); if(!s)return;
+    const cur=s.value;
+    s.innerHTML='<option value="">Todos</option>'+resps.map(r=>`<option value="${r}"${cur===r?' selected':''}>${r}</option>`).join('');
+  });
+  ['kFiltCol','lFiltCol'].forEach(id=>{
+    const s=document.getElementById(id); if(!s)return;
+    const cur=s.value;
+    s.innerHTML='<option value="">Todas</option>'+COLUNAS.map(col=>`<option value="${col.k}"${cur==col.k?' selected':''}>${col.l}</option>`).join('');
+  });
+}
+
+function getKFilts(){
+  return{
+    resp:document.getElementById('kFiltResp')?.value||'',
+    sit:document.getElementById('kFiltSit')?.value||'',
+    col:document.getElementById('kFiltCol')?.value||'',
+    de:document.getElementById('kFiltDe')?.value||'',
+    ate:document.getElementById('kFiltAte')?.value||'',
+  };
+}
+function getLFilts(){
+  return{
+    resp:document.getElementById('lFiltResp')?.value||'',
+    sit:document.getElementById('lFiltSit')?.value||'',
+    col:document.getElementById('lFiltCol')?.value||'',
+    de:document.getElementById('lFiltDe')?.value||'',
+    ate:document.getElementById('lFiltAte')?.value||'',
+  };
+}
+function applyFilt(data,f){
+  let r=data;
+  if(f.resp) r=r.filter(p=>(p.resps||[]).includes(f.resp));
+  if(f.sit)  r=r.filter(p=>calcSit(p)===f.sit);
+  if(f.col!=='') r=r.filter(p=>p.col===parseInt(f.col));
+  if(f.de)   r=r.filter(p=>p.criado&&p.criado>=f.de);
+  if(f.ate)  r=r.filter(p=>p.criado&&p.criado<=f.ate);
+  return r;
+}
+function applyKFilts(){rKanban();}
+function applyLFilts(){rList();}
+function limparKFilts(){
+  ['kFiltResp','kFiltSit','kFiltCol'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['kFiltDe','kFiltAte'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  rKanban();
+}
+function limparLFilts(){
+  ['lFiltResp','lFiltSit','lFiltCol'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  ['lFiltDe','lFiltAte'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  rList();
+}
+
+// drag
+function onDragStart(e,id){
+  dragId=id; e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',String(id));
+  setTimeout(()=>{const el=document.querySelector(`.kcard[data-id="${id}"]`);if(el)el.classList.add('dragging');},0);
+}
+function onDragEnd(){dragId=null;document.querySelectorAll('.kcard').forEach(c=>c.classList.remove('dragging'));document.querySelectorAll('.kc').forEach(c=>c.classList.remove('drag-over'));}
+function onDragOver(e,col){e.preventDefault();e.dataTransfer.dropEffect='move';col.classList.add('drag-over');}
+function onDragLeave(col){col.classList.remove('drag-over');}
+function onDrop(e,col){
+  e.preventDefault(); col.classList.remove('drag-over');
+  const id=parseInt(e.dataTransfer.getData('text/plain')||dragId);
+  const newCol=parseInt(col.dataset.col);
+  if(!id&&id!==0) return;
+  const p=DB.find(x=>x.id===id);
+  if(!p||p.col===newCol) return;
+  const oldCol=p.col;
+  p.col=newCol;
+  // auto início
+  if(oldCol===0&&!p.inicio) p.inicio=td();
+  // auto concluído se Upload BDOC (col 13)
+  if(newCol===13){if(!p.termino)p.termino=td();p.pct=100;}
+  // volta de 13
+  if(oldCol===13&&newCol!==13){p.termino='';if(p.pct===100)p.pct=90;}
+  showToast(`✅ "${p.nome.length>28?p.nome.slice(0,26)+'…':p.nome}" → ${colLabel(newCol)}`);
+  renderAll();
+}
+function cardClick(e,id){if(e.detail===0)return;openDet(id);}
+
+// ── LIST ──
+function rList(){
+  populateFiltSelects();
+  let data=applyFilt(activeDB(),getLFilts());
+
+  document.getElementById('listTbl').innerHTML=data.map(p=>{
+    const{eq,cl}=delInf(p);
+    return`<tr>
+      <td><strong>${p.nome}</strong><br><small style="color:var(--mu)">${p.area||''}</small></td>
+      <td>${recTags(p.recursos)}</td>
+      <td>${avList(p.resps)}</td>
+      <td style="font-size:11.5px"><span style="display:inline-flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:${colDot(p.col)};flex-shrink:0;display:inline-block"></span>${colLabel(p.col)}</span></td>
+      <td>${sitBdg(p)}</td>
+      <td>${fd(p.criado)}</td>
+      <td>${fd(p.inicio)||'—'}</td>
+      <td style="${calcSit(p)==='atrasado'?'color:var(--red);font-weight:700':''}">${fd(p.prazo)}</td>
+      <td style="color:var(--green)">${fd(p.termino)||'—'}</td>
+      <td>${eq>0?`<span class="db deq">⚠️${eq}d</span>`:`<span class="db dok">—</span>`}</td>
+      <td>${cl>0?`<span class="db dcl">⏳${cl}d</span>`:`<span class="db dok">—</span>`}</td>
+      <td>${progH(p,'70px')}</td>
+      <td style="white-space:nowrap">
+        <button class="btn bg2 bsm" onclick="openDet(${p.id})">Ver</button>
+        <button class="btn bd bsm" onclick="delP(${p.id})">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+// lFilt removido — substituído por applyLFilts
+
+// ── TIMELINE ──
+const MNS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+function rTimeline(){
+  document.getElementById('ganttBody').innerHTML=activeDB().map(p=>{
+    const sm=p.inicio?new Date(p.inicio).getMonth():p.criado?new Date(p.criado).getMonth():0;
+    const em=p.prazo?new Date(p.prazo).getMonth():sm;
+    const col=COLUNAS[p.col]?.dot||'#9CA3AF';
+    const cells=MNS.map((_,i)=>{
+      if(i>=sm&&i<=em){
+        const br=`${i===sm?'4px':'0'} ${i===em?'4px':'0'} ${i===em?'4px':'0'} ${i===sm?'4px':'0'}`;
+        return`<td class="bc"><div class="gbar" style="background:${col};border-radius:${br};opacity:.8">${i===sm?p.pct+'%':''}</div></td>`;
+      }
+      return`<td class="bc"></td>`;
+    }).join('');
+    return`<tr><td class="pj" title="${p.nome}">${p.nome.length>24?p.nome.slice(0,22)+'…':p.nome}</td>${cells}</tr>`;
+  }).join('');
+}
+
+// ── KPIs ──
+function rKPIs(){
+  const act=activeDB(),total=act.length||1;
+  const conc=act.filter(p=>calcSit(p)==='concluido').length;
+  const avg=Math.round(act.reduce((a,p)=>a+p.pct,0)/total);
+  function dn(val,col,lbl,sub){
+    const r=40,c=2*Math.PI*r,pv=(val/100);
+    return`<div class="kk"><div class="kkt">${lbl}</div><div style="text-align:center">
+      <svg viewBox="0 0 100 100" width="110" height="110">
+        <circle cx="50" cy="50" r="${r}" fill="none" stroke="var(--bdr)" stroke-width="10"/>
+        <circle cx="50" cy="50" r="${r}" fill="none" stroke="${col}" stroke-width="10"
+          stroke-dasharray="${pv*c} ${c}" stroke-linecap="round" transform="rotate(-90 50 50)"/>
+      </svg>
+      <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-top:-66px">${val}%</div>
+      <div style="font-size:11px;color:var(--mu);margin-top:42px">${sub}</div>
+    </div></div>`;
+  }
+  // distribuição por situação
+  const sits={andamento:0,atrasado:0,concluido:0,aguardando:0};
+  act.forEach(p=>{const s=calcSit(p);if(sits[s]!==undefined)sits[s]++;});
+  const sitCols={andamento:'#D97706',atrasado:'#E8002D',concluido:'#1A8A4A',aguardando:'#9CA3AF'};
+  const sitLbl={andamento:'Em Andamento',atrasado:'Atrasado',concluido:'Concluído',aguardando:'Aguardando'};
+  let off=0,arcs='';
+  Object.entries(sits).forEach(([k,n])=>{
+    const pv=n/total,r=40,c2=2*Math.PI*r;
+    arcs+=`<circle cx="50" cy="50" r="${r}" fill="none" stroke="${sitCols[k]}" stroke-width="10" stroke-dasharray="${pv*c2} ${c2}" stroke-dashoffset="${-off}" stroke-linecap="round" transform="rotate(-90 50 50)"/>`;
+    off+=pv*c2;
+  });
+  const leg=Object.entries(sits).filter(([,n])=>n>0).map(([k,n])=>`<div class="leg"><div class="ld" style="background:${sitCols[k]}"></div>${sitLbl[k]}: <strong>${n}</strong></div>`).join('');
+  document.getElementById('kpiGrid').innerHTML=
+    dn(Math.round(conc/total*100),'var(--green)','Taxa de Conclusão',`${conc} de ${total} concluídos`)+
+    dn(avg,'var(--blue)','Progresso Médio',`média de conclusão`)+
+    `<div class="kk"><div class="kkt">Distribuição por Situação</div><div style="display:flex;align-items:center;gap:16px;padding:6px 0"><svg viewBox="0 0 100 100" width="100" height="100">${arcs}</svg><div>${leg}</div></div></div>`;
+
+  const eps=[['Reunião Inicial',2],['Elaboração PI',7],['Revisão PI',4],['Rev. Textual PI',3],['Entrega PI',1],['Validação PI',5],['Desenho/Rot.',8],['Valid. DI Ref.',4],['Prod. Gráficos',12],['Entrega Review',1],['Solic. Ajustes',5],['Impl. Ajustes',6],['Validação Final',4],['Rev. Textual',3],['Homologação',3],['Instalação SIRH',1]];
+  const mx=Math.max(...eps.map(([,d])=>d));
+  document.getElementById('etapaBars').innerHTML=eps.map(([n,d])=>`
+    <div style="margin-bottom:7px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span>${n}</span><strong>${d}d</strong></div>
+      <div style="height:5px;background:var(--bdr);border-radius:3px;overflow:hidden"><div style="height:100%;width:${d/mx*100}%;background:${n.includes('Valid')||n.includes('Solic')||n.includes('Entrega')?'var(--org)':'var(--blue)'};border-radius:3px"></div></div>
+    </div>`).join('');
+
+  const tps=Object.entries(TIMAP).map(([k,t])=>({l:t.l,n:act.filter(p=>p.tipo===k).length})).filter(t=>t.n>0);
+  const mx2=Math.max(...tps.map(t=>t.n),1);
+  document.getElementById('tipoBars').innerHTML=tps.map((t,i)=>`
+    <div style="margin-bottom:9px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>${t.l}</span><strong>${t.n}</strong></div>
+      <div style="height:6px;background:var(--bdr);border-radius:3px;overflow:hidden"><div style="height:100%;width:${t.n/mx2*100}%;background:${COLS_AV[i%COLS_AV.length]};border-radius:3px"></div></div>
+    </div>`).join('');
+}
+
+// ── ATRASOS ──
+function rAtrasos(){
+  const act=activeDB();
+  const atq=act.filter(p=>calcSit(p)==='atrasado');
+  const atc=act.filter(p=>(p.etapas||[]).some(e=>e.r==='cl'&&!e.done&&e.prazo&&new Date(e.prazo)<new Date()));
+  document.getElementById('atrasosEq').innerHTML=atq.length===0?
+    '<div style="color:var(--green);font-size:13px;padding:6px 0">✅ Nenhum atraso de equipe</div>':
+    atq.map(p=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr)">
+      <div><div style="font-weight:600;font-size:12.5px">${p.nome}</div><div style="font-size:11px;color:var(--mu)">${(p.resps||[]).join(', ')} · Prazo: ${fd(p.prazo)}</div></div>
+      <span class="bdg b-atq">+${dd(p.prazo,td())}d</span></div>`).join('');
+  document.getElementById('atrasosCl').innerHTML=atc.length===0?
+    '<div style="color:var(--green);font-size:13px;padding:6px 0">✅ Nenhuma validação pendente</div>':
+    atc.map(p=>(p.etapas||[]).filter(e=>e.r==='cl'&&!e.done&&e.prazo&&new Date(e.prazo)<new Date()).map(e=>`
+      <div style="padding:8px 0;border-bottom:1px solid var(--bdr)">
+        <div style="font-weight:600;font-size:12.5px">${p.nome}</div>
+        <div style="font-size:11px;color:var(--mu)">${e.lb} · ${fd(e.prazo)}</div>
+        <span class="db dcl" style="margin-top:3px;display:inline-flex">⏳ ${dd(e.prazo,td())}d em atraso</span>
+      </div>`).join('')).join('');
+  let rows=[];
+  act.forEach(p=>{
+    (p.etapas||[]).forEach(e=>{
+      if(!e.done&&e.prazo&&new Date(e.prazo)<new Date()) rows.push({proj:p.nome,etapa:e.lb,r:e.r,prazo:e.prazo,d:dd(e.prazo,td()),resp:(p.resps||[]).join(', ')});
+    });
+    if(calcSit(p)==='atrasado'&&!(p.etapas||[]).some(e=>!e.done&&e.prazo&&new Date(e.prazo)<new Date()))
+      rows.push({proj:p.nome,etapa:'Projeto Geral',r:'eq',prazo:p.prazo,d:dd(p.prazo,td()),resp:(p.resps||[]).join(', ')});
+  });
+  document.getElementById('atrasosDetail').innerHTML=rows.length===0?
+    '<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--green)">✅ Nenhum atraso</td></tr>':
+    rows.map(r=>`<tr><td><strong>${r.proj}</strong></td><td>${r.etapa}</td>
+      <td>${r.r==='cl'?'<span class="db dcl">⏳ Cliente</span>':'<span class="db deq">⚠️ Equipe</span>'}</td>
+      <td>${fd(r.prazo)}</td><td><strong style="color:var(--red)">+${r.d}d</strong></td><td>${r.resp}</td></tr>`).join('');
+}
+
+// ── CANCELADOS ──
+function rCancelados(){
+  const canc=cancelDB();
+  document.getElementById('cancelStats').innerHTML=`
+    <div class="sc cgr"><div class="sc-l">Total Cancelados</div><div class="sc-v">${canc.length}</div><div class="sc-i">🚫</div></div>
+    <div class="sc cy"><div class="sc-l">Prog. Médio ao Cancelar</div><div class="sc-v">${canc.length?Math.round(canc.reduce((a,p)=>a+p.pct,0)/canc.length):0}%</div><div class="sc-i">📊</div></div>
+    <div class="sc cb"><div class="sc-l">Total Ativos</div><div class="sc-v">${activeDB().length}</div><div class="sc-i">🗂️</div></div>
+    <div class="sc cg"><div class="sc-l">Concluídos</div><div class="sc-v">${activeDB().filter(p=>calcSit(p)==='concluido').length}</div><div class="sc-i">✅</div></div>
+  `;
+  document.getElementById('cancelTbl').innerHTML=canc.length===0?
+    '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--mu)">Nenhum projeto cancelado</td></tr>':
+    canc.map(p=>`<tr class="canc-row">
+      <td><strong>${p.nome}</strong></td>
+      <td>${recTags(p.recursos)}</td>
+      <td>${avList(p.resps)}</td>
+      <td>${fd(p.criado)}</td>
+      <td style="color:var(--red)">${fd(p.cancelEm)}</td>
+      <td style="font-size:11.5px">${colLabel(p.col)}</td>
+      <td>${progH(p,'70px')}</td>
+      <td style="font-size:12px;color:var(--mu);max-width:220px">${p.cancelMotivo||'—'}</td>
+      <td><button class="btn bg2 bsm" onclick="reativarP(${p.id})">↩️ Reativar</button></td>
+    </tr>`).join('');
+}
+
+// ── DETAIL ──
+function sitEtapa(e){
+  if(e.done) return`<span class="sit sit-done">✓ Concluída</span>`;
+  if(!e.prazo) return`<span class="sit sit-pend">Pendente</span>`;
+  const ov=new Date(e.prazo)<new Date();
+  if(ov) return`<span class="sit sit-ov">⚠️ Atrasada +${dd(e.prazo,td())}d</span>`;
+  // se tem prazo e não passou = em andamento
+  return`<span class="sit sit-and">🔄 Em andamento</span>`;
+}
+
+function openDet(id){
+  const p=DB.find(x=>x.id===id);if(!p)return;
+  document.getElementById('detTitle').textContent=p.nome;
+  const{eq,cl}=delInf(p);
+  const eRows=(p.etapas||[]).map((e,i)=>{
+    const isCl=e.r==='cl';
+    const rowCls=e.done?'done-row':(!e.done&&e.prazo&&new Date(e.prazo)<new Date()?'ov-row':'');
+    return`<tr class="${rowCls}">
+      <td><div style="display:flex;align-items:center;gap:6px">
+        <div class="chk ${e.done?'done':isCl&&!e.done?'cwait':''}" onclick="toggleE(${id},${i})">${e.done?'✓':isCl?'⏳':''}</div>
+        <span>${e.lb}</span>
+      </div></td>
+      <td>
+        <select class="iis" onchange="setER(${id},${i},this.value)">
+          <option value="eq" ${e.r==='eq'?'selected':''}>👥 Equipe</option>
+          <option value="cl" ${e.r==='cl'?'selected':''}>🏢 Cliente</option>
+        </select>
+      </td>
+      <td><input class="ii" type="date" value="${e.prazo||''}" onchange="setEP(${id},${i},this.value)"></td>
+      <td style="white-space:nowrap;color:var(--green)">${fd(e.fim)||'—'}</td>
+      <td>${sitEtapa(e)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('detBody').innerHTML=`
+    <div class="dl2r">
+      <div>
+        ${dl2('Recursos',recTags(p.recursos))}
+        ${dl2('Coluna',`<span style="display:inline-flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:${colDot(p.col)};display:inline-block"></span>${colLabel(p.col)}</span>`)}
+        ${dl2('Situação',sitBdg(p))}
+
+      </div>
+      <div>
+        ${dl2('Responsável(is)',avList(p.resps)+'<div style="font-size:11.5px;margin-top:3px">'+(p.resps||[]).join(', ')+'</div>')}
+        ${dl2('Progresso',progH(p,'110px'))}
+        ${p.prazObs?dl2('Obs. Prazo',`<em style="color:var(--mu)">${p.prazObs}</em>`):''}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+      <div class="dcard"><div class="dcard-l">📌 Criado</div><div class="dcard-v">${fd(p.criado)}</div></div>
+      <div class="dcard"><div class="dcard-l">▶️ Início Real</div><div class="dcard-v">${fd(p.inicio)||'—'}</div></div>
+      <div class="dcard" style="${calcSit(p)==='atrasado'?'background:#FEE2E2':''}"><div class="dcard-l">🏁 Prazo</div><div class="dcard-v" style="${calcSit(p)==='atrasado'?'color:var(--red)':''}">${fd(p.prazo)}</div></div>
+      <div class="dcard" style="${p.termino?'background:#DCFCE7':''}"><div class="dcard-l">✅ Término</div><div class="dcard-v" style="${p.termino?'color:var(--green)':'color:var(--mu)'}">${fd(p.termino)||'—'}</div></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      ${eq>0?`<span class="db deq" style="font-size:12px;padding:4px 11px">⚠️ Atraso Equipe: ${eq}d</span>`:''}
+      ${cl>0?`<span class="db dcl" style="font-size:12px;padding:4px 11px">⏳ Aguard. Cliente: ${cl}d</span>`:''}
+      ${!eq&&!cl?`<span class="db dok" style="font-size:12px;padding:4px 11px">✅ Em dia</span>`:''}
+    </div>
+    ${p.desc?`<div style="background:var(--s2);border-radius:8px;padding:11px;font-size:12.5px;color:var(--mu);margin-bottom:14px">${p.desc}</div>`:''}
+    <hr class="dv">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:9px">
+      Etapas de Produção
+      <span style="font-weight:400;font-size:11px;color:var(--mu);margin-left:8px">Marque ✓ para concluir · Ajuste responsável e prazo por etapa</span>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="et"><thead><tr><th>Etapa</th><th>Responsável</th><th>Prazo da Etapa</th><th>Término Real</th><th>Situação</th></tr></thead>
+    <tbody>${eRows}</tbody></table></div>
+  `;
+
+  document.getElementById('detFt').innerHTML=`
+    <button class="btn bg2" onclick="cm('ovDet')">Fechar</button>
+    ${!p.cancelado?`<button class="btn bgray" onclick="abrirCanc(${p.id})">🚫 Cancelar Projeto</button>`:''}
+    <button class="btn bb" onclick="cm('ovDet');openEdit(${p.id})">✏️ Editar</button>
+  `;
+  document.getElementById('ovDet').classList.add('on');
+}
+
+function dl2(l,v){return`<div class="dl"><div class="dll">${l}</div><div class="dlv">${v}</div></div>`}
+
+function toggleE(pid,idx){
+  const p=DB.find(x=>x.id===pid);if(!p)return;
+  const e=p.etapas[idx]; e.done=!e.done; e.fim=e.done?td():null;
+  p.pct=Math.round(p.etapas.filter(e=>e.done).length/p.etapas.length*100);
+  // se todas concluídas → concluir projeto
+  if(p.pct===100){if(!p.termino)p.termino=td();}
+  else{p.termino='';}
+  openDet(pid); renderAll();
+}
+function setEP(pid,idx,v){
+  const p=DB.find(x=>x.id===pid);if(!p)return;
+  p.etapas[idx].prazo=v;
+  // auto-status: se tem prazo definido e etapa não concluída, calcular situação automaticamente
+  // (calcSit já lida com isso dinamicamente)
+  openDet(pid); renderAll();
+}
+function setER(pid,idx,v){const p=DB.find(x=>x.id===pid);if(!p)return;p.etapas[idx].r=v;openDet(pid);renderAll();}
+
+// ── CANCELAR ──
+function abrirCanc(id){cancId=id;document.getElementById('fCancMotivo').value='';cm('ovDet');document.getElementById('ovCanc').classList.add('on');}
+function confirmarCanc(){
+  const p=DB.find(x=>x.id===cancId);if(!p)return;
+  p.cancelado=true; p.cancelEm=td(); p.cancelMotivo=document.getElementById('fCancMotivo').value;
+  cm('ovCanc'); renderAll(); showToast('🚫 Projeto cancelado e movido para a aba Cancelados');
+}
+function reativarP(id){
+  const p=DB.find(x=>x.id===id);if(!p)return;
+  p.cancelado=false; p.cancelEm=''; p.cancelMotivo='';
+  renderAll(); showToast('↩️ Projeto reativado!');
+}
+
+// ── MODAL NEW/EDIT ──
+function stab(n,el){
+  [0,1,2].forEach(i=>document.getElementById('tab'+i).style.display=i===n?'block':'none');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');
+}
+
+function buildRecChips(selected){
+  document.getElementById('recChips').innerHTML=RECURSOS.map(r=>`
+    <div class="rec-chip ${(selected||[]).includes(r)?'sel':''}" onclick="this.classList.toggle('sel')">${r}</div>
+  `).join('');
+}
+function getSelectedRecs(){
+  return [...document.querySelectorAll('#recChips .rec-chip.sel')].map(el=>el.textContent.trim());
+}
+function buildRespChips(selected){
+  document.getElementById('respChips').innerHTML=NOMES.map(n=>`
+    <div class="resp-chip ${(selected||[]).includes(n)?'sel':''}" onclick="toggleResp(this,'${n}')">${n}</div>
+  `).join('');
+}
+
+function toggleResp(el,name){el.classList.toggle('sel');}
+
+function getSelectedResps(){
+  return [...document.querySelectorAll('#respChips .resp-chip.sel')].map(el=>el.textContent);
+}
+
+function buildEF(etapas){
+  document.getElementById('etapasForm').innerHTML=`
+    <table class="et"><thead><tr><th>#</th><th>Etapa</th><th>Responsável</th><th>Prazo da Etapa</th></tr></thead><tbody>
+    ${etapas.map((e,i)=>`<tr>
+      <td style="color:var(--mu);font-size:11px">${i+1}</td>
+      <td>${e.lb}</td>
+      <td><select class="iis" id="er${i}">
+        <option value="eq" ${e.r==='eq'?'selected':''}>👥 Equipe</option>
+        <option value="cl" ${e.r==='cl'?'selected':''}>🏢 Cliente</option>
+      </select></td>
+      <td><input class="fi ii" type="date" id="ep${i}" value="${e.prazo||''}"></td>
+    </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function openNew(){
+  editId=null;
+  document.getElementById('mNewTitle').textContent='Novo Projeto EAD';
+  ['fn','fd','fpo'].forEach(id=>document.getElementById(id).value='');
+  buildRecChips([]);
+  document.getElementById('fpc').value='0';
+  iso2dma(td(),'fcr');
+  ['fi','fp','fte'].forEach(p=>iso2dma('',p));
+  document.getElementById('fcol').value='0';
+  stab(0,document.querySelectorAll('.tab')[0]);
+  buildRespChips([]);
+  buildEF(ETPS_DEF.map(e=>({...e,prazo:null})));
+  document.getElementById('ovNew').classList.add('on');
+}
+
+function openEdit(id){
+  const p=DB.find(x=>x.id===id);if(!p)return;
+  editId=id; document.getElementById('mNewTitle').textContent='Editar Projeto';
+  document.getElementById('fn').value=p.nome;
+  buildRecChips(p.recursos||[]);
+  document.getElementById('fd').value=p.desc||'';
+  document.getElementById('fcol').value=p.col;
+  iso2dma(p.criado||td(),'fcr');
+  iso2dma(p.inicio||'','fi');
+  iso2dma(p.prazo||'','fp');
+  iso2dma(p.termino||'','fte');
+  document.getElementById('fpc').value=p.pct||0;
+  document.getElementById('fpo').value=p.prazObs||'';
+  stab(0,document.querySelectorAll('.tab')[0]);
+  buildRespChips(p.resps||[]);
+  buildEF(p.etapas||ETPS_DEF.map(e=>({...e,prazo:null})));
+  document.getElementById('ovNew').classList.add('on');
+}
+
+function salvar(){
+  const nome=document.getElementById('fn').value.trim();
+  if(!nome){showToast('❌ Informe o nome do projeto');return;}
+  const resps=getSelectedResps();
+  if(!resps.length){showToast('❌ Selecione ao menos um responsável');return;}
+
+  const etapas=ETPS_DEF.map((e,i)=>{
+    const old=editId?(DB.find(x=>x.id===editId)?.etapas[i]||{}):{}; 
+    const prazoVal=document.getElementById('ep'+i)?.value||null;
+    return{lb:e.lb,r:document.getElementById('er'+i)?.value||e.r,prazo:prazoVal,inicio:prazoVal,fim:old.fim||null,done:old.done||false};
+  });
+
+  const col=parseInt(document.getElementById('fcol').value||'0');
+  const pct=parseInt(document.getElementById('fpc').value)||0;
+  const prazo=getDateField('fp');
+  const inicio=getDateField('fi');
+
+  const proj={
+    id:editId||NXT++, nome,
+    recursos:getSelectedRecs(), desc:document.getElementById('fd').value,
+    col, resps,
+    criado:getDateField('fcr')||td(),
+    inicio, prazo, termino:getDateField('fte'),
+    pct, prazObs:document.getElementById('fpo').value,
+    cancelado:editId?(DB.find(x=>x.id===editId)?.cancelado||false):false,
+    cancelEm:editId?(DB.find(x=>x.id===editId)?.cancelEm||''):'',
+    cancelMotivo:editId?(DB.find(x=>x.id===editId)?.cancelMotivo||''):'',
+    etapas,
+  };
+
+  if(editId){DB=DB.map(p=>p.id===editId?proj:p);}else{DB.push(proj);}
+  cm('ovNew'); renderAll();
+  showToast(editId?'✅ Projeto atualizado!':'✅ Projeto criado!');
+}
+
+function delP(id){
+  if(!confirm('Remover permanentemente?'))return;
+  DB=DB.filter(p=>p.id!==id); renderAll(); showToast('🗑️ Projeto removido');
+}
+function cm(id){document.getElementById(id).classList.remove('on')}
+
+// ── CSV ──
+function exportCSV(){
+  const hdr='ID,Nome,Recursos,Situação,Coluna,Responsáveis,Criado,Início,Prazo,Término,% Concluído,Atraso Eq(d),Aguard.Cl(d)';
+  const rows=activeDB().concat(cancelDB()).map(p=>{
+    const{eq,cl}=delInf(p);
+    return[p.id,`"${p.nome}"`,`"${(p.recursos||[]).join('; ')}"`,calcSit(p),colLabel(p.col),`"${(p.resps||[]).join('; ')}"`,p.criado,p.inicio||'',p.prazo||'',p.termino||'',p.pct,eq,cl].join(',');
+  });
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\uFEFF'+[hdr,...rows].join('\n'));
+  a.download=`projetos-ead-${td()}.csv`; a.click(); showToast('📥 CSV exportado!');
+}
+
+// ── TOAST ──
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3500)}
+
+// ── RENDER ALL ──
+function renderAll(){rDash();rKanban();rList();rTimeline();rKPIs();rAtrasos();rCancelados();}
+
+// ══════════════════════════════════════════════
+//  FIREBASE — PERSISTÊNCIA EM TEMPO REAL
+//  GitHub Pages ready — SDK carregado dinamicamente
+// ══════════════════════════════════════════════
+const CFG_KEY = 'firjan_fb_url';
+let fbRef     = null;
+let fbNxtRef  = null;
+let isSyncing = false;
+
+// ── STATUS UI ──
+function setStatus(state, msg){
+  const dot = document.getElementById('fbDot');
+  const lbl = document.getElementById('fbLabel');
+  const bar = document.getElementById('fbStatus');
+  if(!dot) return;
+  dot.className = 'fb-dot ' + state;
+  lbl.textContent = msg;
+  bar.style.opacity = '1';
+}
+
+// ── SALVAR no Firebase ──
+function saveDB(){
+  if(!fbRef || isSyncing) return;
+  setStatus('sync','Salvando...');
+  const obj = {};
+  DB.forEach(p => { obj['p' + p.id] = p; });
+  fbRef.set(obj)
+    .then(() => setStatus('online','Salvo ✓'))
+    .catch(e => { setStatus('offline','Erro ao salvar'); console.error(e); });
+  fbNxtRef.set(NXT);
+}
+
+// ── NORMALIZAR PROJETO (integridade de campos) ──
+function normalizar(p){
+  p.resps     = p.resps    || [];
+  p.recursos  = p.recursos || [];
+  p.etapas    = p.etapas   || [];
+  p.col       = typeof p.col === 'string' ? parseInt(p.col) : (p.col || 0);
+  p.cancelado = p.cancelado || false;
+  return p;
+}
+
+// ── ESCUTAR MUDANÇAS EM TEMPO REAL ──
+function escutarFirebase(db){
+  fbRef    = db.ref('projetos');
+  fbNxtRef = db.ref('nxt');
+
+  // dados em tempo real — atualiza para todos ao mesmo tempo
+  fbRef.on('value', snap => {
+    isSyncing = true;
+    const data = snap.val();
+    DB = data ? Object.values(data).map(normalizar) : [];
+    renderAll();
+    isSyncing = false;
+  });
+
+  // próximo ID sincronizado
+  fbNxtRef.on('value', snap => {
+    const v = snap.val();
+    if(v && v > NXT) NXT = v;
+  });
+
+  // indicador de conexão
+  db.ref('.info/connected').on('value', snap => {
+    if(snap.val() === true){
+      setStatus('online','Online — sync ativo');
+    } else {
+      setStatus('offline','Sem conexão');
+    }
+  });
+}
+
+// ── CARREGAR SDK FIREBASE DINAMICAMENTE ──
+function carregarScript(src){
+  return new Promise((resolve, reject) => {
+    // evita duplicatas
+    if(document.querySelector('script[src="' + src + '"]')){ resolve(); return; }
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload  = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function carregarSDKeFire(url){
+  setStatus('sync','Carregando...');
+  const base = 'https://www.gstatic.com/firebasejs/10.12.0';
+  carregarScript(base + '/firebase-app-compat.js')
+    .then(() => carregarScript(base + '/firebase-database-compat.js'))
+    .then(() => {
+      let app;
+      try { app = firebase.app('firjan-ead'); }
+      catch(e){
+        app = firebase.initializeApp({
+          databaseURL: url,
+          apiKey: 'key',
+          authDomain: '',
+          projectId: '',
+        }, 'firjan-ead');
+      }
+      escutarFirebase(firebase.database(app));
+    })
+    .catch(e => {
+      setStatus('offline','Falha ao carregar SDK — verifique a internet');
+      console.error('Firebase SDK error:', e);
+    });
+}
+
+// ── CONECTAR (botão do setup modal) ──
+function conectarFirebase(){
+  const url = document.getElementById('setupUrl').value.trim();
+  const err = document.getElementById('setupErr');
+  err.textContent = '';
+  if(!url || !url.startsWith('https://') || !url.includes('firebaseio.com')){
+    err.textContent = '⚠️ URL inválida. Formato: https://seu-projeto-default-rtdb.firebaseio.com';
+    return;
+  }
+  localStorage.setItem(CFG_KEY, url);
+  document.getElementById('setupOv').style.display = 'none';
+  carregarSDKeFire(url);
+}
+
+// ── INIT ──
+document.getElementById('topDate').textContent =
+  new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+const savedUrl = localStorage.getItem(CFG_KEY);
+if(savedUrl){
+  carregarSDKeFire(savedUrl);
+} else {
+  document.getElementById('setupOv').style.display = 'flex';
+  renderAll();
+}
+</script>
+</body>
+</html>
