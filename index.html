@@ -840,8 +840,8 @@ function onDrop(e,col){
   if(newCol===13){if(!p.termino)p.termino=td();p.pct=100;}
   // volta de 13
   if(oldCol===13&&newCol!==13){p.termino='';if(p.pct===100)p.pct=90;}
+  fbSalvarProjeto(p);
   showToast(`✅ "${p.nome.length>28?p.nome.slice(0,26)+'…':p.nome}" → ${colLabel(newCol)}`);
-  renderAll();
 }
 function cardClick(e,id){if(e.detail===0)return;openDet(id);}
 
@@ -1087,28 +1087,29 @@ function toggleE(pid,idx){
   // se todas concluídas → concluir projeto
   if(p.pct===100){if(!p.termino)p.termino=td();}
   else{p.termino='';}
-  openDet(pid); renderAll();
+  fbSalvarProjeto(p);
+  openDet(pid);
 }
 function setEP(pid,idx,v){
   const p=DB.find(x=>x.id===pid);if(!p)return;
   p.etapas[idx].prazo=v;
-  // auto-status: se tem prazo definido e etapa não concluída, calcular situação automaticamente
-  // (calcSit já lida com isso dinamicamente)
-  openDet(pid); renderAll();
+  fbSalvarProjeto(p);
+  openDet(pid);
 }
-function setER(pid,idx,v){const p=DB.find(x=>x.id===pid);if(!p)return;p.etapas[idx].r=v;openDet(pid);renderAll();}
+function setER(pid,idx,v){const p=DB.find(x=>x.id===pid);if(!p)return;p.etapas[idx].r=v;fbSalvarProjeto(p);openDet(pid);}
 
 // ── CANCELAR ──
 function abrirCanc(id){cancId=id;document.getElementById('fCancMotivo').value='';cm('ovDet');document.getElementById('ovCanc').classList.add('on');}
 function confirmarCanc(){
   const p=DB.find(x=>x.id===cancId);if(!p)return;
   p.cancelado=true; p.cancelEm=td(); p.cancelMotivo=document.getElementById('fCancMotivo').value;
-  cm('ovCanc'); renderAll(); showToast('🚫 Projeto cancelado e movido para a aba Cancelados');
+  const pc=DB.find(x=>x.id===cancId); if(pc) fbSalvarProjeto(pc);
+  cm('ovCanc'); showToast('🚫 Projeto cancelado e movido para a aba Cancelados');
 }
 function reativarP(id){
   const p=DB.find(x=>x.id===id);if(!p)return;
   p.cancelado=false; p.cancelEm=''; p.cancelMotivo='';
-  renderAll(); showToast('↩️ Projeto reativado!');
+  fbSalvarProjeto(p); showToast('↩️ Projeto reativado!');
 }
 
 // ── MODAL NEW/EDIT ──
@@ -1217,13 +1218,15 @@ function salvar(){
   };
 
   if(editId){DB=DB.map(p=>p.id===editId?proj:p);}else{DB.push(proj);}
-  cm('ovNew'); renderAll();
+  fbSalvarProjeto(proj);
+  fbSalvarNxt();
+  cm('ovNew');
   showToast(editId?'✅ Projeto atualizado!':'✅ Projeto criado!');
 }
 
 function delP(id){
   if(!confirm('Remover permanentemente?'))return;
-  DB=DB.filter(p=>p.id!==id); renderAll(); showToast('🗑️ Projeto removido');
+  DB=DB.filter(p=>p.id!==id); fbExcluirProjeto(id); showToast('🗑️ Projeto removido');
 }
 function cm(id){document.getElementById(id).classList.remove('on')}
 
@@ -1247,12 +1250,11 @@ function renderAll(){rDash();rKanban();rList();rTimeline();rKPIs();rAtrasos();rC
 
 // ══════════════════════════════════════════════
 //  FIREBASE — PERSISTÊNCIA EM TEMPO REAL
-//  GitHub Pages ready — SDK carregado dinamicamente
 // ══════════════════════════════════════════════
-const CFG_KEY = 'firjan_fb_url';
-let fbRef     = null;
-let fbNxtRef  = null;
-let isSyncing = false;
+const CFG_KEY  = 'firjan_fb_url';
+let fbProjetos = null;   // db.ref('projetos')
+let fbNxtRef   = null;   // db.ref('nxt')
+let fbListening = false; // listener ativo?
 
 // ── STATUS UI ──
 function setStatus(state, msg){
@@ -1260,54 +1262,67 @@ function setStatus(state, msg){
   const lbl = document.getElementById('fbLabel');
   const bar = document.getElementById('fbStatus');
   if(!dot) return;
-  dot.className = 'fb-dot ' + state;
+  dot.className  = 'fb-dot ' + state;
   lbl.textContent = msg;
   bar.style.opacity = '1';
 }
 
-// ── SALVAR no Firebase ──
-function saveDB(){
-  if(!fbRef || isSyncing) return;
-  setStatus('sync','Salvando...');
-  const obj = {};
-  DB.forEach(p => { obj['p' + p.id] = p; });
-  fbRef.set(obj)
-    .then(() => setStatus('online','Salvo ✓'))
-    .catch(e => { setStatus('offline','Erro ao salvar'); console.error(e); });
-  fbNxtRef.set(NXT);
-}
-
-// ── NORMALIZAR PROJETO (integridade de campos) ──
+// ── NORMALIZAR campos do projeto ──
 function normalizar(p){
+  if(!p) return p;
   p.resps     = p.resps    || [];
   p.recursos  = p.recursos || [];
   p.etapas    = p.etapas   || [];
   p.col       = typeof p.col === 'string' ? parseInt(p.col) : (p.col || 0);
-  p.cancelado = p.cancelado || false;
+  p.cancelado = !!p.cancelado;
   return p;
+}
+
+// ── SALVAR UM PROJETO ESPECÍFICO no Firebase ──
+// Usamos set no nó individual para evitar sobrescrever dados de outros usuários
+function fbSalvarProjeto(proj){
+  if(!fbProjetos){ showToast('⚠️ Sem conexão com Firebase'); return; }
+  setStatus('sync','Salvando...');
+  fbProjetos.child('p' + proj.id).set(proj)
+    .then(()  => setStatus('online','Salvo ✓'))
+    .catch(e  => { setStatus('offline','Erro ao salvar'); console.error(e); });
+}
+
+// ── EXCLUIR UM PROJETO ──
+function fbExcluirProjeto(id){
+  if(!fbProjetos) return;
+  setStatus('sync','Removendo...');
+  fbProjetos.child('p' + id).remove()
+    .then(()  => setStatus('online','Removido ✓'))
+    .catch(e  => { setStatus('offline','Erro ao remover'); console.error(e); });
+}
+
+// ── SALVAR NXT ──
+function fbSalvarNxt(){
+  if(fbNxtRef) fbNxtRef.set(NXT);
 }
 
 // ── ESCUTAR MUDANÇAS EM TEMPO REAL ──
 function escutarFirebase(db){
-  fbRef    = db.ref('projetos');
-  fbNxtRef = db.ref('nxt');
+  if(fbListening) return;
+  fbListening = true;
+  fbProjetos = db.ref('projetos');
+  fbNxtRef   = db.ref('nxt');
 
-  // dados em tempo real — atualiza para todos ao mesmo tempo
-  fbRef.on('value', snap => {
-    isSyncing = true;
+  // Listener principal — recebe todas as mudanças em tempo real
+  fbProjetos.on('value', snap => {
     const data = snap.val();
     DB = data ? Object.values(data).map(normalizar) : [];
     renderAll();
-    isSyncing = false;
   });
 
-  // próximo ID sincronizado
+  // Sincronizar NXT entre abas/usuários
   fbNxtRef.on('value', snap => {
-    const v = snap.val();
-    if(v && v > NXT) NXT = v;
+    const v = parseInt(snap.val()) || 1;
+    if(v > NXT) NXT = v;
   });
 
-  // indicador de conexão
+  // Indicador de conexão
   db.ref('.info/connected').on('value', snap => {
     if(snap.val() === true){
       setStatus('online','Online — sync ativo');
@@ -1317,21 +1332,18 @@ function escutarFirebase(db){
   });
 }
 
-// ── CARREGAR SDK FIREBASE DINAMICAMENTE ──
+// ── CARREGAR SDK DINAMICAMENTE ──
 function carregarScript(src){
-  return new Promise((resolve, reject) => {
-    // evita duplicatas
-    if(document.querySelector('script[src="' + src + '"]')){ resolve(); return; }
+  return new Promise((res, rej) => {
+    if(document.querySelector('script[src="'+src+'"]')){ res(); return; }
     const s = document.createElement('script');
-    s.src = src;
-    s.onload  = resolve;
-    s.onerror = reject;
+    s.src = src; s.onload = res; s.onerror = rej;
     document.head.appendChild(s);
   });
 }
 
 function carregarSDKeFire(url){
-  setStatus('sync','Carregando...');
+  setStatus('sync','Conectando...');
   const base = 'https://www.gstatic.com/firebasejs/10.12.0';
   carregarScript(base + '/firebase-app-compat.js')
     .then(() => carregarScript(base + '/firebase-database-compat.js'))
@@ -1349,12 +1361,12 @@ function carregarSDKeFire(url){
       escutarFirebase(firebase.database(app));
     })
     .catch(e => {
-      setStatus('offline','Falha ao carregar SDK — verifique a internet');
+      setStatus('offline','Falha ao carregar SDK');
       console.error('Firebase SDK error:', e);
     });
 }
 
-// ── CONECTAR (botão do setup modal) ──
+// ── SETUP MODAL ──
 function conectarFirebase(){
   const url = document.getElementById('setupUrl').value.trim();
   const err = document.getElementById('setupErr');
@@ -1379,6 +1391,7 @@ if(savedUrl){
   document.getElementById('setupOv').style.display = 'flex';
   renderAll();
 }
+
 </script>
 </body>
 </html>
