@@ -235,10 +235,34 @@ tr.canc-row td{opacity:.55}
 .setup-btn:hover{background:#c4001f}
 .setup-err{color:var(--red);font-size:12px;margin-top:8px;min-height:18px}
 @media(max-width:960px){.sb{width:50px}.main{margin-left:50px}.sb-title,.sb-sub,.sb-sec,.sb-badge,.si span{display:none}.si{justify-content:center;padding:11px}}
+/* MODAL MOTIVO ATRASO */
+.ov-motivo{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1800;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+.ov-motivo.on{display:flex}
+.motivo-box{background:#fff;border-radius:14px;padding:28px 32px;width:460px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.motivo-box h3{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;margin:0 0 6px;color:var(--red)}
+.motivo-box p{font-size:12.5px;color:var(--mu);margin:0 0 16px;line-height:1.5}
+.motivo-box textarea{width:100%;box-sizing:border-box;padding:10px 13px;border:1.5px solid var(--bdr);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:90px;outline:none}
+.motivo-box textarea:focus{border-color:var(--red)}
+.motivo-ft{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+/* BADGE DIAS CLIENTE */
+.cl-dias{display:inline-flex;align-items:center;gap:4px;background:#FEF3C7;border:1px solid #F59E0B;color:#92400E;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700}
 </style>
 </head>
 <body>
 <div class="wrap">
+
+<!-- MODAL MOTIVO DE ATRASO -->
+<div class="ov-motivo" id="ovMotivo">
+  <div class="motivo-box">
+    <h3>⚠️ Etapa concluída com atraso</h3>
+    <p id="motivoDesc"></p>
+    <textarea id="motivoTxt" placeholder="Descreva o motivo do atraso..."></textarea>
+    <div class="motivo-ft">
+      <button class="btn bg2" onclick="fecharMotivo(false)">Pular</button>
+      <button class="btn br" onclick="fecharMotivo(true)">💾 Salvar motivo</button>
+    </div>
+  </div>
+</div>
 
 <aside class="sb">
   <div class="sb-logo">
@@ -746,7 +770,7 @@ function populateFiltSelects(){
   ['kFiltCol','lFiltCol'].forEach(id=>{
     const s=document.getElementById(id); if(!s)return;
     const cur=s.value;
-    s.innerHTML='<option value="">Todas</option>'+COLUNAS.map(col=>`<option value="${col.k}"${cur==col.k?' selected':''}>${col.l}</option>`).join('');
+    s.innerHTML='<option value="">Todas</option>'+COLUNAS.map(col=>`<option value="${col.k}"${cur!==''&&cur==col.k?' selected':''}>${col.l}</option>`).join('');
   });
 }
 
@@ -1026,8 +1050,12 @@ function sitEtapa(e){
   if(e.done) return`<span class="sit sit-done">✓ Concluída</span>`;
   if(!e.prazo) return`<span class="sit sit-pend">Pendente</span>`;
   const ov=new Date(e.prazo)<new Date();
+  if(e.r==='cl'){
+    const diasEspera=Math.max(0,Math.round((new Date()-new Date(e.prazo))/(864e5)));
+    if(ov) return`<span class="sit sit-ov">⏳ Aguard. cliente <strong>+${diasEspera}d</strong></span>`;
+    return`<span class="sit sit-and">⏳ Aguardando cliente</span>`;
+  }
   if(ov) return`<span class="sit sit-ov">⚠️ Atrasada +${dd(e.prazo,td())}d</span>`;
-  // se tem prazo e não passou = em andamento
   return`<span class="sit sit-and">🔄 Em andamento</span>`;
 }
 
@@ -1049,9 +1077,38 @@ function openDet(id){
           <option value="cl" ${e.r==='cl'?'selected':''}>🏢 Cliente</option>
         </select>
       </td>
-      <td><input class="ii" type="date" value="${e.prazo||''}" onchange="setEP(${id},${i},this.value)"></td>
+      <td>
+        <div style="display:flex;gap:3px;align-items:center">
+          <input class="ii" type="number" id="ep_d_${id}_${i}" placeholder="DD" min="1" max="31"
+            value="${e.prazo?parseInt(e.prazo.split('-')[2]):''}"
+            style="width:44px;padding:4px 5px;font-size:11px"
+            onchange="setEPdma(${id},${i})">
+          <input class="ii" type="number" id="ep_m_${id}_${i}" placeholder="MM" min="1" max="12"
+            value="${e.prazo?parseInt(e.prazo.split('-')[1]):''}"
+            style="width:44px;padding:4px 5px;font-size:11px"
+            onchange="setEPdma(${id},${i})">
+          <input class="ii" type="number" id="ep_a_${id}_${i}" placeholder="AAAA" min="2020" max="2099"
+            value="${e.prazo?parseInt(e.prazo.split('-')[0]):''}"
+            style="width:58px;padding:4px 5px;font-size:11px"
+            onchange="setEPdma(${id},${i})">
+        </div>
+      </td>
       <td style="white-space:nowrap;color:var(--green)">${fd(e.fim)||'—'}</td>
       <td>${sitEtapa(e)}</td>
+      <td style="min-width:160px;font-size:11.5px;vertical-align:middle">
+        ${e.done && e.r==='eq' && e.prazo && e.fim && new Date(e.prazo)<new Date(e.fim)
+          ? e.atrasoMotivo
+            ? `<span style="color:var(--red)" title="${e.atrasoMotivo}">⚠️ ${e.atrasoMotivo.length>38?e.atrasoMotivo.slice(0,36)+'…':e.atrasoMotivo}</span>`
+            : '<span style="color:var(--mu);font-style:italic">sem motivo registrado</span>'
+          : ''
+        }
+        ${e.r==='cl' && !e.done && e.prazo
+          ? `<span class="cl-dias">⏳ ${Math.max(0,Math.round((new Date()-new Date(e.prazo))/(864e5)))}d em espera</span>`
+          : e.r==='cl' && e.done && e.diasCl!=null
+            ? `<span class="cl-dias" style="background:#DCFCE7;border-color:#16A34A;color:#14532D">✓ ${e.diasCl}d aguardado</span>`
+            : ''
+        }
+      </td>
     </tr>`;
   }).join('');
 
@@ -1087,7 +1144,7 @@ function openDet(id){
       <span style="font-weight:400;font-size:11px;color:var(--mu);margin-left:8px">Marque ✓ para concluir · Ajuste responsável e prazo por etapa</span>
     </div>
     <div style="overflow-x:auto">
-    <table class="et"><thead><tr><th>Etapa</th><th>Responsável</th><th>Prazo da Etapa</th><th>Término Real</th><th>Situação</th></tr></thead>
+    <table class="et"><thead><tr><th>Etapa</th><th>Responsável</th><th>Prazo da Etapa</th><th>Término Real</th><th>Situação</th><th>Obs.</th></tr></thead>
     <tbody>${eRows}</tbody></table></div>
   `;
 
@@ -1101,21 +1158,65 @@ function openDet(id){
 
 function dl2(l,v){return`<div class="dl"><div class="dll">${l}</div><div class="dlv">${v}</div></div>`}
 
+let _motivoPid=null, _motivoIdx=null;
+
 function toggleE(pid,idx){
   const p=DB.find(x=>x.id===pid);if(!p)return;
-  const e=p.etapas[idx]; e.done=!e.done; e.fim=e.done?td():null;
-  p.pct=Math.round(p.etapas.filter(e=>e.done).length/p.etapas.length*100);
-  // se todas concluídas → concluir projeto
+  const e=p.etapas[idx];
+  e.done=!e.done;
+  e.fim=e.done?td():null;
+  if(!e.done){e.atrasoMotivo=null;e.diasCl=null;}
+
+  // Etapa do cliente concluída: registrar quantos dias ficou em espera
+  if(e.done && e.r==='cl' && e.prazo){
+    e.diasCl=Math.max(0,Math.round((new Date()-new Date(e.prazo))/(864e5)));
+  }
+
+  p.pct=Math.round(p.etapas.filter(x=>x.done).length/p.etapas.length*100);
   if(p.pct===100){if(!p.termino)p.termino=td();}
   else{p.termino='';}
   fbSalvarProjeto(p);
-  renderAll(); openDet(pid);
+  renderAll();
+
+  // Etapa da equipe concluída com atraso → abrir modal de motivo
+  if(e.done && e.r==='eq' && e.prazo && new Date(e.prazo)<new Date()){
+    _motivoPid=pid; _motivoIdx=idx;
+    const d=Math.round((new Date()-new Date(e.prazo))/(864e5));
+    document.getElementById('motivoDesc').textContent=
+      '"'+e.lb+'" foi concluída com '+d+' dia(s) de atraso. Registre o motivo para o histórico.';
+    document.getElementById('motivoTxt').value=e.atrasoMotivo||'';
+    document.getElementById('ovMotivo').classList.add('on');
+    return; // fecharMotivo() reabre o detalhe
+  }
+  openDet(pid);
+}
+
+function fecharMotivo(salvar){
+  document.getElementById('ovMotivo').classList.remove('on');
+  if(_motivoPid===null)return;
+  if(salvar){
+    const p=DB.find(x=>x.id===_motivoPid);
+    if(p&&p.etapas[_motivoIdx]){
+      p.etapas[_motivoIdx].atrasoMotivo=document.getElementById('motivoTxt').value.trim()||null;
+      fbSalvarProjeto(p);
+    }
+  }
+  const pid=_motivoPid;
+  _motivoPid=null; _motivoIdx=null;
+  openDet(pid);
 }
 function setEP(pid,idx,v){
   const p=DB.find(x=>x.id===pid);if(!p)return;
-  p.etapas[idx].prazo=v;
+  p.etapas[idx].prazo=v||null;
   fbSalvarProjeto(p);
   renderAll(); openDet(pid);
+}
+function setEPdma(pid,idx){
+  const d=document.getElementById(`ep_d_${pid}_${idx}`)?.value;
+  const m=document.getElementById(`ep_m_${pid}_${idx}`)?.value;
+  const a=document.getElementById(`ep_a_${pid}_${idx}`)?.value;
+  const iso=dma2iso(d,m,a);
+  if(iso) setEP(pid,idx,iso);
 }
 function setER(pid,idx,v){const p=DB.find(x=>x.id===pid);if(!p)return;p.etapas[idx].r=v;fbSalvarProjeto(p);renderAll();openDet(pid);}
 
@@ -1169,7 +1270,14 @@ function buildEF(etapas){
         <option value="eq" ${e.r==='eq'?'selected':''}>👥 Equipe</option>
         <option value="cl" ${e.r==='cl'?'selected':''}>🏢 Cliente</option>
       </select></td>
-      <td><input class="fi ii" type="date" id="ep${i}" value="${e.prazo||''}"></td>
+      <td><div style="display:flex;gap:3px">
+        <input class="fi ii" type="number" id="ep_d_${i}" placeholder="DD" min="1" max="31"
+          value="${e.prazo?parseInt(e.prazo.split('-')[2]):''}" style="width:50px;padding:5px 4px;font-size:11.5px">
+        <input class="fi ii" type="number" id="ep_m_${i}" placeholder="MM" min="1" max="12"
+          value="${e.prazo?parseInt(e.prazo.split('-')[1]):''}" style="width:50px;padding:5px 4px;font-size:11.5px">
+        <input class="fi ii" type="number" id="ep_a_${i}" placeholder="AAAA" min="2020" max="2099"
+          value="${e.prazo?parseInt(e.prazo.split('-')[0]):''}" style="width:62px;padding:5px 4px;font-size:11.5px">
+      </div></td>
     </tr>`).join('')}
     </tbody></table>`;
 }
@@ -1216,7 +1324,10 @@ function salvar(){
 
   const etapas=ETPS_DEF.map((e,i)=>{
     const old=editId?(DB.find(x=>x.id===editId)?.etapas[i]||{}):{}; 
-    const prazoVal=document.getElementById('ep'+i)?.value||null; // YYYY-MM-DD ou null
+    const epD=document.getElementById('ep_d_'+i)?.value;
+    const epM=document.getElementById('ep_m_'+i)?.value;
+    const epA=document.getElementById('ep_a_'+i)?.value;
+    const prazoVal=dma2iso(epD,epM,epA)||null;
     return{lb:e.lb,r:document.getElementById('er'+i)?.value||e.r,prazo:prazoVal,inicio:prazoVal,fim:old.fim||null,done:old.done||false};
   });
 
