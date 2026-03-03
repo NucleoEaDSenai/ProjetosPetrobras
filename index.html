@@ -120,7 +120,7 @@ tr:hover td{background:#FAFAF9}
 /* MODAL */
 .ov2{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
 .ov2.on{display:flex}
-.modal{background:#fff;border-radius:14px;width:720px;max-width:96vw;max-height:92vh;overflow-y:auto;animation:sup .22s ease}
+.modal{background:#fff;border-radius:14px;width:1100px;max-width:98vw;max-height:92vh;overflow-y:auto;animation:sup .22s ease}
 @keyframes sup{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
 .mhd{padding:20px 24px 13px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
 .mt{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
@@ -594,7 +594,7 @@ tr.canc-row td{opacity:.55}
 
 <!-- MODAL: DETALHE -->
 <div class="ov2" id="ovDet">
-<div class="modal" style="width:800px">
+<div class="modal" style="width:1100px">
   <div class="mhd">
     <div class="mt" id="detTitle">Detalhes</div>
     <button class="mcl" onclick="cm('ovDet')">✕</button>
@@ -847,8 +847,8 @@ function rKanban(){
             <span>📌 ${fd(p.criado)}</span>
             ${p.inicio?`<span>▶️ ${fd(p.inicio)}</span>`:''}
             <span class="${sit==='atrasado'?'ov':''}">🏁 ${fd(p.prazo)}</span>
-            ${eq>0?`<span class="ov">⚠️Eq:+${eq}d</span>`:''}
-            ${cl>0?`<span class="wc">⏳Cl:+${cl}d</span>`:''}
+            ${eq>0?`<span class="ov">⚠️Eq: ${eq} dias</span>`:''}
+            ${cl>0?`<span class="wc">⏳Cl: ${cl} dias</span>`:''}
           </div>
           <div class="pbar"><div class="pf" style="width:${p.pct}%;background:${p.pct===100?'var(--green)':sit==='atrasado'?'var(--red)':'var(--blue)'}"></div></div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
@@ -962,8 +962,8 @@ function rList(){
       <td>${fd(p.inicio)||'—'}</td>
       <td style="${calcSit(p)==='atrasado'?'color:var(--red);font-weight:700':''}">${fd(p.prazo)}</td>
       <td style="color:var(--green)">${fd(p.termino)||'—'}</td>
-      <td>${eq>0?`<span class="db deq">⚠️${eq}d</span>`:`<span class="db dok">—</span>`}</td>
-      <td>${cl>0?`<span class="db dcl">⏳${cl}d</span>`:`<span class="db dok">—</span>`}</td>
+      <td>${eq>0?`<span class="db deq">⚠️${eq} dias</span>`:`<span class="db dok">—</span>`}</td>
+      <td>${cl>0?`<span class="db dcl">⏳${cl} dias</span>`:`<span class="db dok">—</span>`}</td>
       <td>${progH(p,'70px')}</td>
       <td style="white-space:nowrap">
         <button class="btn bg2 bsm" onclick="openDet(${p.id})">Ver</button>
@@ -1320,7 +1320,7 @@ function rAtrasos(){
           <td>${respBdg}</td>
           <td style="white-space:nowrap">${fd(r.prazo)}</td>
           <td style="white-space:nowrap;color:var(--green)">${r.antFim ? fd(r.antFim) : '<span style="color:var(--mu);font-size:11px">primeira etapa</span>'}</td>
-          <td><strong style="color:${diasColor};font-size:14px">+${r.diasAtraso}d</strong></td>
+          <td><strong style="color:${diasColor};font-size:14px">${r.diasAtraso} dias</strong></td>
           <td>${statusBdg}</td>
           <td style="min-width:140px">${motivoCell}</td>
         </tr>`;
@@ -1367,10 +1367,10 @@ function sitEtapa(e){
   const ov=new Date(e.prazo)<new Date();
   if(e.r==='cl'){
     const diasEspera=Math.max(0,Math.round((new Date()-new Date(e.prazo))/(864e5)));
-    if(ov) return`<span class="sit sit-ov">⏳ Aguard. cliente <strong>+${diasEspera}d</strong></span>`;
+    if(ov) return`<span class="sit sit-ov">⏳ Aguard. cliente <strong>${diasEspera} dias</strong></span>`;
     return`<span class="sit sit-and">⏳ Aguardando cliente</span>`;
   }
-  if(ov) return`<span class="sit sit-ov">⚠️ Atrasada +${dd(e.prazo,td())}d</span>`;
+  if(ov) return`<span class="sit sit-ov">⚠️ Atrasada ${dd(e.prazo,td())} dias</span>`;
   return`<span class="sit sit-and">🔄 Em andamento</span>`;
 }
 
@@ -1418,9 +1418,9 @@ function openDet(id){
           : ''
         }
         ${e.r==='cl' && !e.done && e.prazo
-          ? `<span class="cl-dias">⏳ ${Math.max(0,Math.round((new Date()-new Date(e.prazo))/(864e5)))}d em espera</span>`
+          ? `<span class="cl-dias">⏳ ${Math.max(0,Math.round((new Date()-new Date(e.prazo))/(864e5)))} dias em espera</span>`
           : e.r==='cl' && e.done && e.diasCl!=null
-            ? `<span class="cl-dias" style="background:#DCFCE7;border-color:#16A34A;color:#14532D">✓ ${e.diasCl}d aguardado</span>`
+            ? `<span class="cl-dias" style="background:#DCFCE7;border-color:#16A34A;color:#14532D">✓ ${e.diasCl} dias aguardado</span>`
             : ''
         }
       </td>
@@ -1448,8 +1448,8 @@ function openDet(id){
       <div class="dcard" style="${p.termino?'background:#DCFCE7':''}"><div class="dcard-l">✅ Término</div><div class="dcard-v" style="${p.termino?'color:var(--green)':'color:var(--mu)'}">${fd(p.termino)||'—'}</div></div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-      ${eq>0?`<span class="db deq" style="font-size:12px;padding:4px 11px">⚠️ Atraso Equipe: ${eq}d</span>`:''}
-      ${cl>0?`<span class="db dcl" style="font-size:12px;padding:4px 11px">⏳ Aguard. Cliente: ${cl}d</span>`:''}
+      ${eq>0?`<span class="db deq" style="font-size:12px;padding:4px 11px">⚠️ Atraso Equipe: ${eq} dias</span>`:''}
+      ${cl>0?`<span class="db dcl" style="font-size:12px;padding:4px 11px">⏳ Aguard. Cliente: ${cl} dias</span>`:''}
       ${!eq&&!cl?`<span class="db dok" style="font-size:12px;padding:4px 11px">✅ Em dia</span>`:''}
     </div>
     ${p.desc?`<div style="background:var(--s2);border-radius:8px;padding:11px;font-size:12.5px;color:var(--mu);margin-bottom:14px">${p.desc}</div>`:''}
