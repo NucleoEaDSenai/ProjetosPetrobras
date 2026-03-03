@@ -246,11 +246,54 @@ tr.canc-row td{opacity:.55}
 .motivo-ft{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
 /* BADGE DIAS CLIENTE */
 .cl-dias{display:inline-flex;align-items:center;gap:4px;background:#FEF3C7;border:1px solid #F59E0B;color:#92400E;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700}
+
+/* LOGIN */
+.ov-login{position:fixed;inset:0;background:rgba(13,13,13,.85);z-index:3000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.login-box{background:#fff;border-radius:16px;padding:40px 44px;width:380px;max-width:95vw;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.25)}
+.login-logo{display:inline-block;background:var(--red);color:#fff;font-family:'Syne',sans-serif;font-weight:800;font-size:11px;letter-spacing:2px;padding:4px 12px;border-radius:4px;margin-bottom:12px}
+.login-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;margin-bottom:4px}
+.login-sub{color:var(--mu);font-size:12.5px;margin-bottom:24px}
+.login-inp{width:100%;padding:11px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box}
+.login-inp:focus{border-color:var(--blue)}
+.login-btn{width:100%;padding:12px;background:var(--red);color:#fff;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;transition:background .15s}
+.login-btn:hover{background:#c4001f}
+.login-err{color:var(--red);font-size:12px;margin-top:6px;min-height:16px}
+/* USER BADGE no topbar */
+.user-badge{display:flex;align-items:center;gap:7px;background:var(--s2);border-radius:20px;padding:5px 12px 5px 6px;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid var(--bdr)}
+.user-av{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+/* COMENTÁRIOS */
+.coments-area{margin-top:18px}
+.coments-title{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.coment-item{background:var(--s2);border-radius:8px;padding:10px 13px;margin-bottom:8px;font-size:12.5px}
+.coment-header{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.coment-av{width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.coment-autor{font-weight:600;font-size:12px}
+.coment-dt{font-size:10.5px;color:var(--mu);margin-left:auto}
+.coment-txt{color:var(--txt);line-height:1.5}
+.coment-input-area{display:flex;gap:8px;align-items:flex-end;margin-top:10px}
+.coment-ta{flex:1;padding:9px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;resize:none;height:64px;outline:none}
+.coment-ta:focus{border-color:var(--blue)}
+/* AUTORIA no card kanban */
+.kcard-autoria{font-size:10px;color:var(--mu);margin-top:4px;display:flex;gap:8px;flex-wrap:wrap}
 </style>
 </head>
 <body>
 <div class="wrap">
 
+<!-- MODAL LOGIN -->
+<div class="ov-login" id="ovLogin">
+  <div class="login-box">
+    <div class="login-logo">FIRJAN SENAI</div>
+    <div class="login-title">Gestão de Projetos EAD</div>
+    <div class="login-sub">Identifique-se para acessar o sistema</div>
+    <input class="login-inp" id="loginNome" placeholder="Seu nome completo" autocomplete="off"
+      onkeydown="if(event.key==='Enter')fazerLogin()">
+    <input class="login-inp" id="loginSenha" type="password" placeholder="Senha"
+      onkeydown="if(event.key==='Enter')fazerLogin()">
+    <button class="login-btn" onclick="fazerLogin()">Entrar →</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
 <!-- MODAL MOTIVO DE ATRASO -->
 <div class="ov-motivo" id="ovMotivo">
   <div class="motivo-box">
@@ -291,6 +334,10 @@ tr.canc-row td{opacity:.55}
     <div class="tp-r">
       <span class="tp-date" id="topDate"></span>
       <button class="btn bg2 bsm" onclick="exportCSV()">⬇️ Exportar CSV</button>
+      <div class="user-badge" id="userBadge" onclick="fazerLogout()" title="Clique para sair">
+        <div class="user-av" id="userAv">?</div>
+        <span id="userNome">...</span>
+      </div>
       <button class="btn br" onclick="openNew()">+ Novo Projeto</button>
     </div>
   </div>
@@ -754,6 +801,7 @@ function rKanban(){
             ${avList(p.resps)}
             <span style="font-size:10.5px;font-weight:600;color:var(--mu)">${p.pct}%</span>
           </div>
+          ${p.criadoPor?`<div class="kcard-autoria"><span>✏️ ${p.criadoPor}</span>${p.editadoPor&&p.editadoPor!==p.criadoPor?`<span>· editado: ${p.editadoPor}</span>`:''}</div>`:''}
         </div>`;
       }).join('')}
     </div>`;
@@ -926,31 +974,18 @@ function rKPIs(){
 
   // Calcular tempo médio real de cada etapa a partir de projetos concluídos
   const etapaMedArr = ETPS_DEF.map((e,i)=>{
+    // Para cada etapa concluída, mede dias entre e.prazo (início previsto) e e.fim (conclusão real)
+    // Etapas sem prazo: conta 1 dia simbólico para aparecer no gráfico
     const amostras=[];
     activeDB().concat(cancelDB()).forEach(p=>{
       const et=(p.etapas||[])[i];
-      if(et&&et.done&&et.prazo&&et.fim){
-        const dias=Math.max(0,Math.round((new Date(et.fim)-new Date(et.prazo))/(864e5)));
-        // usa diferença entre prazo definido e fim real como proxy de duração
-        amostras.push(dias);
-      }
-      // alternativa: se tem prazo e fim, usar diferença
-      if(et&&et.done&&et.inicio&&et.fim){
-        const dias=Math.max(1,Math.round((new Date(et.fim)-new Date(et.inicio))/(864e5)));
-        amostras.push(dias);
-      }
+      if(!et||!et.done||!et.fim) return;
+      const ref=et.prazo||et.inicio;
+      const dias=ref ? Math.max(1,Math.round((new Date(et.fim)-new Date(ref))/(864e5))) : 1;
+      amostras.push(dias);
     });
-    // dedup simples (pode ter duplicatas pelo duplo push acima — usar apenas inicio→fim)
-    const amostrasLimpo=[];
-    activeDB().concat(cancelDB()).forEach(p=>{
-      const et=(p.etapas||[])[i];
-      if(et&&et.done&&et.inicio&&et.fim){
-        const dias=Math.max(1,Math.round((new Date(et.fim)-new Date(et.inicio))/(864e5)));
-        amostrasLimpo.push(dias);
-      }
-    });
-    const media=amostrasLimpo.length
-      ? Math.round(amostrasLimpo.reduce((a,b)=>a+b,0)/amostrasLimpo.length)
+    const media=amostras.length
+      ? Math.round(amostras.reduce((a,b)=>a+b,0)/amostras.length)
       : null;
     const nomeAbrev=[
       'Reunião Inicial','Elaboração PI','Revisão PI','Rev. Textual PI',
@@ -958,20 +993,20 @@ function rKPIs(){
       'Prod. Gráficos','Entrega Review','Solic. Ajustes','Impl. Ajustes',
       'Validação Final','Rev. Textual','Homologação','Instalação SIRH'
     ][i]||e.lb;
-    return{n:nomeAbrev, d:media, r:e.r};
+    return{n:nomeAbrev, d:media, r:e.r, amostras:amostras.length};
   });
   const comDados=etapaMedArr.filter(e=>e.d!==null);
   const mx=comDados.length?Math.max(...comDados.map(e=>e.d),1):1;
   document.getElementById('etapaBars').innerHTML=etapaMedArr.map(e=>`
-    <div style="margin-bottom:7px">
+    <div style="margin-bottom:8px">
       <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">
-        <span>${e.n}</span>
+        <span>${e.n}${e.amostras>0?`<span style="color:var(--mu);font-size:10px;margin-left:5px">(${e.amostras} proj.)</span>`:''}</span>
         <strong>${e.d!==null?e.d+'d':'—'}</strong>
       </div>
       <div style="height:5px;background:var(--bdr);border-radius:3px;overflow:hidden">
         ${e.d!==null?`<div style="height:100%;width:${e.d/mx*100}%;background:${e.r==='cl'?'var(--org)':'var(--blue)'};border-radius:3px"></div>`:''}
       </div>
-      ${e.d===null?'<div style="font-size:10px;color:var(--mu)">Sem dados ainda</div>':''}
+      ${e.d===null?'<div style="font-size:10px;color:var(--mu);margin-top:1px">Sem dados ainda</div>':''}
     </div>`).join('');
 
   // Contar projetos por recurso
@@ -1041,7 +1076,10 @@ function rCancelados(){
       <td style="font-size:11.5px">${colLabel(p.col)}</td>
       <td>${progH(p,'70px')}</td>
       <td style="font-size:12px;color:var(--mu);max-width:220px">${p.cancelMotivo||'—'}</td>
-      <td><button class="btn bg2 bsm" onclick="reativarP(${p.id})">↩️ Reativar</button></td>
+      <td>
+        <button class="btn bg2 bsm" onclick="reativarP(${p.id})">↩️ Reativar</button>
+        <button class="btn bd bsm" style="margin-top:4px" onclick="delP(${p.id})">🗑️ Remover Projeto</button>
+      </td>
     </tr>`).join('');
 }
 
@@ -1146,17 +1184,56 @@ function openDet(id){
     <div style="overflow-x:auto">
     <table class="et"><thead><tr><th>Etapa</th><th>Responsável</th><th>Prazo da Etapa</th><th>Término Real</th><th>Situação</th><th>Obs.</th></tr></thead>
     <tbody>${eRows}</tbody></table></div>
+    <div class="coments-area">
+      <hr class="dv" style="margin:18px 0 14px">
+      <div class="coments-title">💬 Anotações e Comentários <span style="font-weight:400;font-size:11px;color:var(--mu)">${(p.comentarios||[]).length} comentário(s)</span></div>
+      <div id="comentsList">
+        ${(p.comentarios||[]).length===0
+          ? '<div style="color:var(--mu);font-size:12px;padding:8px 0">Nenhuma anotação ainda.</div>'
+          : (p.comentarios||[]).slice().reverse().map(cm=>`
+            <div class="coment-item">
+              <div class="coment-header">
+                <div class="coment-av">${cm.autor.charAt(0).toUpperCase()}</div>
+                <span class="coment-autor">${cm.autor}</span>
+                <span class="coment-dt">${cm.dt}</span>
+              </div>
+              <div class="coment-txt">${cm.txt.replace(/\n/g,'<br>')}</div>
+            </div>`).join('')
+        }
+      </div>
+      <div class="coment-input-area">
+        <textarea class="coment-ta" id="comentTa" placeholder="Escreva uma anotação..."></textarea>
+        <button class="btn br bsm" onclick="adicionarComent(${p.id})" style="padding:8px 14px;height:64px">💬<br>Enviar</button>
+      </div>
+    </div>
   `;
 
   document.getElementById('detFt').innerHTML=`
     <button class="btn bg2" onclick="cm('ovDet')">Fechar</button>
     ${!p.cancelado?`<button class="btn bgray" onclick="abrirCanc(${p.id})">🚫 Cancelar Projeto</button>`:''}
     <button class="btn bb" onclick="cm('ovDet');openEdit(${p.id})">✏️ Editar</button>
+    <button class="btn bd" onclick="cm('ovDet');delP(${p.id})">🗑️ Remover Projeto</button>
   `;
   document.getElementById('ovDet').classList.add('on');
 }
 
 function dl2(l,v){return`<div class="dl"><div class="dll">${l}</div><div class="dlv">${v}</div></div>`}
+
+function adicionarComent(pid){
+  const ta=document.getElementById('comentTa');
+  const txt=(ta?.value||'').trim();
+  if(!txt){showToast('⚠️ Escreva algo antes de enviar');return;}
+  const p=DB.find(x=>x.id===pid);if(!p)return;
+  if(!p.comentarios)p.comentarios=[];
+  const autor=localStorage.getItem('firjan_user')||'Desconhecido';
+  const agora=new Date();
+  const dt=agora.toLocaleDateString('pt-BR')+' '+agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  p.comentarios.push({autor,dt,txt});
+  fbSalvarProjeto(p);
+  ta.value='';
+  openDet(pid);
+  showToast('💬 Comentário adicionado!');
+}
 
 let _motivoPid=null, _motivoIdx=null;
 
@@ -1336,6 +1413,8 @@ function salvar(){
   const prazo=getDateField('fp');
   const inicio=getDateField('fi');
 
+  const usuarioAtual = localStorage.getItem('firjan_user')||'Desconhecido';
+  const projAnterior = editId?DB.find(x=>x.id===editId):null;
   const proj={
     id:editId||NXT++, nome,
     recursos:getSelectedRecs(), desc:document.getElementById('fd').value,
@@ -1343,9 +1422,12 @@ function salvar(){
     criado:getDateField('fcr')||td(),
     inicio, prazo, termino:getDateField('fte'),
     pct, prazObs:document.getElementById('fpo').value,
-    cancelado:editId?(DB.find(x=>x.id===editId)?.cancelado||false):false,
-    cancelEm:editId?(DB.find(x=>x.id===editId)?.cancelEm||''):'',
-    cancelMotivo:editId?(DB.find(x=>x.id===editId)?.cancelMotivo||''):'',
+    cancelado:editId?(projAnterior?.cancelado||false):false,
+    cancelEm:editId?(projAnterior?.cancelEm||''):'',
+    cancelMotivo:editId?(projAnterior?.cancelMotivo||''):'',
+    criadoPor:editId?(projAnterior?.criadoPor||usuarioAtual):usuarioAtual,
+    editadoPor:editId?usuarioAtual:(projAnterior?.editadoPor||null),
+    comentarios:projAnterior?.comentarios||[],
     etapas,
   };
 
@@ -1542,9 +1624,61 @@ function conectarFirebase(){
   carregarSDKeFire(url);
 }
 
+
+// ══════════════════════════════════════════════
+//  LOGIN — identificação do usuário
+// ══════════════════════════════════════════════
+const USUARIOS = [
+  {nome:'Daniel David', senha:'admin'},
+];
+
+function iniciais(nome){
+  const p=nome.trim().split(' ');
+  return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():nome.slice(0,2).toUpperCase();
+}
+
+function fazerLogin(){
+  const nome=document.getElementById('loginNome').value.trim();
+  const senha=document.getElementById('loginSenha').value;
+  const err=document.getElementById('loginErr');
+  const u=USUARIOS.find(x=>x.nome.toLowerCase()===nome.toLowerCase()&&x.senha===senha);
+  if(!u){err.textContent='Nome ou senha incorretos.';return;}
+  localStorage.setItem('firjan_user', u.nome);
+  document.getElementById('ovLogin').style.display='none';
+  atualizarUserBadge(u.nome);
+  showToast('👋 Bem-vindo, '+u.nome.split(' ')[0]+'!');
+}
+
+function fazerLogout(){
+  if(!confirm('Sair do sistema?'))return;
+  localStorage.removeItem('firjan_user');
+  mostrarLogin();
+}
+
+function atualizarUserBadge(nome){
+  const av=document.getElementById('userAv');
+  const nm=document.getElementById('userNome');
+  if(av)av.textContent=iniciais(nome);
+  if(nm)nm.textContent=nome.split(' ')[0];
+}
+
+function mostrarLogin(){
+  document.getElementById('loginNome').value='';
+  document.getElementById('loginSenha').value='';
+  document.getElementById('loginErr').textContent='';
+  document.getElementById('ovLogin').style.display='flex';
+}
 // ── INIT ──
 document.getElementById('topDate').textContent =
   new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+// Verificar login
+const usuarioSalvo = localStorage.getItem('firjan_user');
+if(usuarioSalvo){
+  atualizarUserBadge(usuarioSalvo);
+} else {
+  mostrarLogin();
+}
 
 const savedUrl = localStorage.getItem(CFG_KEY);
 if(savedUrl){
