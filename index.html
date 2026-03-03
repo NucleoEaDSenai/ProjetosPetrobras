@@ -434,12 +434,10 @@ tr.canc-row td{opacity:.55}
     <!-- TIMELINE -->
     <div class="view" id="view-timeline">
       <div class="sh" style="flex-wrap:wrap;gap:10px;margin-bottom:14px">
-        <div class="st" id="timelineTitle">Cronograma Geral</div>
+        <div class="st" id="tlTitle">Cronograma Geral</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <select class="fi-sm" id="tFiltAno" onchange="rTimeline()" style="width:110px">
-            <option value="">Todos os anos</option>
-          </select>
-          <select class="fi-sm" id="tFiltSit" onchange="rTimeline()" style="width:165px">
+          <select class="fi-sm" id="tlAno" onchange="rTimeline()" style="width:110px"></select>
+          <select class="fi-sm" id="tlFiltSit" onchange="rTimeline()" style="width:170px">
             <option value="">Todos os projetos</option>
             <option value="andamento">Em Andamento</option>
             <option value="concluido">Concluídos</option>
@@ -447,13 +445,16 @@ tr.canc-row td{opacity:.55}
             <option value="aguardando">Aguardando</option>
             <option value="cancelado">Cancelados</option>
           </select>
-          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;user-select:none">
-            <input type="checkbox" id="tShowEtapas" onchange="rTimeline()"> Mostrar etapas
-          </label>
+          <span id="tlCount" style="font-size:11.5px;color:var(--mu)"></span>
         </div>
       </div>
-      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px" id="tLegenda"></div>
-      <div class="gw"><div id="ganttWrap"></div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px" id="tLegenda"></div>
+      <div class="gw" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:900px">
+          <thead id="ganttHead"></thead>
+          <tbody id="ganttBody"></tbody>
+        </table>
+      </div>
     </div>
 
     <!-- KPIs -->
@@ -976,9 +977,26 @@ function rList(){
 // ── TIMELINE ──
 const MNS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 function rTimeline(){
+  // Popular select de anos com todos os anos existentes nos projetos
+  const todosP = activeDB().concat(cancelDB());
+  const anoAtual = new Date().getFullYear();
+  const anosSet = new Set([anoAtual]);
+  todosP.forEach(p => {
+    [p.inicio, p.criado, p.prazo, p.termino, p.cancelEm].forEach(d => {
+      if(d) anosSet.add(new Date(d).getFullYear());
+    });
+  });
+  const anoEl = document.getElementById('tlAno');
+  if(anoEl && (!anoEl.value || !anoEl.options.length)){
+    const sorted = [...anosSet].sort((a,b)=>a-b);
+    anoEl.innerHTML = sorted.map(a =>
+      `<option value="${a}" ${a===anoAtual?'selected':''}>${a}</option>`
+    ).join('');
+  }
+
   document.getElementById('ganttBody').innerHTML='';
 
-  const anoSel=parseInt(document.getElementById('tlAno')?.value||new Date().getFullYear());
+  const anoSel=parseInt(document.getElementById('tlAno')?.value||anoAtual);
   const filtSit=document.getElementById('tlFiltSit')?.value||'';
   document.getElementById('tlTitle').textContent='Cronograma Geral — '+anoSel;
 
@@ -994,9 +1012,16 @@ function rTimeline(){
     '<th style="min-width:65px;text-align:center">Prog.</th>'+
     '<th style="min-width:48px;text-align:center">Sit.</th></tr>';
 
-  const todos=activeDB().concat(cancelDB());
-  let projs=todos.filter(p=>{
+  // Inclui projetos cujo período cruza o ano selecionado
+  let projs=todosP.filter(p=>{
+    const ini = p.inicio||p.criado;
+    const fim = p.termino||p.prazo;
+    if(ini && fim){
+      const y1=new Date(ini).getFullYear(), y2=new Date(fim).getFullYear();
+      if(y1<=anoSel && y2>=anoSel) return true;
+    }
     const datas=[p.inicio,p.criado,p.prazo,p.termino,p.cancelEm].filter(Boolean);
+    if(!datas.length) return true;
     return datas.some(d=>new Date(d).getFullYear()===anoSel);
   });
   if(filtSit) projs=projs.filter(p=>(p.cancelado?'cancelado':calcSit(p))===filtSit);
@@ -1063,7 +1088,14 @@ function rTimeline(){
 
 // ── KPIs ──
 function rKPIs(){
-  const act=activeDB(),total=act.length||1;
+  const act=activeDB();
+  if(act.length===0){
+    document.getElementById('kpiGrid').innerHTML='<div style="color:var(--mu);font-size:13px;padding:20px">Nenhum projeto cadastrado ainda.</div>';
+    document.getElementById('etapaBars').innerHTML='<div style="color:var(--mu);font-size:12px;padding:8px 0">Sem dados ainda</div>';
+    document.getElementById('tipoBars').innerHTML='<div style="color:var(--mu);font-size:12px;padding:8px 0">Sem dados ainda</div>';
+    return;
+  }
+  const total=act.length||1;
   const conc=act.filter(p=>calcSit(p)==='concluido').length;
   const avg=Math.round(act.reduce((a,p)=>a+p.pct,0)/total);
   function dn(val,col,lbl,sub){
@@ -1177,7 +1209,8 @@ function rAtrasos(){
     const etapas = p.etapas || [];
 
     etapas.forEach((e, i) => {
-      if(!e.prazo) return; // etapa sem prazo não entra no relatório
+      // Etapas sem prazo E sem fim real não entram no relatório
+      if(!e.prazo && !e.fim) return;
 
       // Data em que a etapa anterior foi concluída (referência de início real)
       let antFim = null;
