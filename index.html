@@ -153,13 +153,23 @@ tr:hover td{background:#FAFAF9}
 .chk.cwait{background:var(--yel);border-color:var(--yel);color:#fff}
 /* GANTT */
 .gw{background:#fff;border-radius:var(--r);border:1px solid var(--bdr);overflow-x:auto}
-.gt{width:100%;border-collapse:collapse;min-width:920px}
-.gt th{background:var(--dark);color:rgba(255,255,255,.55);font-size:9.5px;padding:9px;text-align:center;border-right:1px solid rgba(255,255,255,.07);font-family:'Syne',sans-serif;letter-spacing:.5px}
-.gt th.pj{text-align:left;width:190px}
-.gt td{padding:6px 9px;border-bottom:1px solid var(--bdr);border-right:1px solid var(--bdr);font-size:12px}
-.gt td.pj{font-weight:500}
-.gt td.bc{padding:4px 2px}
-.gbar{height:20px;border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:9px;font-weight:700;color:#fff}
+.gt{width:100%;border-collapse:collapse;min-width:700px}
+.gt th{background:var(--dark);color:rgba(255,255,255,.7);font-size:10px;padding:8px 4px;text-align:center;border-right:1px solid rgba(255,255,255,.07);white-space:nowrap;position:sticky;top:0;z-index:2}
+.gt th.pj{text-align:left;width:210px;position:sticky;left:0;z-index:3;background:var(--dark)}
+.gt th.tl-hoje{background:#1e3a5f!important}
+.gt td{padding:3px 2px;border-bottom:1px solid var(--bdr);border-right:1px solid var(--bdr);font-size:11px}
+.gt td.pj{font-weight:500;padding:6px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px;position:sticky;left:0;background:#fff;z-index:1;cursor:pointer}
+.gt td.pj:hover{color:var(--blue);text-decoration:underline}
+.gt td.bc{padding:2px 2px;min-width:28px;position:relative}
+.gt td.bc-hoje{background:rgba(0,61,165,.05)}
+.gt tr.et-row td{background:rgba(0,0,0,.013)}
+.gt tr.et-row td.pj{background:rgba(0,0,0,.013);padding-left:28px;font-size:10.5px;color:var(--mu);font-weight:400;cursor:default}
+.gbar{height:18px;border-radius:3px;display:flex;align-items:center;padding-left:5px;font-size:9px;font-weight:700;color:#fff;overflow:hidden;min-width:4px}
+.gbar-et{height:8px;border-radius:2px;min-width:3px}
+.tl-legend{display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 7px;border-radius:12px;font-size:11px;border:1px solid var(--bdr);background:#fff}
+.gt tr:hover td{background:rgba(0,61,165,.04)}
+.gt tr td.pj{background:#fff}
+.gt tr:hover td.pj{background:rgba(0,61,165,.06)}
 /* DELAY BADGE */
 .db{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:10.5px;font-weight:600}
 .deq{background:#FEE2E2;color:#991B1B}
@@ -423,11 +433,27 @@ tr.canc-row td{opacity:.55}
 
     <!-- TIMELINE -->
     <div class="view" id="view-timeline">
-      <div class="sh"><div class="st">Cronograma Geral — 2025</div></div>
-      <div class="gw"><table class="gt">
-        <thead><tr><th class="pj">Projeto</th><th>Jan</th><th>Fev</th><th>Mar</th><th>Abr</th><th>Mai</th><th>Jun</th><th>Jul</th><th>Ago</th><th>Set</th><th>Out</th><th>Nov</th><th>Dez</th></tr></thead>
-        <tbody id="ganttBody"></tbody>
-      </table></div>
+      <div class="sh" style="flex-wrap:wrap;gap:10px;margin-bottom:14px">
+        <div class="st" id="timelineTitle">Cronograma Geral</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select class="fi-sm" id="tFiltAno" onchange="rTimeline()" style="width:110px">
+            <option value="">Todos os anos</option>
+          </select>
+          <select class="fi-sm" id="tFiltSit" onchange="rTimeline()" style="width:165px">
+            <option value="">Todos os projetos</option>
+            <option value="andamento">Em Andamento</option>
+            <option value="concluido">Concluídos</option>
+            <option value="atrasado">Atrasados</option>
+            <option value="aguardando">Aguardando</option>
+            <option value="cancelado">Cancelados</option>
+          </select>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;user-select:none">
+            <input type="checkbox" id="tShowEtapas" onchange="rTimeline()"> Mostrar etapas
+          </label>
+        </div>
+      </div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:13px" id="tLegenda"></div>
+      <div class="gw"><div id="ganttWrap"></div></div>
     </div>
 
     <!-- KPIs -->
@@ -950,19 +976,89 @@ function rList(){
 // ── TIMELINE ──
 const MNS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 function rTimeline(){
-  document.getElementById('ganttBody').innerHTML=activeDB().map(p=>{
-    const sm=p.inicio?new Date(p.inicio).getMonth():p.criado?new Date(p.criado).getMonth():0;
-    const em=p.prazo?new Date(p.prazo).getMonth():sm;
-    const col=COLUNAS[p.col]?.dot||'#9CA3AF';
+  document.getElementById('ganttBody').innerHTML='';
+
+  const anoSel=parseInt(document.getElementById('tlAno')?.value||new Date().getFullYear());
+  const filtSit=document.getElementById('tlFiltSit')?.value||'';
+  document.getElementById('tlTitle').textContent='Cronograma Geral — '+anoSel;
+
+  const hojeD=new Date();
+  const hojeMes=hojeD.getFullYear()===anoSel?hojeD.getMonth():-1;
+  const hojeDay=hojeD.getDate();
+
+  const headCols=MNS.map((m,i)=>i===hojeMes
+    ?'<th style="color:#fff;background:var(--red)">'+m+'</th>'
+    :'<th>'+m+'</th>').join('');
+  document.getElementById('ganttHead').innerHTML=
+    '<tr><th class="pj">Projeto</th>'+headCols+
+    '<th style="min-width:65px;text-align:center">Prog.</th>'+
+    '<th style="min-width:48px;text-align:center">Sit.</th></tr>';
+
+  const todos=activeDB().concat(cancelDB());
+  let projs=todos.filter(p=>{
+    const datas=[p.inicio,p.criado,p.prazo,p.termino,p.cancelEm].filter(Boolean);
+    return datas.some(d=>new Date(d).getFullYear()===anoSel);
+  });
+  if(filtSit) projs=projs.filter(p=>(p.cancelado?'cancelado':calcSit(p))===filtSit);
+
+  const ordSit={atrasado:0,andamento:1,aguardando:2,concluido:3,cancelado:4};
+  projs.sort((a,b)=>{
+    const sA=ordSit[a.cancelado?'cancelado':calcSit(a)]??5;
+    const sB=ordSit[b.cancelado?'cancelado':calcSit(b)]??5;
+    return sA!==sB?sA-sB:new Date(a.prazo||a.criado||0)-new Date(b.prazo||b.criado||0);
+  });
+
+  function sitColor(p){
+    if(p.cancelado)return '#6B7280';
+    return {concluido:'#1A8A4A',atrasado:'#E8002D',andamento:'#003DA5',aguardando:'#9CA3AF'}[calcSit(p)]||'#9CA3AF';
+  }
+  function sitOpacity(p){
+    if(p.cancelado)return 0.4;
+    return {concluido:1,atrasado:0.9,andamento:0.8,aguardando:0.5}[calcSit(p)]||0.8;
+  }
+  function sitIcon(p){
+    if(p.cancelado)return '<span class="bdg b-canc" style="font-size:10px">🚫</span>';
+    const ico={concluido:'✅',atrasado:'⚠️',andamento:'🔄',aguardando:'⏳'}[calcSit(p)]||'';
+    const cls={concluido:'b-conc',atrasado:'b-atq',andamento:'b-and',aguardando:'b-ag'}[calcSit(p)]||'';
+    return ico?'<span class="bdg '+cls+'" style="font-size:10px">'+ico+'</span>':'';
+  }
+  function todayPct(mes){return Math.round((hojeDay/new Date(anoSel,mes+1,0).getDate())*100);}
+
+  const rowsHtml=projs.map(p=>{
+    const cor=sitColor(p),op=sitOpacity(p),pct=p.pct||0;
+    const concl=calcSit(p)==='concluido';
+    const dtIni=p.inicio||p.criado;
+    const dtFim=p.termino||p.prazo;
+    const nS=p.nome.length>26?p.nome.slice(0,24)+'…':p.nome;
+
+    if(!dtIni&&!dtFim) return '<tr><td class="pj" style="cursor:pointer;color:var(--blue)" onclick="openDet('+p.id+')" title="'+p.nome+'">'+nS+'</td>'+MNS.map(()=>'<td class="bc"></td>').join('')+'<td style="text-align:center;font-size:11px;color:var(--mu)">'+pct+'%</td><td style="text-align:center">'+sitIcon(p)+'</td></tr>';
+
+    const sy=dtIni?new Date(dtIni).getFullYear():anoSel;
+    const sm=dtIni?new Date(dtIni).getMonth():0;
+    const ey=dtFim?new Date(dtFim).getFullYear():sy;
+    const em=dtFim?new Date(dtFim).getMonth():sm;
+    const colS=sy<anoSel?0:sy>anoSel?99:sm;
+    const colE=ey>anoSel?11:ey<anoSel?-1:em;
+    const vencido=dtFim&&!concl&&new Date(dtFim)<new Date();
+
     const cells=MNS.map((_,i)=>{
-      if(i>=sm&&i<=em){
-        const br=`${i===sm?'4px':'0'} ${i===em?'4px':'0'} ${i===em?'4px':'0'} ${i===sm?'4px':'0'}`;
-        return`<td class="bc"><div class="gbar" style="background:${col};border-radius:${br};opacity:.8">${i===sm?p.pct+'%':''}</div></td>`;
-      }
-      return`<td class="bc"></td>`;
+      if(i<colS||i>colE)return'<td class="bc"></td>';
+      const iF=i===colS,iL=i===colE;
+      const bdr='border-radius:'+(iF?'4px':'0')+' '+(iL?'4px':'0')+' '+(iL?'4px':'0')+' '+(iF?'4px':'0');
+      const bs=(iL&&vencido)?'border:2px dashed '+cor+';background:transparent;box-sizing:border-box;'+bdr:'background:'+cor+';opacity:'+op+';'+bdr;
+      let inn=iF?'<span class="gbar-label">'+(p.nome.length>14?p.nome.slice(0,12)+'…':p.nome)+' · '+pct+'%</span>':'';
+      if(i===hojeMes)inn+='<div class="gbar-today" style="left:'+todayPct(i)+'%"></div>';
+      return'<td class="bc"><div class="gbar" style="'+bs+'">'+inn+'</div></td>';
     }).join('');
-    return`<tr><td class="pj" title="${p.nome}">${p.nome.length>24?p.nome.slice(0,22)+'…':p.nome}</td>${cells}</tr>`;
+
+    let rb=concl?'background:rgba(26,138,74,.05)':p.cancelado?'opacity:.65':calcSit(p)==='atrasado'?'background:rgba(232,0,45,.03)':'';
+    const pg='<div class="pw" style="min-width:52px"><div class="pb"><div class="pf2" style="width:'+pct+'%;background:'+cor+'"></div></div><span class="pp">'+pct+'%</span></div>';
+    return'<tr style="'+rb+'"><td class="pj" style="cursor:pointer;color:var(--blue)" onclick="openDet('+p.id+')" title="'+p.nome+'">'+nS+'</td>'+cells+'<td style="text-align:center">'+pg+'</td><td style="text-align:center">'+sitIcon(p)+'</td></tr>';
   }).join('');
+
+  document.getElementById('ganttBody').innerHTML=rowsHtml||'<tr><td colspan="15" style="text-align:center;padding:32px;color:var(--mu)">Nenhum projeto para '+anoSel+'</td></tr>';
+  const el=document.getElementById('tlCount');
+  if(el)el.textContent=projs.length+' projeto(s) exibido(s)';
 }
 
 // ── KPIs ──
