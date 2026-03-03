@@ -1333,59 +1333,38 @@ function escutarFirebase(db){
   fbProjetos = db.ref('projetos');
   fbNxtRef   = db.ref('nxt');
 
-  // Carregamento inicial: busca todos os projetos uma vez
-  // Depois usa child_added/changed/removed para atualizações incrementais
-  // Isso evita sobrescrever o DB local com snapshot parcial
+  let primeiraVez = true;
 
-  let carregouInicial = false;
+  // Listener único 'value' — recebe snapshot completo sempre que qualquer dado muda.
+  // Para evitar o problema de sobrescrever projetos locais recém-criados,
+  // fazemos um MERGE: mantemos projetos locais que ainda não chegaram no Firebase.
+  fbProjetos.on('value', snap => {
+    const remoto = snap.val();
+    const projetosRemotos = remoto ? Object.values(remoto).map(normalizar) : [];
 
-  // 1. Carga inicial completa
-  fbProjetos.once('value', snap => {
-    const data = snap.val();
-    DB = data ? Object.values(data).map(normalizar) : [];
-    carregouInicial = true;
+    if(primeiraVez){
+      // Na primeira leitura: substituir DB completamente com dados do servidor
+      DB = projetosRemotos;
+      primeiraVez = false;
+      // Garantir kanban ativo
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+      document.getElementById('view-kanban').classList.add('on');
+      document.querySelectorAll('.si').forEach(n=>n.classList.remove('on'));
+      document.querySelectorAll('.si').forEach(n=>{
+        if(n.getAttribute('onclick')==="nav('kanban')") n.classList.add('on');
+      });
+      document.getElementById('pageTitle').textContent='Quadro Kanban';
+    } else {
+      // Nas atualizações seguintes: merge inteligente
+      // Pega todos os IDs que estão no servidor
+      const idsRemotos = new Set(projetosRemotos.map(p=>p.id));
+      // Mantém projetos locais que AINDA NÃO chegaram no servidor (recém-criados)
+      const locaisNovos = DB.filter(p => !idsRemotos.has(p.id));
+      // DB final = remotos + locais ainda pendentes
+      DB = [...projetosRemotos, ...locaisNovos];
+    }
+
     renderAll();
-    // Garantir kanban ativo na primeira carga
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
-    document.getElementById('view-kanban').classList.add('on');
-    document.querySelectorAll('.si').forEach(n=>n.classList.remove('on'));
-    document.querySelectorAll('.si').forEach(n=>{
-      if(n.getAttribute('onclick')==="nav('kanban')") n.classList.add('on');
-    });
-    document.getElementById('pageTitle').textContent='Quadro Kanban';
-
-    // 2. Após carga inicial, escuta mudanças incrementais
-    // child_added dispara para cada filho existente + novos
-    // Usamos flag para ignorar os existentes (já carregados pelo once)
-    let ignorarExistentes = Object.keys(data||{});
-
-    fbProjetos.on('child_added', snap => {
-      if(!carregouInicial) return;
-      const key = snap.key;
-      // Ignorar projetos que já estavam no snapshot inicial
-      if(ignorarExistentes.includes(key)){
-        ignorarExistentes = ignorarExistentes.filter(k=>k!==key);
-        return;
-      }
-      const p = normalizar(snap.val());
-      // Adicionar apenas se não existe já (evita duplicata)
-      if(!DB.find(x=>x.id===p.id)) DB.push(p);
-      renderAll();
-    });
-
-    fbProjetos.on('child_changed', snap => {
-      if(!carregouInicial) return;
-      const p = normalizar(snap.val());
-      DB = DB.map(x => x.id===p.id ? p : x);
-      renderAll();
-    });
-
-    fbProjetos.on('child_removed', snap => {
-      if(!carregouInicial) return;
-      const p = snap.val();
-      DB = DB.filter(x => x.id !== p.id);
-      renderAll();
-    });
   });
 
   // NXT — só atualiza se o valor remoto for maior (nunca reduz)
