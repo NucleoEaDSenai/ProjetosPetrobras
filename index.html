@@ -284,7 +284,7 @@ tr.canc-row td{opacity:.55}
 <div class="ov-login" id="ovLogin">
   <div class="login-box">
     <div class="login-logo">FIRJAN SENAI</div>
-    <div class="login-title">Projetos Petrobras</div>
+    <div class="login-title">Gestão de Projetos EAD</div>
     <div class="login-sub">Identifique-se para acessar o sistema</div>
     <input class="login-inp" id="loginNome" placeholder="Seu nome completo" autocomplete="off"
       onkeydown="if(event.key==='Enter')fazerLogin()">
@@ -442,14 +442,41 @@ tr.canc-row td{opacity:.55}
 
     <!-- ATRASOS -->
     <div class="view" id="view-atrasos">
-      <div class="st" style="margin-bottom:16px">Relatório de Atrasos — Equipe &amp; Cliente</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
-        <div class="kk"><div class="kkt" style="color:var(--red)">⚠️ Atrasos por Equipe</div><div id="atrasosEq"></div></div>
-        <div class="kk"><div class="kkt" style="color:var(--org)">⏳ Aguardando Cliente</div><div id="atrasosCl"></div></div>
+      <div class="st" style="margin-bottom:16px">Relatório de Atrasos — Histórico Completo por Etapa</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px" id="atrasosResumo"></div>
+      <div class="fbox" style="margin-bottom:18px">
+        <div class="fbox-row">
+          <div class="fg-sm"><label class="fl-sm">Situação do Projeto</label>
+            <select class="fi-sm" id="aFiltSit" onchange="rAtrasos()">
+              <option value="">Todos</option>
+              <option value="ativo">Ativos</option>
+              <option value="concluido">Concluídos</option>
+              <option value="cancelado">Cancelados</option>
+            </select>
+          </div>
+          <div class="fg-sm"><label class="fl-sm">Responsável da Etapa</label>
+            <select class="fi-sm" id="aFiltResp" onchange="rAtrasos()">
+              <option value="">Todos</option>
+              <option value="eq">👥 Equipe</option>
+              <option value="cl">🏢 Cliente</option>
+            </select>
+          </div>
+          <div class="fg-sm"><label class="fl-sm">Status da Etapa</label>
+            <select class="fi-sm" id="aFiltStatus" onchange="rAtrasos()">
+              <option value="">Todos</option>
+              <option value="pendente">Em aberto</option>
+              <option value="concluida">Concluída com atraso</option>
+            </select>
+          </div>
+          <button class="btn-lim" onclick="limparAFilts()">✕ Limpar</button>
+        </div>
       </div>
-      <div class="st" style="margin-bottom:13px">Detalhe por Etapa</div>
       <div class="tw"><table>
-        <thead><tr><th>Projeto</th><th>Etapa</th><th>Tipo</th><th>Prazo</th><th>Dias Atraso</th><th>Responsável</th></tr></thead>
+        <thead><tr>
+          <th>Projeto</th><th>Sit.</th><th>Etapa</th><th>Resp.</th>
+          <th>Prazo Etapa</th><th>Ant. Concluída em</th>
+          <th>Dias Atraso</th><th>Status Etapa</th><th>Motivo</th>
+        </tr></thead>
         <tbody id="atrasosDetail"></tbody>
       </table></div>
     </div>
@@ -1025,36 +1052,157 @@ function rKPIs(){
 
 // ── ATRASOS ──
 function rAtrasos(){
-  const act=activeDB();
-  const atq=act.filter(p=>calcSit(p)==='atrasado');
-  const atc=act.filter(p=>(p.etapas||[]).some(e=>e.r==='cl'&&!e.done&&e.prazo&&new Date(e.prazo)<new Date()));
-  document.getElementById('atrasosEq').innerHTML=atq.length===0?
-    '<div style="color:var(--green);font-size:13px;padding:6px 0">✅ Nenhum atraso de equipe</div>':
-    atq.map(p=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr)">
-      <div><div style="font-weight:600;font-size:12.5px">${p.nome}</div><div style="font-size:11px;color:var(--mu)">${(p.resps||[]).join(', ')} · Prazo: ${fd(p.prazo)}</div></div>
-      <span class="bdg b-atq">+${dd(p.prazo,td())}d</span></div>`).join('');
-  document.getElementById('atrasosCl').innerHTML=atc.length===0?
-    '<div style="color:var(--green);font-size:13px;padding:6px 0">✅ Nenhuma validação pendente</div>':
-    atc.map(p=>(p.etapas||[]).filter(e=>e.r==='cl'&&!e.done&&e.prazo&&new Date(e.prazo)<new Date()).map(e=>`
-      <div style="padding:8px 0;border-bottom:1px solid var(--bdr)">
-        <div style="font-weight:600;font-size:12.5px">${p.nome}</div>
-        <div style="font-size:11px;color:var(--mu)">${e.lb} · ${fd(e.prazo)}</div>
-        <span class="db dcl" style="margin-top:3px;display:inline-flex">⏳ ${dd(e.prazo,td())}d em atraso</span>
-      </div>`).join('')).join('');
-  let rows=[];
-  act.forEach(p=>{
-    (p.etapas||[]).forEach(e=>{
-      if(!e.done&&e.prazo&&new Date(e.prazo)<new Date()) rows.push({proj:p.nome,etapa:e.lb,r:e.r,prazo:e.prazo,d:dd(e.prazo,td()),resp:(p.resps||[]).join(', ')});
+  // Junta todos os projetos: ativos + concluidos + cancelados
+  const todos = activeDB().concat(cancelDB());
+
+  const filtSit    = document.getElementById('aFiltSit')?.value    || '';
+  const filtResp   = document.getElementById('aFiltResp')?.value   || '';
+  const filtStatus = document.getElementById('aFiltStatus')?.value || '';
+
+  // ── Montar lista de linhas de atraso ──────────────────────────────────────
+  // Para cada etapa de cada projeto que tem atraso (concluída com atraso OU
+  // ainda em aberto com prazo vencido), gera uma linha no histórico.
+  //
+  // "Dias Atraso" = contados a partir da ETAPA ANTERIOR ter sido concluída.
+  // Se não há etapa anterior, usa o prazo da própria etapa como referência.
+  // Para etapa ainda aberta, "hoje" é o fim.
+  // ──────────────────────────────────────────────────────────────────────────
+
+  let rows = [];
+  let totalEq=0, totalCl=0, totalAberto=0, totalHistorico=0;
+
+  todos.forEach(p => {
+    // Filtro de situação do projeto
+    const sitP = p.cancelado ? 'cancelado' : calcSit(p);
+    if(filtSit === 'ativo'     && (p.cancelado || sitP==='concluido')) return;
+    if(filtSit === 'concluido' && sitP !== 'concluido') return;
+    if(filtSit === 'cancelado' && !p.cancelado) return;
+
+    const etapas = p.etapas || [];
+
+    etapas.forEach((e, i) => {
+      if(!e.prazo) return; // etapa sem prazo não entra no relatório
+
+      // Data em que a etapa anterior foi concluída (referência de início real)
+      let antFim = null;
+      for(let j = i-1; j >= 0; j--){
+        if(etapas[j] && etapas[j].done && etapas[j].fim){
+          antFim = etapas[j].fim;
+          break;
+        }
+      }
+
+      // Referência de início = fim da etapa anterior OU prazo desta etapa
+      const refInicio = antFim || e.prazo;
+
+      // Calcular atraso
+      let diasAtraso = 0;
+      let statusEtapa = ''; // 'concluida_atraso' | 'aberta_atraso'
+      let fimRef = null;
+
+      if(e.done && e.fim){
+        // Etapa concluída: atraso = fim real - prazo
+        if(new Date(e.prazo) < new Date(e.fim)){
+          diasAtraso = Math.round((new Date(e.fim) - new Date(e.prazo)) / 864e5);
+          statusEtapa = 'concluida_atraso';
+          fimRef = e.fim;
+          totalHistorico++;
+          if(e.r==='eq') totalEq++; else totalCl++;
+        } else {
+          // Concluída no prazo — aparece no histórico só se filtro for "todos"
+          // Não incluir linhas sem atraso para não poluir
+          return;
+        }
+      } else if(!e.done && new Date(e.prazo) < new Date()){
+        // Etapa em aberto atrasada: atraso = hoje - prazo
+        // Mas se há uma etapa anterior, conta a partir dela
+        const base = antFim && new Date(antFim) > new Date(e.prazo)
+          ? antFim   // etapa anterior concluída depois do prazo desta = wait real
+          : e.prazo;
+        diasAtraso = Math.round((new Date() - new Date(base)) / 864e5);
+        statusEtapa = 'aberta_atraso';
+        totalAberto++;
+        if(e.r==='eq') totalEq++; else totalCl++;
+      } else {
+        return; // sem atraso
+      }
+
+      // Filtros de linha
+      if(filtResp && e.r !== filtResp) return;
+      if(filtStatus === 'pendente'  && statusEtapa !== 'aberta_atraso')   return;
+      if(filtStatus === 'concluida' && statusEtapa !== 'concluida_atraso') return;
+
+      rows.push({
+        projId: p.id,
+        proj: p.nome,
+        sitProjeto: sitP,
+        cancelado: p.cancelado,
+        etapa: e.lb,
+        r: e.r,
+        prazo: e.prazo,
+        antFim: antFim,
+        diasAtraso,
+        statusEtapa,
+        fim: e.fim || null,
+        motivo: e.atrasoMotivo || null,
+        diasCl: e.diasCl || null,
+        resp: (p.resps||[]).join(', '),
+      });
     });
-    if(calcSit(p)==='atrasado'&&!(p.etapas||[]).some(e=>!e.done&&e.prazo&&new Date(e.prazo)<new Date()))
-      rows.push({proj:p.nome,etapa:'Projeto Geral',r:'eq',prazo:p.prazo,d:dd(p.prazo,td()),resp:(p.resps||[]).join(', ')});
   });
-  document.getElementById('atrasosDetail').innerHTML=rows.length===0?
-    '<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--green)">✅ Nenhum atraso</td></tr>':
-    rows.map(r=>`<tr><td><strong>${r.proj}</strong></td><td>${r.etapa}</td>
-      <td>${r.r==='cl'?'<span class="db dcl">⏳ Cliente</span>':'<span class="db deq">⚠️ Equipe</span>'}</td>
-      <td>${fd(r.prazo)}</td><td><strong style="color:var(--red)">+${r.d}d</strong></td><td>${r.resp}</td></tr>`).join('');
+
+  // Ordenar: mais atraso primeiro
+  rows.sort((a,b) => b.diasAtraso - a.diasAtraso);
+
+  // ── Cards resumo ──────────────────────────────────────────────────────────
+  document.getElementById('atrasosResumo').innerHTML = `
+    <div class="sc cy"><div class="sc-l">Etapas em Atraso (aberto)</div><div class="sc-v">${totalAberto}</div><div class="sc-s">requerem atenção</div><div class="sc-i">⚠️</div></div>
+    <div class="sc cr"><div class="sc-l">Atrasos por Equipe</div><div class="sc-v">${totalEq}</div><div class="sc-s">equipe interna</div><div class="sc-i">👥</div></div>
+    <div class="sc cp"><div class="sc-l">Atrasos por Cliente</div><div class="sc-v">${totalCl}</div><div class="sc-s">aguardando cliente</div><div class="sc-i">🏢</div></div>
+    <div class="sc cg"><div class="sc-l">Histórico (concluídas c/ atraso)</div><div class="sc-v">${totalHistorico}</div><div class="sc-s">já finalizadas</div><div class="sc-i">📋</div></div>
+  `;
+
+  // ── Tabela ──────────────────────────────────────────────────────────────────
+  function sitProjBdg(row){
+    if(row.cancelado) return '<span class="bdg b-canc">🚫 Cancelado</span>';
+    const m={concluido:'<span class="bdg b-conc">✅ Concluído</span>',atrasado:'<span class="bdg b-atq">⚠️ Atrasado</span>',andamento:'<span class="bdg b-and">🔄 Andamento</span>',aguardando:'<span class="bdg b-ag">⏳ Aguardando</span>'};
+    return m[row.sitProjeto]||row.sitProjeto;
+  }
+
+  document.getElementById('atrasosDetail').innerHTML = rows.length === 0
+    ? '<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--green)">✅ Nenhum atraso encontrado com os filtros selecionados</td></tr>'
+    : rows.map(r => {
+        const respBdg = r.r==='cl'
+          ? '<span class="db dcl" style="font-size:11px">🏢 Cliente</span>'
+          : '<span class="db deq" style="font-size:11px">👥 Equipe</span>';
+        const statusBdg = r.statusEtapa==='concluida_atraso'
+          ? `<span class="sit sit-done" style="font-size:11px">✓ Concluída</span>`
+          : `<span class="sit sit-ov" style="font-size:11px">⚠️ Em aberto</span>`;
+        const motivoCell = r.motivo
+          ? `<span style="color:var(--red);font-size:11.5px" title="${r.motivo}">⚠️ ${r.motivo.length>35?r.motivo.slice(0,33)+'…':r.motivo}</span>`
+          : r.statusEtapa==='concluida_atraso'
+            ? '<span style="color:var(--mu);font-size:11px;font-style:italic">—</span>'
+            : '';
+        const diasColor = r.diasAtraso > 10 ? 'var(--red)' : r.diasAtraso > 5 ? 'var(--yel)' : 'var(--org)';
+        return `<tr>
+          <td><strong style="cursor:pointer;color:var(--blue)" onclick="openDet(${r.projId})">${r.proj}</strong><br><small style="color:var(--mu)">${r.resp}</small></td>
+          <td>${sitProjBdg(r)}</td>
+          <td style="font-size:12px">${r.etapa}</td>
+          <td>${respBdg}</td>
+          <td style="white-space:nowrap">${fd(r.prazo)}</td>
+          <td style="white-space:nowrap;color:var(--green)">${r.antFim ? fd(r.antFim) : '<span style="color:var(--mu);font-size:11px">primeira etapa</span>'}</td>
+          <td><strong style="color:${diasColor};font-size:14px">+${r.diasAtraso}d</strong></td>
+          <td>${statusBdg}</td>
+          <td style="min-width:140px">${motivoCell}</td>
+        </tr>`;
+      }).join('');
 }
+
+function limparAFilts(){
+  ['aFiltSit','aFiltResp','aFiltStatus'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  rAtrasos();
+}
+
 
 // ── CANCELADOS ──
 function rCancelados(){
