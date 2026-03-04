@@ -266,7 +266,8 @@ tr.canc-row td{opacity:.55}
 .login-inp{width:100%;padding:11px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box}
 .login-inp:focus{border-color:var(--blue)}
 .login-btn{width:100%;padding:12px;background:var(--cyan);color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;transition:background .15s}
-.login-btn:hover{background:#000}
+.login-btn:hover{background:#fff}
+.login-hint{font-size:11.5px;color:var(--mu);margin-top:10px;text-align:center}
 .login-err{color:var(--red);font-size:12px;margin-top:6px;min-height:16px}
 /* USER BADGE no topbar */
 .user-badge{display:flex;align-items:center;gap:7px;background:var(--s2);border-radius:20px;padding:5px 12px 5px 6px;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid var(--bdr)}
@@ -374,12 +375,13 @@ body.dark .carga-card{background:var(--surface);border-color:var(--bdr)}
     <div class="login-logo">FIRJAN SENAI</div>
     <div class="login-title">Gestão de Projetos EAD</div>
     <div class="login-sub">Identifique-se para acessar o sistema</div>
-    <input class="login-inp" id="loginNome" placeholder="Seu nome completo" autocomplete="off"
+    <input class="login-inp" id="loginNome" placeholder="Nome completo (ex: Daniel David)" autocomplete="off"
       onkeydown="if(event.key==='Enter')document.getElementById('loginSenha').focus()">
     <input class="login-inp" id="loginSenha" type="password" placeholder="Senha"
       onkeydown="if(event.key==='Enter')fazerLogin()">
-    <button class="login-btn" onclick="fazerLogin()">Entrar →</button>
+    <button class="login-btn" type="button" onclick="fazerLogin()">Entrar →</button>
     <div class="login-err" id="loginErr"></div>
+    <div class="login-hint">Digite o nome e senha cadastrados no sistema</div>
   </div>
 </div>
 <!-- MODAL MOTIVO DE ATRASO -->
@@ -2375,6 +2377,13 @@ const USUARIOS = [
   // {nome:'Maria Silva',  senha:'minhasenha'},
   // {nome:'João Souza',   senha:'outrasenha'},
 ];
+// DEBUG: remova em produção
+console.log('Usuários cadastrados:', USUARIOS.map(u=>u.nome));
+
+function iniciais(nome){
+  if(!nome) return '?';
+  return nome.trim().split(/\s+/).map(p=>p[0].toUpperCase()).slice(0,2).join('');
+}
 
 function fazerLogin(){
   const nome=document.getElementById('loginNome').value.trim();
@@ -2390,8 +2399,15 @@ function fazerLogin(){
   atualizarUserBadge(u.nome);
   showToast('👋 Bem-vindo, '+u.nome.split(' ')[0]+'!');
   const savedUrl=localStorage.getItem(CFG_KEY);
-  if(savedUrl&&!fbProjetos) carregarSDKeFire(savedUrl);
-  else if(fbProjetos) renderAll();
+  if(savedUrl&&!fbProjetos){
+    carregarSDKeFire(savedUrl);
+  } else if(fbProjetos){
+    renderAll();
+  } else {
+    // Sem Firebase configurado: mostrar tela de setup
+    document.getElementById('setupOv').style.display='flex';
+    renderAll();
+  }
 }
 
 function fazerLogout(){
@@ -2443,7 +2459,7 @@ const savedUrl = localStorage.getItem(CFG_KEY);
 if(savedUrl){
   carregarSDKeFire(savedUrl);
 } else {
-  // Só mostrar setup se já estiver logado (ou sem Firebase configurado)
+  // Sem Firebase configurado: só mostrar setup após login
   if(sessaoValida){
     document.getElementById('setupOv').style.display = 'flex';
   }
