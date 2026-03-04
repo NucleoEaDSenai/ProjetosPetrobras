@@ -266,7 +266,7 @@ tr.canc-row td{opacity:.55}
 .login-inp{width:100%;padding:11px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box}
 .login-inp:focus{border-color:var(--blue)}
 .login-btn{width:100%;padding:12px;background:var(--cyan);color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;transition:background .15s}
-.login-btn:hover{background:#fff}
+.login-btn:hover{background:#000}
 .login-err{color:var(--red);font-size:12px;margin-top:6px;min-height:16px}
 /* USER BADGE no topbar */
 .user-badge{display:flex;align-items:center;gap:7px;background:var(--s2);border-radius:20px;padding:5px 12px 5px 6px;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid var(--bdr)}
@@ -747,7 +747,10 @@ body.dark .carga-card{background:var(--surface);border-color:var(--bdr)}
 <div class="ov2" id="ovDet">
 <div class="modal" style="width:1100px">
   <div class="mhd">
-    <div class="mt" id="detTitle">Detalhes</div>
+    <div>
+      <div class="mt" id="detTitle">Detalhes</div>
+      <div id="detTagsRow" style="display:none;flex-wrap:wrap;gap:3px;margin-top:5px;align-items:center"></div>
+    </div>
     <button class="mcl" onclick="cm('ovDet')">✕</button>
   </div>
   <div class="mbody" id="detBody"></div>
@@ -1106,7 +1109,7 @@ function rList(){
   document.getElementById('listTbl').innerHTML=data.map(p=>{
     const{eq,cl}=delInf(p);
     return`<tr>
-      <td><strong>${p.nome}</strong><br><small style="color:var(--mu)">${p.area||''}</small></td>
+      <td><span style="font-weight:600;cursor:pointer" onclick="openDet(${p.id})">${p.nome}</span>${p.area?`<br><small style="color:var(--mu)">${p.area}</small>":""}${(p.tags||[]).length?`<div style="margin-top:3px">${tagsInline(p.tags)}</div>`:""}</td>
       <td>${recTags(p.recursos)}</td>
       <td>${avList(p.resps)}</td>
       <td style="font-size:11.5px"><span style="display:inline-flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:${colDot(p.col)};flex-shrink:0;display:inline-block"></span>${colLabel(p.col)}</span></td>
@@ -1530,6 +1533,8 @@ function sitEtapa(e){
 function openDet(id){
   const p=DB.find(x=>x.id===id);if(!p)return;
   document.getElementById('detTitle').textContent=p.nome;
+  const detTagsEl=document.getElementById('detTagsRow');
+  if(detTagsEl){const t=tagsInline(p.tags);detTagsEl.style.display=t?'flex':'none';detTagsEl.innerHTML=t?`<span style="font-size:11px;color:var(--mu);margin-right:3px">🏷️</span>${t}`:''}
   const{eq,cl}=delInf(p);
   const eRows=(p.etapas||[]).map((e,i)=>{
     const isCl=e.r==='cl';
@@ -1915,10 +1920,10 @@ function cm(id){document.getElementById(id).classList.remove('on')}
 
 // ── CSV ──
 function exportCSV(){
-  const hdr='ID,Nome,Recursos,Situação,Coluna,Responsáveis,Criado,Início,Prazo,Término,% Concluído,Atraso Eq(d),Aguard.Cl(d)';
+  const hdr='ID,Nome,Recursos,Tags,Situação,Coluna,Responsáveis,Criado,Início,Prazo,Término,% Concluído,Atraso Eq(d),Aguard.Cl(d)';
   const rows=activeDB().concat(cancelDB()).map(p=>{
     const{eq,cl}=delInf(p);
-    return[p.id,`"${p.nome}"`,`"${(p.recursos||[]).join('; ')}"`,calcSit(p),colLabel(p.col),`"${(p.resps||[]).join('; ')}"`,p.criado,p.inicio||'',p.prazo||'',p.termino||'',p.pct,eq,cl].join(',');
+    return[p.id,`"${p.nome}"`,`"${(p.recursos||[]).join('; ')}"`,`"${(p.tags||[]).join('; ')}"`,calcSit(p),colLabel(p.col),`"${(p.resps||[]).join('; ')}"`,p.criado,p.inicio||'',p.prazo||'',p.termino||'',p.pct,eq,cl].join(',');
   });
   const a=document.createElement('a');
   a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\uFEFF'+[hdr,...rows].join('\n'));
