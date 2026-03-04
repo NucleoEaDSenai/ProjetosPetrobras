@@ -638,36 +638,6 @@ body.dark .carga-card{background:var(--surface);border-color:var(--bdr)}
   </div>
 </div>
 </div>
-
-    <!-- CARGA DA EQUIPE -->
-    <div class="view" id="view-carga">
-      <div class="st" style="margin-bottom:6px">👥 Dashboard de Carga da Equipe</div>
-      <div style="font-size:12.5px;color:var(--mu);margin-bottom:18px">Projetos ativos por membro da equipe. Clique em um projeto para abrir.</div>
-      <div id="cargaContainer" class="carga-grid"></div>
-    </div>
-
-    <!-- HISTÓRICO DE EDIÇÕES -->
-    <div class="view" id="view-historico">
-      <div class="st" style="margin-bottom:6px">📝 Histórico de Edições</div>
-      <div style="font-size:12.5px;color:var(--mu);margin-bottom:16px">Registro de todas as criações e edições de projetos.</div>
-      <div class="fbox" style="margin-bottom:16px">
-        <div class="fbox-row">
-          <div class="fg-sm"><label class="fl-sm">Filtrar por usuário</label>
-            <select class="fi-sm" id="histFiltUser" onchange="rHistorico()"><option value="">Todos</option></select>
-          </div>
-          <div class="fg-sm"><label class="fl-sm">Filtrar por ação</label>
-            <select class="fi-sm" id="histFiltAcao" onchange="rHistorico()">
-              <option value="">Todas</option>
-              <option value="criou">Criação</option>
-              <option value="editou">Edição</option>
-              <option value="duplicou">Duplicação</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <div class="kk" style="padding:0 4px"><div id="histList" style="max-height:580px;overflow-y:auto"></div></div>
-    </div>
-
 <!-- MODAL: NOVO/EDITAR -->
 <div class="ov2" id="ovNew">
 <div class="modal">
@@ -2284,7 +2254,7 @@ function rHistorico(){
 //  CARGA DA EQUIPE
 // ══════════════════════════════════════════════
 function rCarga(){
-  const el = document.getElementById('cargaContainer'); if(!el) return;
+  const el = document.getElementById('cargaGrid'); if(!el) return;
   const ativos = activeDB().filter(p => calcSit(p) !== 'concluido');
   const membros = {};
   ativos.forEach(p => {
