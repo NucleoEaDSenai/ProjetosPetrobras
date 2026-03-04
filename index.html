@@ -2112,28 +2112,7 @@ function conectarFirebase(){
 //  BUSCA GLOBAL
 // ══════════════════════════════════════════════
 
-// ══════════════════════════════════════════════
-//  TAGS PERSONALIZÁVEIS
-// ══════════════════════════════════════════════
-const TAG_COLORS=[
-  {bg:'#EDE9FE',bd:'#7C3AED',tx:'#5B21B6'},
-  {bg:'#DCFCE7',bd:'#16A34A',tx:'#14532D'},
-  {bg:'#FEF3C7',bd:'#D97706',tx:'#92400E'},
-  {bg:'#DBEAFE',bd:'#2563EB',tx:'#1E3A8A'},
-  {bg:'#FCE7F3',bd:'#DB2777',tx:'#831843'},
-  {bg:'#FEE2E2',bd:'#DC2626',tx:'#7F1D1D'},
-  {bg:'#E0F2FE',bd:'#0284C7',tx:'#0C4A6E'},
-  {bg:'#F3F4F6',bd:'#6B7280',tx:'#374151'},
-];
-let currentTags=[];
-function tagColor(tag){
-  let h=0;for(let i=0;i<tag.length;i++)h=(h*31+tag.charCodeAt(i))%TAG_COLORS.length;
-  return TAG_COLORS[Math.abs(h)%TAG_COLORS.length];
-}
-function tagsHtml(tags){
-  if(!tags||!tags.length)return'';
-  return(tags||[]).map(t=>{const col=tagColor(t);return`<span class="tag-badge" style="background:${col.bg};border-color:${col.bd};color:${col.tx};font-size:10px">${t}</span>`;}).join('');
-}
+
 
 // ══════════════════════════════════════════════
 //  DUPLICAR PROJETO
