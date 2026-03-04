@@ -266,7 +266,7 @@ tr.canc-row td{opacity:.55}
 .login-inp{width:100%;padding:11px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;margin-bottom:10px;box-sizing:border-box}
 .login-inp:focus{border-color:var(--blue)}
 .login-btn{width:100%;padding:12px;background:var(--cyan);color:#fff;border:none;border-radius:8px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-top:6px;transition:background .15s}
-.login-btn:hover{background:#c4001f}
+.login-btn:hover{background:#fff}
 .login-err{color:var(--red);font-size:12px;margin-top:6px;min-height:16px}
 /* USER BADGE no topbar */
 .user-badge{display:flex;align-items:center;gap:7px;background:var(--s2);border-radius:20px;padding:5px 12px 5px 6px;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid var(--bdr)}
@@ -375,7 +375,7 @@ body.dark .carga-card{background:var(--surface);border-color:var(--bdr)}
     <div class="login-title">Gestão de Projetos EAD</div>
     <div class="login-sub">Identifique-se para acessar o sistema</div>
     <input class="login-inp" id="loginNome" placeholder="Seu nome completo" autocomplete="off"
-      onkeydown="if(event.key==='Enter')fazerLogin()">
+      onkeydown="if(event.key==='Enter')document.getElementById('loginSenha').focus()">
     <input class="login-inp" id="loginSenha" type="password" placeholder="Senha"
       onkeydown="if(event.key==='Enter')fazerLogin()">
     <button class="login-btn" onclick="fazerLogin()">Entrar →</button>
@@ -2004,17 +2004,20 @@ function escutarFirebase(db){
     const projetosRemotos = remoto ? Object.values(remoto).map(normalizar) : [];
 
     if(primeiraVez){
-      // Na primeira leitura: substituir DB completamente com dados do servidor
       DB = projetosRemotos;
       primeiraVez = false;
-      // Garantir kanban ativo
-      document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
-      document.getElementById('view-kanban').classList.add('on');
-      document.querySelectorAll('.si').forEach(n=>n.classList.remove('on'));
-      document.querySelectorAll('.si').forEach(n=>{
-        if(n.getAttribute('onclick')==="nav('kanban')") n.classList.add('on');
-      });
-      document.getElementById('pageTitle').textContent='Quadro Kanban';
+      // Só navegar se há sessão válida (evita flash de conteúdo antes do login)
+      const _u = localStorage.getItem('firjan_user');
+      const _t = parseInt(localStorage.getItem('firjan_login_ts')||'0');
+      if(_u && (Date.now()-_t < 24*60*60*1000)){
+        document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+        document.getElementById('view-kanban').classList.add('on');
+        document.querySelectorAll('.si').forEach(n=>n.classList.remove('on'));
+        document.querySelectorAll('.si').forEach(n=>{
+          if(n.getAttribute('onclick')==="nav('kanban')") n.classList.add('on');
+        });
+        document.getElementById('pageTitle').textContent='Quadro Kanban';
+      }
     } else {
       // Nas atualizações seguintes: merge inteligente
       // Pega todos os IDs que estão no servidor
@@ -2096,49 +2099,10 @@ function conectarFirebase(){
 // ══════════════════════════════════════════════
 //  MODO ESCURO
 // ══════════════════════════════════════════════
-function toggleDark(){
-  document.body.classList.toggle('dark');
-  const isDark=document.body.classList.contains('dark');
-  localStorage.setItem('firjan_dark', isDark?'1':'0');
-  document.getElementById('darkBtn').textContent=isDark?'☀️':'🌙';
-}
-function initDark(){
-  if(localStorage.getItem('firjan_dark')==='1'){
-    document.body.classList.add('dark');
-    const btn=document.getElementById('darkBtn');
-    if(btn)btn.textContent='☀️';
-  }
-}
 
 // ══════════════════════════════════════════════
 //  BUSCA GLOBAL
 // ══════════════════════════════════════════════
-function buscarGlobal(q){
-  const el=document.getElementById('searchDrop');
-  if(!q||q.length<2){el.classList.remove('on');return;}
-  const ql=q.toLowerCase();
-  const todos=activeDB().concat(cancelDB());
-  const res=todos.filter(p=>
-    p.nome.toLowerCase().includes(ql)||
-    (p.desc||'').toLowerCase().includes(ql)||
-    (p.tags||[]).some(t=>t.toLowerCase().includes(ql))||
-    (p.resps||[]).some(r=>r.toLowerCase().includes(ql))
-  ).slice(0,8);
-  if(!res.length){el.innerHTML='<div style="padding:14px;text-align:center;color:var(--mu);font-size:12.5px">Nenhum resultado</div>';el.classList.add('on');return;}
-  function hl(str){return str.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>`<span class="sr-highlight">${m}</span>`);}
-  el.innerHTML=res.map(p=>`
-    <div class="search-result-item" onclick="fecharBusca();openDet(${p.id})">
-      <div class="sr-nome">${hl(p.nome)}</div>
-      <div class="sr-meta">${sitBdg(p)} · ${(p.resps||[]).join(', ')||'Sem responsável'}${(p.tags||[]).length?' · 🏷️ '+(p.tags||[]).join(', '):''}</div>
-    </div>`).join('');
-  el.classList.add('on');
-}
-function fecharBusca(){
-  const el=document.getElementById('searchDrop');
-  if(el)el.classList.remove('on');
-  const inp=document.getElementById('searchInp');
-  if(inp)inp.value='';
-}
 
 // ══════════════════════════════════════════════
 //  TAGS PERSONALIZÁVEIS
@@ -2158,20 +2122,6 @@ function tagColor(tag){
   let h=0;for(let i=0;i<tag.length;i++)h=(h*31+tag.charCodeAt(i))%TAG_COLORS.length;
   return TAG_COLORS[Math.abs(h)%TAG_COLORS.length];
 }
-function renderTagsWrap(){
-  const wrap=document.getElementById('tagsWrap');if(!wrap)return;
-  wrap.innerHTML=currentTags.map((t,i)=>{
-    const col=tagColor(t);
-    return`<span class="tag-badge" style="background:${col.bg};border-color:${col.bd};color:${col.tx}">${t}<span class="tag-rm" onclick="removeTag(${i})">✕</span></span>`;
-  }).join('');
-}
-function addTag(){
-  const inp=document.getElementById('tagInp');if(!inp)return;
-  const val=inp.value.trim();
-  if(!val||currentTags.includes(val))return;
-  currentTags.push(val);inp.value='';renderTagsWrap();
-}
-function removeTag(i){currentTags.splice(i,1);renderTagsWrap();}
 function tagsHtml(tags){
   if(!tags||!tags.length)return'';
   return(tags||[]).map(t=>{const col=tagColor(t);return`<span class="tag-badge" style="background:${col.bg};border-color:${col.bd};color:${col.tx};font-size:10px">${t}</span>`;}).join('');
@@ -2180,117 +2130,14 @@ function tagsHtml(tags){
 // ══════════════════════════════════════════════
 //  DUPLICAR PROJETO
 // ══════════════════════════════════════════════
-function duplicarProjeto(id){
-  const orig=DB.find(p=>p.id===id);if(!orig)return;
-  if(!confirm('Duplicar "'+orig.nome+'"?'))return;
-  const usuario=localStorage.getItem('firjan_user')||'Desconhecido';
-  const novo={
-    ...JSON.parse(JSON.stringify(orig)),
-    id:NXT++,
-    nome:'Cópia de '+orig.nome,
-    criado:td(),cancelado:false,cancelEm:'',cancelMotivo:'',
-    termino:'',pct:0,col:0,comentarios:[],
-    criadoPor:usuario,editadoPor:null,
-    historico:[{usuario,acao:'criou',dt:dtAgora(),desc:'Duplicado de "'+orig.nome+'"'}],
-    etapas:(orig.etapas||[]).map(e=>({...e,done:false,fim:null,atrasoMotivo:null,diasCl:null})),
-    tags:orig.tags?[...orig.tags]:[],
-  };
-  DB.push(novo);fbSalvarProjeto(novo);fbSalvarNxt();
-  renderAll();showToast('📋 Projeto duplicado!');
-}
 
 // ══════════════════════════════════════════════
 //  HISTÓRICO DE EDIÇÕES
 // ══════════════════════════════════════════════
-function dtAgora(){
-  const d=new Date();
-  return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-}
-function registrarHistorico(proj,acao,desc){
-  if(!proj.historico)proj.historico=[];
-  const usuario=localStorage.getItem('firjan_user')||'Desconhecido';
-  proj.historico.push({usuario,acao,dt:dtAgora(),desc:desc||''});
-}
-function rHistorico(){
-  const todos=activeDB().concat(cancelDB());
-  const filtUser=document.getElementById('histFiltUser')?.value||'';
-  const filtAcao=document.getElementById('histFiltAcao')?.value||'';
-
-  // popular select usuários
-  const users=[...new Set(todos.flatMap(p=>(p.historico||[]).map(h=>h.usuario)))].sort();
-  const uSel=document.getElementById('histFiltUser');
-  if(uSel){
-    const cur=uSel.value;
-    uSel.innerHTML='<option value="">Todos</option>'+users.map(u=>`<option value="${u}" ${u===cur?'selected':''}>${u}</option>`).join('');
-  }
-
-  // coletar todos os eventos
-  let eventos=[];
-  todos.forEach(p=>{
-    (p.historico||[]).forEach(h=>{
-      if(filtUser&&h.usuario!==filtUser)return;
-      if(filtAcao&&h.acao!==filtAcao)return;
-      eventos.push({...h,projId:p.id,projNome:p.nome});
-    });
-  });
-  // ordenar mais recente primeiro
-  eventos.sort((a,b)=>b.dt.localeCompare(a.dt));
-
-  const el=document.getElementById('histList');if(!el)return;
-  if(!eventos.length){
-    el.innerHTML='<div style="color:var(--mu);font-size:13px;padding:16px">Nenhum registro de histórico ainda.</div>';return;
-  }
-  el.innerHTML=eventos.map(ev=>{
-    const ini=iniciais(ev.usuario);
-    const acaoCor=ev.acao==='criou'?'var(--green)':ev.acao==='editou'?'var(--blue)':'var(--org)';
-    return`<div class="hist-item">
-      <div class="hist-av" style="background:${acaoCor}">${ini}</div>
-      <div class="hist-body">
-        <div><span class="hist-autor">${ev.usuario}</span><span style="color:${acaoCor};font-weight:600;margin:0 4px">${ev.acao}</span><span style="cursor:pointer;color:var(--blue);text-decoration:underline" onclick="openDet(${ev.projId})">${ev.projNome}</span><span class="hist-dt">${ev.dt}</span></div>
-        ${ev.desc?`<div class="hist-desc">${ev.desc}</div>`:''}
-      </div>
-    </div>`;
-  }).join('');
-}
 
 // ══════════════════════════════════════════════
 //  CARGA DA EQUIPE
 // ══════════════════════════════════════════════
-function rCarga(){
-  const el=document.getElementById('cargaGrid');if(!el)return;
-  const ativos=activeDB().filter(p=>calcSit(p)!=='concluido');
-  const membros={};
-  ativos.forEach(p=>{
-    (p.resps||[]).forEach(r=>{
-      if(!membros[r])membros[r]={projetos:[],atrasados:0};
-      membros[r].projetos.push(p);
-      if(calcSit(p)==='atrasado')membros[r].atrasados++;
-    });
-  });
-  if(!Object.keys(membros).length){
-    el.innerHTML='<div style="color:var(--mu);font-size:13px;padding:16px">Nenhum membro com projetos ativos.</div>';return;
-  }
-  const max=Math.max(...Object.values(membros).map(m=>m.projetos.length),1);
-  el.innerHTML=Object.entries(membros).sort((a,b)=>b[1].projetos.length-a[1].projetos.length).map(([nome,dados])=>{
-    const pct=Math.round(dados.projetos.length/max*100);
-    const barColor=dados.atrasados>0?'var(--red)':dados.projetos.length>3?'var(--yel)':'var(--blue)';
-    return`<div class="carga-card">
-      <div class="carga-av" style="background:${barColor}">${iniciais(nome)}</div>
-      <div class="carga-nome">${nome}</div>
-      <div style="display:flex;align-items:baseline;gap:6px">
-        <div class="carga-num" style="color:${barColor}">${dados.projetos.length}</div>
-        <div style="font-size:11.5px;color:var(--mu)">projeto(s) ativo(s)${dados.atrasados>0?` · <span style="color:var(--red);font-weight:600">${dados.atrasados} atrasado(s)</span>`:''}</div>
-      </div>
-      <div class="carga-bar"><div class="carga-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
-      <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px">
-        ${dados.projetos.map(p=>`<div style="font-size:11.5px;display:flex;align-items:center;gap:6px;cursor:pointer" onclick="openDet(${p.id})">
-          <span style="color:var(--blue);text-decoration:underline">${p.nome.length>28?p.nome.slice(0,26)+'…':p.nome}</span>
-          ${calcSit(p)==='atrasado'?'<span style="color:var(--red);font-size:10px">⚠️</span>':''}
-        </div>`).join('')}
-      </div>
-    </div>`;
-  }).join('');
-}
 
 // ══════════════════════════════════════════════
 //  HISTÓRICO: HOOKS em salvar, openEdit, openNew
@@ -2518,9 +2365,10 @@ function duplicarProjeto(id){
 //  LOGIN — nome + senha
 // ══════════════════════════════════════════════
 const USUARIOS = [
-  {nome:'Daniel David',   senha:'admin'},
-  // Adicione membros aqui:
-  // {nome:'Maria Silva', senha:'senha123'},
+  {nome:'Daniel David', senha:'admin'},
+  // Para adicionar membros, copie o padrão abaixo:
+  // {nome:'Maria Silva',  senha:'minhasenha'},
+  // {nome:'João Souza',   senha:'outrasenha'},
 ];
 
 function fazerLogin(){
@@ -2531,7 +2379,8 @@ function fazerLogin(){
   if(!nome||!senha){err.textContent='Preencha nome e senha.';return;}
   const u=USUARIOS.find(x=>x.nome.toLowerCase()===nome.toLowerCase()&&x.senha===senha);
   if(!u){err.textContent='❌ Nome ou senha incorretos.';return;}
-  localStorage.setItem('firjan_user',u.nome);
+  localStorage.setItem('firjan_user', u.nome);
+  localStorage.setItem('firjan_login_ts', Date.now().toString());
   document.getElementById('ovLogin').style.display='none';
   atualizarUserBadge(u.nome);
   showToast('👋 Bem-vindo, '+u.nome.split(' ')[0]+'!');
@@ -2543,6 +2392,7 @@ function fazerLogin(){
 function fazerLogout(){
   if(!confirm('Sair do sistema?'))return;
   localStorage.removeItem('firjan_user');
+  localStorage.removeItem('firjan_login_ts');
   mostrarLogin();
 }
 
@@ -2567,14 +2417,31 @@ initDark();
 document.getElementById('topDate').textContent=
   new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
-const usuarioSalvo=localStorage.getItem('firjan_user');
-if(usuarioSalvo){atualizarUserBadge(usuarioSalvo);}else{mostrarLogin();}
+// ── Sessão: verificar usuário e expiração 24h ──
+const SESSAO_DURACAO = 24 * 60 * 60 * 1000; // 24 horas em ms
+const usuarioSalvo   = localStorage.getItem('firjan_user');
+const loginTimestamp = parseInt(localStorage.getItem('firjan_login_ts') || '0');
+const sessaoValida   = usuarioSalvo && (Date.now() - loginTimestamp < SESSAO_DURACAO);
 
-const savedUrl=localStorage.getItem(CFG_KEY);
+if(sessaoValida){
+  // Sessão ainda válida: ocultar modal e restaurar badge
+  document.getElementById('ovLogin').style.display = 'none';
+  atualizarUserBadge(usuarioSalvo);
+} else {
+  // Sem sessão ou expirada: limpar e mostrar login
+  localStorage.removeItem('firjan_user');
+  localStorage.removeItem('firjan_login_ts');
+  mostrarLogin();
+}
+
+const savedUrl = localStorage.getItem(CFG_KEY);
 if(savedUrl){
   carregarSDKeFire(savedUrl);
-}else{
-  document.getElementById('setupOv').style.display='flex';
+} else {
+  // Só mostrar setup se já estiver logado (ou sem Firebase configurado)
+  if(sessaoValida){
+    document.getElementById('setupOv').style.display = 'flex';
+  }
   renderAll();
 }
 
