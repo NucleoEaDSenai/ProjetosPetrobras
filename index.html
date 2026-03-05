@@ -45,8 +45,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .bsm{padding:4px 10px;font-size:11.5px}
 .bd{background:#FEE2E2;color:#991B1B;border:none}.bd:hover{background:#FECACA}
 /* CONTENT */
-.cnt{padding:22px 26px;flex:1}
-.view{display:none}.view.on{display:block}
+.cnt{padding:22px 26px;flex:1;overflow-y:auto;overflow-x:hidden}
+.view{display:none}.view.on{display:block;width:100%}
 /* STATS */
 .sts{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-bottom:22px}
 .sc{background:#fff;border-radius:var(--r);padding:15px;border:1px solid var(--bdr);position:relative;overflow:hidden}
@@ -797,13 +797,11 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
 </div>
 
     <!-- FINANCEIRO -->
-    <div class="view" id="view-financeiro">
+    <div class="view" id="view-financeiro" style="width:100%;box-sizing:border-box">
 
-      <!-- CARDS RESUMO FINANCEIRO -->
-      <div class="fin-grid" id="finResumoGrid"></div>
+      <div class="fin-grid" id="finResumoGrid" style="margin-bottom:20px"></div>
 
-      <!-- TÍTULO + FILTRO -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;color:var(--txt)">💰 Orçamento por Projeto</div>
         <div style="display:flex;gap:8px;align-items:center">
           <select id="finFiltSit" onchange="rFinanceiro()" style="padding:7px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);color:var(--txt);outline:none;cursor:pointer">
@@ -817,17 +815,16 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
         </div>
       </div>
 
-      <!-- TABELA -->
-      <div style="background:#fff;border-radius:var(--r);border:1px solid var(--bdr);overflow:hidden">
-        <table style="width:100%;border-collapse:collapse">
+      <div style="border-radius:var(--r);border:1px solid var(--bdr);overflow-x:auto;background:var(--bg)">
+        <table style="width:100%;border-collapse:collapse;min-width:680px">
           <thead>
             <tr style="background:var(--dark)">
-              <th style="padding:12px 18px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6);width:36%">Projeto</th>
-              <th style="padding:12px 18px;text-align:right;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6)">Orç. Estimado</th>
-              <th style="padding:12px 18px;text-align:right;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6)">Valor Fixo</th>
-              <th style="padding:12px 18px;text-align:right;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6)">Total</th>
-              <th style="padding:12px 18px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6)">Situação</th>
-              <th style="padding:12px 18px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6)">Ação</th>
+              <th style="padding:12px 18px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.65);white-space:nowrap">Projeto</th>
+              <th style="padding:12px 18px;text-align:right;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.65);white-space:nowrap">Orç. Estimado</th>
+              <th style="padding:12px 18px;text-align:right;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.65);white-space:nowrap">Valor Fixo</th>
+              <th style="padding:12px 18px;text-align:right;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.65);white-space:nowrap">Total</th>
+              <th style="padding:12px 18px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.65);white-space:nowrap">Situação</th>
+              <th style="padding:12px 18px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.65);white-space:nowrap">Ação</th>
             </tr>
           </thead>
           <tbody id="finProjList"></tbody>
@@ -1768,7 +1765,6 @@ function openDet(id){
         <button class="btn br bsm" onclick="adicionarComent(${p.id})" style="padding:8px 14px;height:64px">💬<br>Enviar</button>
       </div>
     </div>
-    ${rFinProjeto(p)}
   `;
 
   document.getElementById('detFt').innerHTML=`
@@ -2217,8 +2213,9 @@ function carregarSDKeFire(url){
       escutarFirebase(firebase.database(app));
     })
     .catch(e => {
-      setStatus('offline','Falha ao carregar SDK');
-      console.error('Firebase SDK error:', e);
+      setStatus('offline','Sem Firebase — modo local');
+      console.warn('Firebase indisponível:', e);
+      renderAll();
     });
 }
 
@@ -2645,125 +2642,121 @@ function atualizarCustoBase(rec){
 
 // ── PAINEL FINANCEIRO GERAL ──
 function rFinanceiro(){
-  const filtSit=document.getElementById('finFiltSit')?.value||'';
-  let projs=activeDB().concat(cancelDB());
-  if(filtSit) projs=projs.filter(p=>(p.cancelado?'cancelado':calcSit(p))===filtSit);
+  const filtSit = document.getElementById('finFiltSit')?.value||'';
+  let projs = activeDB().concat(cancelDB());
+  if(filtSit) projs = projs.filter(p=>(p.cancelado?'cancelado':calcSit(p))===filtSit);
 
-  const tots=projs.map(p=>calcTotalProjeto(p));
-  const tOrc=tots.reduce((a,t)=>a+t.totalEtapas,0);
-  const tFixo=tots.reduce((a,t)=>a+t.fixo,0);
-  const tGeral=tots.reduce((a,t)=>a+t.total,0);
-  const comVal=tots.filter(t=>t.total>0).length;
+  const tots  = projs.map(p=>calcTotalProjeto(p));
+  const tOrc  = tots.reduce((a,t)=>a+t.totalEtapas,0);
+  const tFixo = tots.reduce((a,t)=>a+t.fixo,0);
+  const tGral = tots.reduce((a,t)=>a+t.total,0);
+  const nVal  = tots.filter(t=>t.total>0).length;
 
-  const rEl=document.getElementById('finResumoGrid');
+  const rEl = document.getElementById('finResumoGrid');
   if(rEl) rEl.innerHTML=[
-    {l:'Total Geral Orçado',     v:fBRL(tGeral), s:comVal+' projeto(s) com valor', ic:'💰', cls:'fc-green'},
-    {l:'Total Variável (horas)', v:fBRL(tOrc),   s:'etapas × recurso × hora',     ic:'⏱️', cls:'fc-blue'},
-    {l:'Total Fixo',             v:fBRL(tFixo),  s:'parte fixa dos contratos',    ic:'📄', cls:'fc-yel'},
-    {l:'Ticket Médio',           v:comVal?fBRL(tGeral/comVal):'R$ —', s:'por projeto orçado', ic:'📊', cls:'fc-red'},
-  ].map(x=>`<div class="fin-card ${x.cls}">
-    <div class="fin-card-l">${x.l}</div>
-    <div class="fin-card-v">${x.v}</div>
-    <div class="fin-card-s">${x.s}</div>
-    <div class="fin-card-ic">${x.ic}</div>
-  </div>`).join('');
+    {l:'Total Geral',      v:fBRL(tGral), s:nVal+' projeto(s) com valor',  ic:'💰',cls:'fc-green'},
+    {l:'Total Variável',   v:fBRL(tOrc),  s:'etapas × recurso × hora',     ic:'⏱️',cls:'fc-blue'},
+    {l:'Total Fixo',       v:fBRL(tFixo), s:'parte fixa dos contratos',    ic:'📄',cls:'fc-yel'},
+    {l:'Ticket Médio',     v:nVal?fBRL(tGral/nVal):'R$ —', s:'por projeto orçado', ic:'📊',cls:'fc-red'},
+  ].map(x=>`<div class="fin-card ${x.cls}"><div class="fin-card-l">${x.l}</div><div class="fin-card-v">${x.v}</div><div class="fin-card-s">${x.s}</div><div class="fin-card-ic">${x.ic}</div></div>`).join('');
 
-  const tbody=document.getElementById('finProjList');
+  const tbody = document.getElementById('finProjList');
   if(!tbody) return;
   if(!projs.length){
     tbody.innerHTML=`<tr><td colspan="6" style="padding:36px;text-align:center;color:var(--mu)">Nenhum projeto encontrado</td></tr>`;
     return;
   }
 
-  tbody.innerHTML=projs.map((p,idx)=>{
-    const t=tots[idx];
-    const finE=(p.financeiro?.etapas)||[];
-    const etps=(p.etapas||[]).map((e,i)=>{
-      const ef=finE[i]||{};
+  tbody.innerHTML = projs.map((p,idx)=>{
+    const t    = tots[idx];
+    const finE = (p.financeiro?.etapas)||[];
+    const etps = (p.etapas||[]).map((e,i)=>{
+      const ef = finE[i]||{};
       return{lb:e.lb, rec:ef.recurso||'', h:parseFloat(ef.horas)||0, vh:parseFloat(ef.valorHora)||0};
     }).filter(e=>e.h>0||e.rec);
 
-    const detalheRows=etps.length
-      ? etps.map(e=>`
-        <tr style="border-top:1px solid var(--bdr)">
-          <td style="padding:7px 18px 7px 46px;font-size:12px;color:var(--txt)">${e.lb}</td>
-          <td style="padding:7px 18px;text-align:right;color:var(--mu);font-size:12px">${e.rec||'—'}</td>
-          <td style="padding:7px 18px;text-align:right;font-size:12px">${e.h?e.h+'h':'—'}</td>
-          <td style="padding:7px 18px;text-align:right;font-size:12px">${e.vh?fBRL(e.vh):'—'}</td>
-          <td style="padding:7px 18px;text-align:right;font-weight:600;color:var(--blue);font-size:12px" colspan="2">${e.h&&e.vh?fBRL(e.h*e.vh):'—'}</td>
-        </tr>`).join('')
-        + `<tr style="border-top:2px solid var(--bdr);background:var(--s2)">
-          <td colspan="4" style="padding:9px 18px 9px 46px">
-            <button class="btn bg2 bsm" onclick="abrirOrcProj(${p.id})" style="font-size:11.5px">✏️ Editar orçamento</button>
-          </td>
-          <td colspan="2" style="padding:9px 18px;text-align:right;font-weight:800;font-size:14px;color:var(--green)">${fBRL(t.total)}</td>
-        </tr>`
-      : `<tr><td colspan="6" style="padding:14px 18px 14px 46px;color:var(--mu);font-size:12.5px">
-          Nenhum orçamento cadastrado.&nbsp;
-          <button class="btn bg2 bsm" onclick="abrirOrcProj(${p.id})" style="font-size:11.5px">✏️ Adicionar orçamento</button>
-        </td></tr>`;
+    const subHTML = etps.length
+      ? `<table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:rgba(0,0,0,.04)">
+            <th style="padding:8px 18px 8px 46px;text-align:left;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase">Etapa</th>
+            <th style="padding:8px 18px;text-align:right;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase">Recurso</th>
+            <th style="padding:8px 18px;text-align:right;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase">Horas</th>
+            <th style="padding:8px 18px;text-align:right;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase" colspan="3">Valor/h &amp; Subtotal</th>
+          </tr></thead>
+          <tbody>
+            ${etps.map(e=>`<tr style="border-top:1px solid var(--bdr)">
+              <td style="padding:7px 18px 7px 46px;font-size:12px">${e.lb}</td>
+              <td style="padding:7px 18px;text-align:right;color:var(--mu);font-size:12px">${e.rec||'—'}</td>
+              <td style="padding:7px 18px;text-align:right;font-size:12px">${e.h?e.h+'h':'—'}</td>
+              <td style="padding:7px 18px;text-align:right;font-size:12px">${e.vh?fBRL(e.vh):'—'}</td>
+              <td style="padding:7px 18px;text-align:right;font-weight:600;color:var(--blue);font-size:12px" colspan="2">${e.h&&e.vh?fBRL(e.h*e.vh):'—'}</td>
+            </tr>`).join('')}
+            <tr style="border-top:2px solid var(--bdr);background:rgba(0,0,0,.03)">
+              <td colspan="4" style="padding:9px 18px 9px 46px">
+                <button class="btn bg2 bsm" onclick="abrirOrcProj(${p.id})" style="font-size:11.5px">✏️ Editar orçamento</button>
+              </td>
+              <td colspan="2" style="padding:9px 18px;text-align:right;font-weight:800;font-size:14px;color:var(--green)">${fBRL(t.total)}</td>
+            </tr>
+          </tbody>
+        </table>`
+      : `<div style="padding:14px 18px 14px 46px;color:var(--mu);font-size:12.5px">
+          Nenhum orçamento cadastrado.
+          <button class="btn bg2 bsm" onclick="abrirOrcProj(${p.id})" style="margin-left:10px;font-size:11.5px">✏️ Adicionar orçamento</button>
+        </div>`;
 
     return `
-    <tr id="finR_${p.id}" onclick="finToggle(${p.id})"
-        style="cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .15s"
-        onmouseenter="this.style.background='var(--s2)'" onmouseleave="this.style.background=''">
-      <td style="padding:13px 18px">
-        <div style="display:flex;align-items:center;gap:9px">
-          <span id="finC_${p.id}" style="font-size:10px;color:var(--mu);transition:transform .2s;display:inline-block;flex-shrink:0">▶</span>
-          <div>
-            <div style="font-weight:600;font-size:13px">${p.nome}</div>
-            <div style="font-size:11px;color:var(--mu);margin-top:2px">${(p.recursos||[]).slice(0,3).join(', ')||'—'}${(p.recursos||[]).length>3?' +'+((p.recursos||[]).length-3):''}</div>
+      <tr id="finR_${p.id}" onclick="finToggle(${p.id})"
+          style="cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .15s"
+          onmouseenter="this.style.background='var(--s2)'" onmouseleave="this.style.background=''">
+        <td style="padding:13px 18px">
+          <div style="display:flex;align-items:center;gap:9px">
+            <span id="finC_${p.id}" style="font-size:10px;color:var(--mu);transition:transform .2s;display:inline-block;flex-shrink:0">▶</span>
+            <div>
+              <div style="font-weight:600;font-size:13px">${p.nome}</div>
+              <div style="font-size:11px;color:var(--mu);margin-top:2px">${(p.recursos||[]).slice(0,3).join(', ')||'—'}${(p.recursos||[]).length>3?' +'+((p.recursos||[]).length-3):''}</div>
+            </div>
           </div>
-        </div>
-      </td>
-      <td style="padding:13px 18px;text-align:right;font-weight:600;color:var(--blue)">
-        ${t.totalEtapas>0?fBRL(t.totalEtapas):'<span style="color:var(--mu);font-size:11.5px;font-weight:400">Não orçado</span>'}
-      </td>
-      <td style="padding:13px 18px;text-align:right;color:var(--mu)">${t.fixo>0?fBRL(t.fixo):'—'}</td>
-      <td style="padding:13px 18px;text-align:right;font-weight:800;font-size:14px;color:${t.total>0?'var(--green)':'var(--mu)'}">
-        ${t.total>0?fBRL(t.total):'—'}
-      </td>
-      <td style="padding:13px 18px;text-align:center">${sitBdg(p)}</td>
-      <td style="padding:13px 18px;text-align:center">
-        <button class="btn bg2 bsm" onclick="event.stopPropagation();abrirOrcProj(${p.id})" style="font-size:11.5px">✏️ Orçar</button>
-      </td>
-    </tr>
-    <tr id="finS_${p.id}" style="display:none">
-      <td colspan="6" style="padding:0;background:var(--s2)">
-        <table style="width:100%;border-collapse:collapse">
-          <thead>
-            <tr style="background:rgba(0,0,0,.05)">
-              <th style="padding:8px 18px 8px 46px;text-align:left;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;width:36%">Etapa</th>
-              <th style="padding:8px 18px;text-align:right;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase">Recurso</th>
-              <th style="padding:8px 18px;text-align:right;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase">Horas</th>
-              <th style="padding:8px 18px;text-align:right;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase" colspan="3">Valor/h &amp; Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>${detalheRows}</tbody>
-        </table>
-      </td>
-    </tr>`;
+        </td>
+        <td style="padding:13px 18px;text-align:right;font-weight:600;color:var(--blue)">
+          ${t.totalEtapas>0?fBRL(t.totalEtapas):'<span style="color:var(--mu);font-size:11.5px;font-weight:400">Não orçado</span>'}
+        </td>
+        <td style="padding:13px 18px;text-align:right;color:var(--mu)">${t.fixo>0?fBRL(t.fixo):'—'}</td>
+        <td style="padding:13px 18px;text-align:right;font-weight:800;font-size:14px;color:${t.total>0?'var(--green)':'var(--mu)'}">
+          ${t.total>0?fBRL(t.total):'—'}
+        </td>
+        <td style="padding:13px 18px;text-align:center">${sitBdg(p)}</td>
+        <td style="padding:13px 18px;text-align:center">
+          <button class="btn bg2 bsm" onclick="event.stopPropagation();abrirOrcProj(${p.id})" style="font-size:11.5px">✏️ Orçar</button>
+        </td>
+      </tr>
+      <tr id="finS_${p.id}" style="display:none;background:var(--s2)">
+        <td colspan="6" style="padding:0">${subHTML}</td>
+      </tr>`;
   }).join('');
 }
 
 function finToggle(id){
-  const sub=document.getElementById('finS_'+id);
-  const chev=document.getElementById('finC_'+id);
-  const row=document.getElementById('finR_'+id);
+  const sub  = document.getElementById('finS_'+id);
+  const chev = document.getElementById('finC_'+id);
+  const row  = document.getElementById('finR_'+id);
   if(!sub) return;
-  const open=sub.style.display!=='none';
-  sub.style.display=open?'none':'table-row';
-  if(chev) chev.style.transform=open?'':'rotate(90deg)';
-  if(row) row.style.background=open?'':'var(--s2)';
+  const open = sub.style.display !== 'none';
+  sub.style.display = open?'none':'table-row';
+  if(chev) chev.style.transform = open?'':'rotate(90deg)';
+  if(row)  row.style.background  = open?'':'var(--s2)';
 }
 
 function abrirOrcProj(id){
   openDet(id);
   setTimeout(()=>{
-    const el=document.querySelector('#ovDet .fin-secao');
+    const el = document.querySelector('#ovDet .fin-secao');
     if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
   },300);
 }
+
+
+
+
 
 // ── DETALHE FINANCEIRO (abre modal de detalhes com tab financeiro) ──
 function openDetFinanceiro(id){
@@ -2776,65 +2769,7 @@ function openDetFinanceiro(id){
 }
 
 // ── ORÇAMENTO POR PROJETO (dentro do modal openDet) ──
-function rFinProjeto(p){
-  const fin = p.financeiro||{};
-  const etapasF = fin.etapas||[];
-  const etapas = p.etapas||[];
-
-  // Montar linhas de etapas com campos editáveis
-  const rows = etapas.map((e,i)=>{
-    const ef = etapasF[i]||{recurso:'',horas:0,valorHora:0};
-    // Pré-preencher valorHora da tabela base se recurso selecionado e sem valor manual
-    return`<div class="fin-etapa-row" id="fin_row_${i}">
-      <span style="font-size:12px">${e.lb}</span>
-      <select class="fin-inp-sm" id="fin_rec_${p.id}_${i}" onchange="atualizarFinEtapa(${p.id},${i})" aria-label="Recurso etapa ${i+1}" style="text-align:left">
-        <option value="">— Recurso —</option>
-        ${RECURSOS.map(r=>`<option value="${r}" ${ef.recurso===r?'selected':''}>${r}</option>`).join('')}
-      </select>
-      <div style="display:flex;gap:4px;align-items:center">
-        <input class="fin-inp-sm" type="number" min="0" step="0.5" id="fin_h_${p.id}_${i}"
-          value="${ef.horas||''}" placeholder="0"
-          oninput="atualizarFinEtapa(${p.id},${i})" aria-label="Horas etapa ${i+1}" style="width:60px">
-        <span style="font-size:11px;color:var(--mu)">h</span>
-      </div>
-      <div style="display:flex;gap:4px;align-items:center">
-        <span style="font-size:11px;color:var(--mu)">R$</span>
-        <input class="fin-inp-sm" type="number" min="0" step="5" id="fin_v_${p.id}_${i}"
-          value="${ef.valorHora||''}" placeholder="0"
-          oninput="atualizarFinEtapa(${p.id},${i})" aria-label="Valor/hora etapa ${i+1}" style="width:75px">
-        <span style="font-size:11px;color:var(--mu)">/h</span>
-      </div>
-      <span id="fin_s_${p.id}_${i}" style="text-align:right;font-weight:600;color:var(--mu);font-size:12px">
-        ${ef.horas&&ef.valorHora?fBRL(ef.horas*ef.valorHora):'—'}
-      </span>
-    </div>`;
-  }).join('');
-
-  const t = calcTotalProjeto(p);
-  return`<div class="fin-secao">
-    <div class="fin-secao-title">
-      <span>💰 Orçamento do Projeto</span>
-      <button class="btn bg2 bsm" onclick="salvarFinProjeto(${p.id})">💾 Salvar orçamento</button>
-    </div>
-    <div class="fin-etapa-row header">
-      <span>Etapa</span><span>Recurso</span><span>Horas</span><span>Valor/h</span><span>Subtotal</span>
-    </div>
-    ${rows}
-    <div class="fin-fixed-row" style="margin-top:10px">
-      <span style="font-size:12px;color:var(--mu);flex:1">➕ Valor fixo do contrato (R$):</span>
-      <input class="fin-inp-sm" type="number" min="0" step="100" id="fin_fixo_${p.id}"
-        value="${fin.valorFixo||0}" oninput="atualizarFinTotal(${p.id})" aria-label="Valor fixo do contrato" style="width:140px">
-    </div>
-    <div class="fin-total-row">
-      <span class="fin-total-label">Horas</span>
-      <span id="fin_tot_etapas_${p.id}" style="font-size:14px;font-weight:700;color:var(--blue)">${fBRL(t.totalEtapas)}</span>
-      <span class="fin-total-label" style="margin-left:16px">+ Fixo</span>
-      <span id="fin_tot_fixo_${p.id}" style="font-size:14px;font-weight:700;color:var(--mu)">${fBRL(t.fixo)}</span>
-      <span class="fin-total-label" style="margin-left:16px">= Total</span>
-      <span class="fin-total-val" id="fin_tot_${p.id}">${fBRL(t.total)}</span>
-    </div>
-  </div>`;
-}
+function rFinProjeto(p){ return ''; }
 
 function atualizarFinEtapa(pid, idx){
   // Quando troca o recurso, preenche valorHora da tabela base
