@@ -361,6 +361,54 @@ body.dark .carga-card{background:var(--surface);border-color:var(--bdr)}
 .dark-btn{background:transparent;border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);border-radius:20px;padding:4px 12px;cursor:pointer;font-size:12px;transition:all .2s;white-space:nowrap}
 .dark-btn:hover{background:rgba(255,255,255,.1);color:#fff}
 
+
+/* ═══ MÓDULO FINANCEIRO ═══ */
+.fin-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.fin-card{background:#fff;border-radius:var(--r);border:1px solid var(--bdr);padding:16px;position:relative;overflow:hidden}
+.fin-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.fin-card.fc-green::before{background:var(--green)}
+.fin-card.fc-blue::before{background:var(--blue)}
+.fin-card.fc-yel::before{background:var(--yel)}
+.fin-card.fc-red::before{background:var(--red)}
+.fin-card-l{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px}
+.fin-card-v{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;line-height:1}
+.fin-card-s{font-size:10.5px;color:var(--mu);margin-top:3px}
+.fin-card-ic{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:30px;opacity:.15}
+
+/* Tabela de Preços Base */
+.preco-table{width:100%;border-collapse:collapse;background:#fff}
+.preco-table th{background:var(--dark);color:rgba(255,255,255,.6);font-size:9.5px;letter-spacing:.7px;text-transform:uppercase;padding:9px 13px;text-align:left}
+.preco-table td{padding:9px 13px;border-bottom:1px solid var(--bdr);vertical-align:middle;font-size:13px}
+.preco-table tr:last-child td{border-bottom:none}
+.preco-table tr:hover td{background:#FAFAF9}
+.preco-inp{padding:5px 9px;border:1.5px solid var(--bdr);border-radius:6px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;width:100%;outline:none;background:var(--bg);text-align:right}
+.preco-inp:focus{border-color:var(--blue);background:#fff}
+
+/* Orçamento por Projeto (no modal de detalhe) */
+.fin-secao{background:var(--s2);border-radius:var(--r);padding:16px 18px;margin-top:16px}
+.fin-secao-title{font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.fin-etapa-row{display:grid;grid-template-columns:1fr 160px 100px 100px 110px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:12.5px}
+.fin-etapa-row:last-child{border-bottom:none}
+.fin-etapa-row.header{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;padding-bottom:5px}
+.fin-total-row{display:flex;align-items:center;justify-content:flex-end;gap:16px;padding-top:12px;border-top:2px solid var(--bdr);margin-top:8px}
+.fin-total-label{font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
+.fin-total-val{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:var(--green)}
+.fin-inp-sm{padding:4px 8px;border:1.5px solid var(--bdr);border-radius:5px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;outline:none;background:#fff;text-align:right;width:100%}
+.fin-inp-sm:focus{border-color:var(--blue)}
+.fin-fixed-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bdr);font-size:12.5px}
+
+/* Relatório geral */
+.fin-proj-row{display:grid;grid-template-columns:1fr 130px 130px 120px 90px;gap:10px;align-items:center;padding:10px 13px;border-bottom:1px solid var(--bdr);font-size:12.5px}
+.fin-proj-row:last-child{border-bottom:none}
+.fin-proj-row.header{font-size:9.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.5px;background:var(--dark);color:rgba(255,255,255,.55);border-radius:var(--r) var(--r) 0 0;padding:9px 13px}
+.fin-bar-bg{height:6px;background:var(--bdr);border-radius:3px;overflow:hidden;margin-top:3px}
+.fin-bar-fill{height:100%;border-radius:3px;background:var(--blue);transition:width .4s}
+
+/* dark mode */
+body.dark .fin-card,.dark .fin-secao,.dark .preco-table{background:var(--surface);border-color:var(--bdr)}
+body.dark .preco-inp,.dark .fin-inp-sm{background:var(--s2);color:var(--txt);border-color:var(--bdr)}
+body.dark .preco-table tr:hover td{background:rgba(255,255,255,.02)}
+
 /* ═══ GANTT BAR LEGIBILITY FIX ═══ */
 /* use text-shadow so white text stays legible on any color */
 /* ═══ PRIORIDADE ═══ */
@@ -447,6 +495,8 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
     <div class="si" role="menuitem" tabindex="0" aria-label="KPIs e Indicadores" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('kpis')}"" onclick="nav('kpis')"><span class="si-ic">📈</span><span>KPIs &amp; Indicadores</span></div>
     <div class="si" role="menuitem" tabindex="0" aria-label="Relatório de Atrasos" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('atrasos')}"" onclick="nav('atrasos')"><span class="si-ic">⚠️</span><span>Rel. de Atrasos</span></div>
     <div class="si" role="menuitem" tabindex="0" aria-label="Projetos Cancelados" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('cancelados')}"" onclick="nav('cancelados')"><span class="si-ic">🚫</span><span>Cancelados</span></div>
+    <div class="sb-sec">Gestão</div>
+    <div class="si" role="menuitem" tabindex="0" aria-label="Financeiro" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('financeiro')}" onclick="nav('financeiro')"><span class="si-ic">💰</span><span>Financeiro</span></div>
     <div class="sb-sec">Ações</div>
     <div class="si" role="menuitem" tabindex="0" aria-label="Novo Projeto" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNew()}"" onclick="openNew()"><span class="si-ic">➕</span><span>Novo Projeto</span></div>
     <div class="sb-sec">Equipe</div>
@@ -672,6 +722,73 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
   </div>
 </div>
 </div>
+
+    <!-- FINANCEIRO -->
+    <div class="view" id="view-financeiro">
+
+      <!-- CARDS RESUMO -->
+      <div class="fin-grid" id="finResumoGrid"></div>
+
+      <!-- SEÇÃO 1: TABELA DE PREÇOS BASE -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px;align-items:start">
+        <div>
+          <div class="sh" style="margin-bottom:10px">
+            <div class="st">💵 Tabela de Preços Base</div>
+            <button class="btn bg2 bsm" onclick="salvarTabelaPrecos()" aria-label="Salvar tabela de preços">💾 Salvar</button>
+          </div>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:12px">Valores padrão por recurso. Usados como ponto de partida ao calcular o orçamento de cada projeto — sempre editável por projeto.</p>
+          <div class="tw" style="border-radius:var(--r)">
+            <table class="preco-table" id="tabelaPrecos"></table>
+          </div>
+        </div>
+
+        <!-- SEÇÃO 2: ORÇAMENTO RÁPIDO (calculadora standalone) -->
+        <div>
+          <div class="sh" style="margin-bottom:10px">
+            <div class="st">🧮 Calculadora Rápida</div>
+          </div>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:12px">Simule um orçamento sem vínculo a projeto. Selecione recursos, ajuste horas e veja o total.</p>
+          <div class="fin-secao" id="calcRapidaWrap">
+            <div id="calcRapidaRows"></div>
+            <div class="fin-fixed-row">
+              <span style="font-size:12px;color:var(--mu);white-space:nowrap">+ Valor fixo (contrato):</span>
+              <input class="fin-inp-sm" id="calcFixo" type="number" min="0" value="0" style="width:130px" oninput="atualizarCalcRapida()" aria-label="Valor fixo do contrato">
+              <span style="font-size:11px;color:var(--mu)">R$</span>
+            </div>
+            <div class="fin-total-row">
+              <span class="fin-total-label">Total estimado</span>
+              <span class="fin-total-val" id="calcRapidaTotal">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 3: RELATÓRIO GERAL DOS PROJETOS -->
+      <div class="sh" style="margin-bottom:10px">
+        <div class="st">📊 Orçamento por Projeto</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select class="fi-sm" id="finFiltSit" onchange="rFinanceiro()" style="width:180px">
+            <option value="">Todos os projetos</option>
+            <option value="andamento">Em Andamento</option>
+            <option value="concluido">Concluídos</option>
+            <option value="atrasado">Atrasados</option>
+            <option value="aguardando">Aguardando</option>
+          </select>
+          <button class="btn bg2 bsm" onclick="exportCSVFin()" aria-label="Exportar financeiro em CSV">⬇️ Exportar CSV</button>
+        </div>
+      </div>
+      <div class="tw" style="border-radius:var(--r)">
+        <div class="fin-proj-row header">
+          <span>Projeto</span>
+          <span>Orç. Estimado</span>
+          <span>Valor Fixo</span>
+          <span>Total</span>
+          <span>Situação</span>
+        </div>
+        <div id="finProjList"></div>
+      </div>
+
+    </div>
 
 <!-- MODAL: NOVO/EDITAR -->
 <div class="ov2" id="ovNew" role="dialog" aria-modal="true" aria-labelledby="mNewTitle">
@@ -987,7 +1104,7 @@ let DB=[];
 let NXT=1, editId=null, cancId=null, dragId=null;
 
 // ── NAV ──
-const PT={kanban:'Quadro Kanban',projetos:'Lista de Projetos',timeline:'Cronograma',kpis:'KPIs & Indicadores',atrasos:'Relatório de Atrasos',cancelados:'Projetos Cancelados',carga:'Carga da Equipe',historico:'Histórico de Edições',carga:'Carga da Equipe',historico:'Histórico de Edições'};
+const PT={financeiro:'Financeiro — Orçamentos & Custos',kanban:'Quadro Kanban',projetos:'Lista de Projetos',timeline:'Cronograma',kpis:'KPIs & Indicadores',atrasos:'Relatório de Atrasos',cancelados:'Projetos Cancelados',carga:'Carga da Equipe',historico:'Histórico de Edições',carga:'Carga da Equipe',historico:'Histórico de Edições'};
 function nav(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.getElementById('view-'+id).classList.add('on');
@@ -1693,6 +1810,7 @@ function openDet(id){
         <button class="btn br bsm" onclick="adicionarComent(${p.id})" style="padding:8px 14px;height:64px">💬<br>Enviar</button>
       </div>
     </div>
+    ${rFinProjeto(p)}
   `;
 
   document.getElementById('detFt').innerHTML=`
@@ -1991,7 +2109,7 @@ function exportCSV(){
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3500)}
 
 // ── RENDER ALL ──
-function renderAll(){rDash();rKanban();rList();rTimeline();rKPIs();rAtrasos();rCancelados();rCarga();rHistorico();}
+function renderAll(){rDash();rKanban();rList();rTimeline();rKPIs();rAtrasos();rCancelados();rCarga();rHistorico();if(document.getElementById("view-financeiro")?.classList.contains("on"))rFinanceiro();}
 
 // ══════════════════════════════════════════════
 //  FIREBASE — PERSISTÊNCIA EM TEMPO REAL
@@ -2100,6 +2218,8 @@ function escutarFirebase(db){
   });
 
   // Indicador de conexão
+  sincronizarPrecos(db);
+
   db.ref('.info/connected').on('value', snap => {
     if(snap.val() === true){
       setStatus('online','Online — sync ativo');
@@ -2400,6 +2520,366 @@ function duplicarProjeto(id){
   showToast('📋 Projeto duplicado com sucesso!');
 }
 
+
+
+// ══════════════════════════════════════════════
+//  MÓDULO FINANCEIRO
+// ══════════════════════════════════════════════
+
+// Tabela de preços base — salva no Firebase em 'precos'
+// Estrutura: { recurso: { valorHora, horasEstimadas } }
+const PRECOS_DEFAULT = {
+  'Edição Articulate':        {valorHora:120, horasEstimadas:40},
+  'Manutenção':               {valorHora:100, horasEstimadas:20},
+  'Gráficos/Imagens':         {valorHora:90,  horasEstimadas:16},
+  'Web Storyline':            {valorHora:130, horasEstimadas:50},
+  'Web Rise Básico':          {valorHora:80,  horasEstimadas:20},
+  'Web Rise Intermediário':   {valorHora:100, horasEstimadas:30},
+  'Web Rise Avançado':        {valorHora:120, horasEstimadas:40},
+  'Encapsulamento':           {valorHora:90,  horasEstimadas:12},
+  'Questionário':             {valorHora:80,  horasEstimadas:8},
+  'Tradução':                 {valorHora:70,  horasEstimadas:24},
+  'Projeto Gráfico':          {valorHora:90,  horasEstimadas:16},
+  'Personagem':               {valorHora:110, horasEstimadas:20},
+  'Apostila/E-book':          {valorHora:85,  horasEstimadas:30},
+  'Autoria Digital':          {valorHora:100, horasEstimadas:24},
+};
+let PRECOS_BASE = JSON.parse(JSON.stringify(PRECOS_DEFAULT));
+let fbPrecosRef = null;
+
+// Formatar valor como moeda BRL
+function fBRL(v){
+  return 'R$ '+(+v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+
+// Calcular total orçado de um projeto (baseado em fin.etapas)
+function calcTotalProjeto(p){
+  const fin = p.financeiro||{};
+  const etapasF = fin.etapas||[];
+  const totalEtapas = etapasF.reduce((acc,e)=>{
+    const h = parseFloat(e.horas)||0;
+    const v = parseFloat(e.valorHora)||0;
+    return acc + h*v;
+  }, 0);
+  const fixo = parseFloat(fin.valorFixo)||0;
+  return { totalEtapas, fixo, total: totalEtapas + fixo };
+}
+
+// ── TABELA DE PREÇOS BASE ──
+function rTabelaPrecos(){
+  const el = document.getElementById('tabelaPrecos'); if(!el) return;
+  el.innerHTML = `
+    <thead><tr>
+      <th>Recurso</th>
+      <th style="text-align:right;min-width:120px">Valor/Hora (R$)</th>
+      <th style="text-align:right;min-width:120px">Horas Estimadas</th>
+      <th style="text-align:right;min-width:120px">Custo Base</th>
+    </tr></thead>
+    <tbody>${RECURSOS.map(rec=>{
+      const p = PRECOS_BASE[rec]||{valorHora:0,horasEstimadas:0};
+      return`<tr>
+        <td style="font-weight:500">${rec}</td>
+        <td><input class="preco-inp" type="number" min="0" step="5"
+          id="ph_${rec.replace(/[^a-zA-Z0-9]/g,'_')}"
+          value="${p.valorHora}" aria-label="Valor hora ${rec}"
+          oninput="atualizarCustoBase('${rec.replace(/'/g,"\'")}')"></td>
+        <td><input class="preco-inp" type="number" min="0" step="1"
+          id="pe_${rec.replace(/[^a-zA-Z0-9]/g,'_')}"
+          value="${p.horasEstimadas}" aria-label="Horas estimadas ${rec}"
+          oninput="atualizarCustoBase('${rec.replace(/'/g,"\'")}')"></td>
+        <td id="pc_${rec.replace(/[^a-zA-Z0-9]/g,'_')}" style="text-align:right;font-weight:700;color:var(--green)">
+          ${fBRL(p.valorHora*p.horasEstimadas)}
+        </td>
+      </tr>`;
+    }).join('')}</tbody>`;
+}
+function atualizarCustoBase(rec){
+  const key = rec.replace(/[^a-zA-Z0-9]/g,'_');
+  const vh = parseFloat(document.getElementById('ph_'+key)?.value)||0;
+  const he = parseFloat(document.getElementById('pe_'+key)?.value)||0;
+  const cel = document.getElementById('pc_'+key);
+  if(cel) cel.textContent = fBRL(vh*he);
+  if(!PRECOS_BASE[rec]) PRECOS_BASE[rec]={valorHora:0,horasEstimadas:0};
+  PRECOS_BASE[rec].valorHora = vh;
+  PRECOS_BASE[rec].horasEstimadas = he;
+}
+function salvarTabelaPrecos(){
+  // Ler todos os inputs
+  RECURSOS.forEach(rec=>{
+    const key=rec.replace(/[^a-zA-Z0-9]/g,'_');
+    const vh=parseFloat(document.getElementById('ph_'+key)?.value)||0;
+    const he=parseFloat(document.getElementById('pe_'+key)?.value)||0;
+    if(!PRECOS_BASE[rec]) PRECOS_BASE[rec]={};
+    PRECOS_BASE[rec].valorHora=vh; PRECOS_BASE[rec].horasEstimadas=he;
+  });
+  if(fbPrecosRef){
+    fbPrecosRef.set(PRECOS_BASE)
+      .then(()=>showToast('💾 Tabela de preços salva!'))
+      .catch(()=>showToast('⚠️ Erro ao salvar tabela'));
+  } else {
+    // Sem Firebase: salvar local
+    localStorage.setItem('firjan_precos', JSON.stringify(PRECOS_BASE));
+    showToast('💾 Tabela salva localmente');
+  }
+  atualizarCalcRapida();
+}
+
+// ── CALCULADORA RÁPIDA ──
+function rCalcRapida(){
+  const el = document.getElementById('calcRapidaRows'); if(!el) return;
+  el.innerHTML = RECURSOS.map((rec,i)=>{
+    const p = PRECOS_BASE[rec]||{valorHora:0,horasEstimadas:0};
+    const key = rec.replace(/[^a-zA-Z0-9]/g,'_');
+    return`<div class="fin-etapa-row" ${i===0?'style="padding-top:0"':''}>
+      <span style="font-size:12px">${rec}</span>
+      <div style="display:flex;gap:5px;align-items:center">
+        <input class="fin-inp-sm" type="number" min="0" step="0.5"
+          id="cq_h_${key}" value="0" aria-label="Horas ${rec}"
+          oninput="atualizarCalcRapida()" style="width:60px">
+        <span style="font-size:11px;color:var(--mu)">h</span>
+      </div>
+      <div style="display:flex;gap:5px;align-items:center">
+        <span style="font-size:11px;color:var(--mu)">R$</span>
+        <input class="fin-inp-sm" type="number" min="0" step="5"
+          id="cq_v_${key}" value="${p.valorHora}" aria-label="Valor hora ${rec}"
+          oninput="atualizarCalcRapida()" style="width:70px">
+        <span style="font-size:11px;color:var(--mu)">/h</span>
+      </div>
+      <span id="cq_s_${key}" style="text-align:right;font-weight:600;font-size:12px;color:var(--mu)">—</span>
+    </div>`;
+  }).join('');
+  // Header
+  el.insertAdjacentHTML('afterbegin',`<div class="fin-etapa-row header" style="padding-top:0">
+    <span>Recurso</span><span>Horas</span><span>Valor/h</span><span>Subtotal</span>
+  </div>`);
+}
+function atualizarCalcRapida(){
+  let total = parseFloat(document.getElementById('calcFixo')?.value)||0;
+  RECURSOS.forEach(rec=>{
+    const key=rec.replace(/[^a-zA-Z0-9]/g,'_');
+    const h=parseFloat(document.getElementById('cq_h_'+key)?.value)||0;
+    const v=parseFloat(document.getElementById('cq_v_'+key)?.value)||0;
+    const sub=h*v;
+    const cel=document.getElementById('cq_s_'+key);
+    if(cel) cel.textContent = sub>0 ? fBRL(sub) : '—';
+    total+=sub;
+  });
+  const totEl=document.getElementById('calcRapidaTotal');
+  if(totEl) totEl.textContent=fBRL(total);
+}
+
+// ── PAINEL FINANCEIRO GERAL ──
+function rFinanceiro(){
+  rTabelaPrecos();
+  rCalcRapida();
+
+  const filtSit = document.getElementById('finFiltSit')?.value||'';
+  let projs = activeDB().concat(cancelDB());
+  if(filtSit) projs = projs.filter(p=>(p.cancelado?'cancelado':calcSit(p))===filtSit);
+
+  // Cards resumo
+  const totais = projs.map(p=>calcTotalProjeto(p));
+  const totalOrc   = totais.reduce((a,t)=>a+t.totalEtapas,0);
+  const totalFixo  = totais.reduce((a,t)=>a+t.fixo,0);
+  const totalGeral = totais.reduce((a,t)=>a+t.total,0);
+  const projComValor = totais.filter(t=>t.total>0).length;
+
+  const resumoEl = document.getElementById('finResumoGrid');
+  if(resumoEl) resumoEl.innerHTML=`
+    <div class="fin-card fc-green">
+      <div class="fin-card-l">Total Geral Orçado</div>
+      <div class="fin-card-v">${fBRL(totalGeral)}</div>
+      <div class="fin-card-s">${projComValor} projeto(s) com valor</div>
+      <div class="fin-card-ic">💰</div>
+    </div>
+    <div class="fin-card fc-blue">
+      <div class="fin-card-l">Total Horas (variável)</div>
+      <div class="fin-card-v">${fBRL(totalOrc)}</div>
+      <div class="fin-card-s">etapas × recurso × hora</div>
+      <div class="fin-card-ic">⏱️</div>
+    </div>
+    <div class="fin-card fc-yel">
+      <div class="fin-card-l">Total Fixo (contratos)</div>
+      <div class="fin-card-v">${fBRL(totalFixo)}</div>
+      <div class="fin-card-s">parte fixa dos projetos</div>
+      <div class="fin-card-ic">📄</div>
+    </div>
+    <div class="fin-card fc-red">
+      <div class="fin-card-l">Ticket Médio por Projeto</div>
+      <div class="fin-card-v">${projComValor?fBRL(totalGeral/projComValor):'R$ —'}</div>
+      <div class="fin-card-s">projetos com orçamento</div>
+      <div class="fin-card-ic">📊</div>
+    </div>
+  `;
+
+  // Lista de projetos
+  const listEl = document.getElementById('finProjList');
+  if(!listEl) return;
+  if(!projs.length){
+    listEl.innerHTML='<div style="padding:24px;text-align:center;color:var(--mu)">Nenhum projeto encontrado</div>';
+    return;
+  }
+  const maxTotal = Math.max(...totais.map(t=>t.total),1);
+  listEl.innerHTML = projs.map((p,i)=>{
+    const t = totais[i];
+    const sit = p.cancelado?'cancelado':calcSit(p);
+    const pct = Math.round(t.total/maxTotal*100);
+    return`<div class="fin-proj-row" style="cursor:pointer" onclick="openDetFinanceiro(${p.id})" tabindex="0" role="row" aria-label="${p.nome}">
+      <div>
+        <div style="font-weight:600;font-size:13px">${p.nome}</div>
+        <div class="fin-bar-bg"><div class="fin-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div style="font-weight:600;color:var(--blue)">${t.totalEtapas>0?fBRL(t.totalEtapas):'<span style="color:var(--mu);font-size:11px">Não orçado</span>'}</div>
+      <div style="color:var(--mu)">${t.fixo>0?fBRL(t.fixo):'—'}</div>
+      <div style="font-weight:700;color:var(--green)">${t.total>0?fBRL(t.total):'—'}</div>
+      <div>${sitBdg(p)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── DETALHE FINANCEIRO (abre modal de detalhes com tab financeiro) ──
+function openDetFinanceiro(id){
+  openDet(id);
+  // Pequeno delay para o modal abrir, depois ativa aba financeiro
+  setTimeout(()=>{
+    const tabs = document.querySelectorAll('#ovDet .det-tab');
+    if(tabs.length) tabs[tabs.length-1].click();
+  }, 120);
+}
+
+// ── ORÇAMENTO POR PROJETO (dentro do modal openDet) ──
+function rFinProjeto(p){
+  const fin = p.financeiro||{};
+  const etapasF = fin.etapas||[];
+  const etapas = p.etapas||[];
+
+  // Montar linhas de etapas com campos editáveis
+  const rows = etapas.map((e,i)=>{
+    const ef = etapasF[i]||{recurso:'',horas:0,valorHora:0};
+    // Pré-preencher valorHora da tabela base se recurso selecionado e sem valor manual
+    return`<div class="fin-etapa-row" id="fin_row_${i}">
+      <span style="font-size:12px">${e.lb}</span>
+      <select class="fin-inp-sm" id="fin_rec_${p.id}_${i}" onchange="atualizarFinEtapa(${p.id},${i})" aria-label="Recurso etapa ${i+1}" style="text-align:left">
+        <option value="">— Recurso —</option>
+        ${RECURSOS.map(r=>`<option value="${r}" ${ef.recurso===r?'selected':''}>${r}</option>`).join('')}
+      </select>
+      <div style="display:flex;gap:4px;align-items:center">
+        <input class="fin-inp-sm" type="number" min="0" step="0.5" id="fin_h_${p.id}_${i}"
+          value="${ef.horas||''}" placeholder="0"
+          oninput="atualizarFinEtapa(${p.id},${i})" aria-label="Horas etapa ${i+1}" style="width:60px">
+        <span style="font-size:11px;color:var(--mu)">h</span>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center">
+        <span style="font-size:11px;color:var(--mu)">R$</span>
+        <input class="fin-inp-sm" type="number" min="0" step="5" id="fin_v_${p.id}_${i}"
+          value="${ef.valorHora||''}" placeholder="0"
+          oninput="atualizarFinEtapa(${p.id},${i})" aria-label="Valor/hora etapa ${i+1}" style="width:75px">
+        <span style="font-size:11px;color:var(--mu)">/h</span>
+      </div>
+      <span id="fin_s_${p.id}_${i}" style="text-align:right;font-weight:600;color:var(--mu);font-size:12px">
+        ${ef.horas&&ef.valorHora?fBRL(ef.horas*ef.valorHora):'—'}
+      </span>
+    </div>`;
+  }).join('');
+
+  const t = calcTotalProjeto(p);
+  return`<div class="fin-secao">
+    <div class="fin-secao-title">
+      <span>💰 Orçamento do Projeto</span>
+      <button class="btn bg2 bsm" onclick="salvarFinProjeto(${p.id})">💾 Salvar orçamento</button>
+    </div>
+    <div class="fin-etapa-row header">
+      <span>Etapa</span><span>Recurso</span><span>Horas</span><span>Valor/h</span><span>Subtotal</span>
+    </div>
+    ${rows}
+    <div class="fin-fixed-row" style="margin-top:10px">
+      <span style="font-size:12px;color:var(--mu);flex:1">➕ Valor fixo do contrato (R$):</span>
+      <input class="fin-inp-sm" type="number" min="0" step="100" id="fin_fixo_${p.id}"
+        value="${fin.valorFixo||0}" oninput="atualizarFinTotal(${p.id})" aria-label="Valor fixo do contrato" style="width:140px">
+    </div>
+    <div class="fin-total-row">
+      <span class="fin-total-label">Horas</span>
+      <span id="fin_tot_etapas_${p.id}" style="font-size:14px;font-weight:700;color:var(--blue)">${fBRL(t.totalEtapas)}</span>
+      <span class="fin-total-label" style="margin-left:16px">+ Fixo</span>
+      <span id="fin_tot_fixo_${p.id}" style="font-size:14px;font-weight:700;color:var(--mu)">${fBRL(t.fixo)}</span>
+      <span class="fin-total-label" style="margin-left:16px">= Total</span>
+      <span class="fin-total-val" id="fin_tot_${p.id}">${fBRL(t.total)}</span>
+    </div>
+  </div>`;
+}
+
+function atualizarFinEtapa(pid, idx){
+  // Quando troca o recurso, preenche valorHora da tabela base
+  const recEl = document.getElementById(`fin_rec_${pid}_${idx}`);
+  const vEl   = document.getElementById(`fin_v_${pid}_${idx}`);
+  if(recEl && vEl && recEl.value && !vEl.value){
+    const base = PRECOS_BASE[recEl.value];
+    if(base) vEl.value = base.valorHora;
+  }
+  atualizarFinTotal(pid);
+}
+function atualizarFinTotal(pid){
+  const p = DB.find(x=>x.id===pid); if(!p) return;
+  const etapas = p.etapas||[];
+  let totalEtapas=0;
+  etapas.forEach((_,i)=>{
+    const h=parseFloat(document.getElementById(`fin_h_${pid}_${i}`)?.value)||0;
+    const v=parseFloat(document.getElementById(`fin_v_${pid}_${i}`)?.value)||0;
+    const sub=h*v;
+    const cel=document.getElementById(`fin_s_${pid}_${i}`);
+    if(cel) cel.textContent=sub>0?fBRL(sub):'—';
+    totalEtapas+=sub;
+  });
+  const fixo=parseFloat(document.getElementById(`fin_fixo_${pid}`)?.value)||0;
+  const total=totalEtapas+fixo;
+  const e1=document.getElementById(`fin_tot_etapas_${pid}`);
+  const e2=document.getElementById(`fin_tot_fixo_${pid}`);
+  const e3=document.getElementById(`fin_tot_${pid}`);
+  if(e1) e1.textContent=fBRL(totalEtapas);
+  if(e2) e2.textContent=fBRL(fixo);
+  if(e3) e3.textContent=fBRL(total);
+}
+function salvarFinProjeto(pid){
+  const p = DB.find(x=>x.id===pid); if(!p) return;
+  if(!p.financeiro) p.financeiro={};
+  const etapas = (p.etapas||[]).map((_,i)=>({
+    recurso: document.getElementById(`fin_rec_${pid}_${i}`)?.value||'',
+    horas:   parseFloat(document.getElementById(`fin_h_${pid}_${i}`)?.value)||0,
+    valorHora: parseFloat(document.getElementById(`fin_v_${pid}_${i}`)?.value)||0,
+  }));
+  p.financeiro.etapas    = etapas;
+  p.financeiro.valorFixo = parseFloat(document.getElementById(`fin_fixo_${pid}`)?.value)||0;
+  fbSalvarProjeto(p);
+  showToast('💰 Orçamento salvo!');
+  rFinanceiro();
+}
+
+// ── EXPORTAR CSV FINANCEIRO ──
+function exportCSVFin(){
+  const hdr='ID,Nome,Situação,Recursos,Total Horas (R$),Valor Fixo (R$),Total Geral (R$)';
+  const rows=activeDB().concat(cancelDB()).map(p=>{
+    const t=calcTotalProjeto(p);
+    return[p.id,`"${p.nome}"`,calcSit(p),`"${(p.recursos||[]).join('; ')}"`,
+      t.totalEtapas.toFixed(2),t.fixo.toFixed(2),t.total.toFixed(2)].join(',');
+  });
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\uFEFF'+[hdr,...rows].join('\n'));
+  a.download=`financeiro-ead-${td()}.csv`; a.click(); showToast('📥 CSV financeiro exportado!');
+}
+
+// ── SINCRONIZAR PREÇOS COM FIREBASE ──
+function sincronizarPrecos(db){
+  fbPrecosRef = db.ref('precos');
+  fbPrecosRef.on('value', snap=>{
+    const remoto = snap.val();
+    if(remoto){
+      PRECOS_BASE = remoto;
+      // Se estiver na view financeiro, atualizar
+      const vf = document.getElementById('view-financeiro');
+      if(vf && vf.classList.contains('on')) rFinanceiro();
+    }
+  });
+}
 
 // ══════════════════════════════════════════════
 //  LOGIN — nome + senha
