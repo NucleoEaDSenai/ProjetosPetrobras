@@ -547,21 +547,20 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
   </div>
   <nav class="sb-nav">
     <div class="sb-sec">Principal</div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Dashboard Executivo" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('dashboard')}" onclick="nav('dashboard')"><span class="si-ic">🎯</span><span>Dashboard</span></div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Kanban — Quadro de projetos" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('kanban')}" on" onclick="nav('kanban')"><span class="si-ic">🗂️</span><span>Kanban</span></div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Lista de Projetos" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('projetos')}"" onclick="nav('projetos')"><span class="si-ic">📋</span><span>Lista de Projetos</span></div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Cronograma" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('timeline')}"" onclick="nav('timeline')"><span class="si-ic">📅</span><span>Cronograma</span></div>
+    <div class="si" role="menuitem" tabindex="0" onclick="nav('kanban')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('kanban')}"><span class="si-ic">🗂️</span><span>Kanban</span></div>
+    <div class="si" role="menuitem" tabindex="0" onclick="nav('projetos')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('projetos')}"><span class="si-ic">📋</span><span>Lista de Projetos</span></div>
+    <div class="si" role="menuitem" tabindex="0" onclick="nav('timeline')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('timeline')}"><span class="si-ic">📅</span><span>Cronograma</span></div>
     <div class="sb-sec">Análise</div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="KPIs e Indicadores" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('kpis')}"" onclick="nav('kpis')"><span class="si-ic">📈</span><span>KPIs &amp; Indicadores</span></div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Relatório de Atrasos" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('atrasos')}"" onclick="nav('atrasos')"><span class="si-ic">⚠️</span><span>Rel. de Atrasos</span></div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Projetos Cancelados" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('cancelados')}"" onclick="nav('cancelados')"><span class="si-ic">🚫</span><span>Cancelados</span></div>
+    <div class="si" role="menuitem" tabindex="0" onclick="nav('dashboard')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('dashboard')}"><span class="si-ic">🎯</span><span>Dashboard</span></div>
+    <div class="si" role="menuitem" tabindex="0" onclick="nav('atrasos')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('atrasos')}"><span class="si-ic">⚠️</span><span>Rel. de Atrasos</span></div>
+    <div class="si" role="menuitem" tabindex="0" onclick="nav('cancelados')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('cancelados')}"><span class="si-ic">🚫</span><span>Cancelados</span></div>
     <div class="sb-sec">Gestão</div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Financeiro" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('financeiro')}" onclick="nav('financeiro')"><span class="si-ic">💰</span><span>Financeiro</span></div>
+    <div class="si" role="menuitem" tabindex="0" onclick="nav('financeiro')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('financeiro')}"><span class="si-ic">💰</span><span>Financeiro</span></div>
     <div class="sb-sec">Ações</div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Novo Projeto" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNew()}"" onclick="openNew()"><span class="si-ic">➕</span><span>Novo Projeto</span></div>
+    <div class="si" role="menuitem" tabindex="0" onclick="openNew()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNew()}"><span class="si-ic">➕</span><span>Novo Projeto</span></div>
     <div class="sb-sec">Equipe</div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Carga da Equipe" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('carga')}"" onclick="nav('carga')"><span class="si-ic">👥</span><span>Carga da Equipe</span></div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Histórico de Edições" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('historico')}"" onclick="nav('historico')"><span class="si-ic">📝</span><span>Histórico</span></div>
+    <div class="si" role="menuitem" tabindex="0" onclick="nav('carga')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('carga')}"><span class="si-ic">👥</span><span>Carga da Equipe</span></div>
+    <div class="si" role="menuitem" tabindex="0" onclick="nav('historico')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('historico')}"><span class="si-ic">📝</span><span>Histórico</span></div>
   </nav>
   <div class="sb-foot" style="display:flex;align-items:center;justify-content:space-between"><span>v5.0 · Firjan SENAI</span><button class="dark-btn" id="darkBtn" onclick="toggleDark()">🌙</button></div>
 </aside>
@@ -713,14 +712,6 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
     </div>
 
     <!-- KPIs -->
-    <div class="view" id="view-kpis">
-      <div class="st" style="margin-bottom:16px">KPIs &amp; Indicadores de Produção EAD</div>
-      <div class="kg" id="kpiGrid"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div class="kk"><div class="kkt">Etapas — Tempo Médio (dias)</div><div id="etapaBars"></div></div>
-        <div class="kk"><div class="kkt">Projetos por Recurso</div><div id="tipoBars"></div></div>
-      </div>
-    </div>
 
     <!-- ATRASOS -->
     <div class="view" id="view-atrasos">
@@ -808,66 +799,39 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
     <!-- FINANCEIRO -->
     <div class="view" id="view-financeiro">
 
-      <!-- CARDS RESUMO -->
+      <!-- CARDS RESUMO FINANCEIRO -->
       <div class="fin-grid" id="finResumoGrid"></div>
 
-      <!-- SEÇÃO 1: TABELA DE PREÇOS BASE -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px;align-items:start">
-        <div>
-          <div class="sh" style="margin-bottom:10px">
-            <div class="st">💵 Tabela de Preços Base</div>
-            <button class="btn bg2 bsm" onclick="salvarTabelaPrecos()" aria-label="Salvar tabela de preços">💾 Salvar</button>
-          </div>
-          <p style="font-size:12px;color:var(--mu);margin-bottom:12px">Valores padrão por recurso. Usados como ponto de partida ao calcular o orçamento de cada projeto — sempre editável por projeto.</p>
-          <div class="tw" style="border-radius:var(--r)">
-            <table class="preco-table" id="tabelaPrecos"></table>
-          </div>
-        </div>
-
-        <!-- SEÇÃO 2: ORÇAMENTO RÁPIDO (calculadora standalone) -->
-        <div>
-          <div class="sh" style="margin-bottom:10px">
-            <div class="st">🧮 Calculadora Rápida</div>
-          </div>
-          <p style="font-size:12px;color:var(--mu);margin-bottom:12px">Simule um orçamento sem vínculo a projeto. Selecione recursos, ajuste horas e veja o total.</p>
-          <div class="fin-secao" id="calcRapidaWrap">
-            <div id="calcRapidaRows"></div>
-            <div class="fin-fixed-row">
-              <span style="font-size:12px;color:var(--mu);white-space:nowrap">+ Valor fixo (contrato):</span>
-              <input class="fin-inp-sm" id="calcFixo" type="number" min="0" value="0" style="width:130px" oninput="atualizarCalcRapida()" aria-label="Valor fixo do contrato">
-              <span style="font-size:11px;color:var(--mu)">R$</span>
-            </div>
-            <div class="fin-total-row">
-              <span class="fin-total-label">Total estimado</span>
-              <span class="fin-total-val" id="calcRapidaTotal">R$ 0,00</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SEÇÃO 3: RELATÓRIO GERAL DOS PROJETOS -->
-      <div class="sh" style="margin-bottom:10px">
-        <div class="st">📊 Orçamento por Projeto</div>
+      <!-- TÍTULO + FILTRO -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;color:var(--txt)">💰 Orçamento por Projeto</div>
         <div style="display:flex;gap:8px;align-items:center">
-          <select class="fi-sm" id="finFiltSit" onchange="rFinanceiro()" style="width:180px">
+          <select id="finFiltSit" onchange="rFinanceiro()" style="padding:7px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-family:inherit;font-size:13px;background:var(--bg);color:var(--txt);outline:none;cursor:pointer">
             <option value="">Todos os projetos</option>
             <option value="andamento">Em Andamento</option>
             <option value="concluido">Concluídos</option>
             <option value="atrasado">Atrasados</option>
             <option value="aguardando">Aguardando</option>
           </select>
-          <button class="btn bg2 bsm" onclick="exportCSVFin()" aria-label="Exportar financeiro em CSV">⬇️ Exportar CSV</button>
+          <button class="btn bg2 bsm" onclick="exportCSVFin()">⬇️ Exportar CSV</button>
         </div>
       </div>
-      <div class="tw" style="border-radius:var(--r)">
-        <div class="fin-proj-row header">
-          <span>Projeto</span>
-          <span>Orç. Estimado</span>
-          <span>Valor Fixo</span>
-          <span>Total</span>
-          <span>Situação</span>
-        </div>
-        <div id="finProjList"></div>
+
+      <!-- TABELA -->
+      <div style="background:#fff;border-radius:var(--r);border:1px solid var(--bdr);overflow:hidden">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr style="background:var(--dark)">
+              <th style="padding:12px 18px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6);width:36%">Projeto</th>
+              <th style="padding:12px 18px;text-align:right;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6)">Orç. Estimado</th>
+              <th style="padding:12px 18px;text-align:right;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6)">Valor Fixo</th>
+              <th style="padding:12px 18px;text-align:right;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6)">Total</th>
+              <th style="padding:12px 18px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6)">Situação</th>
+              <th style="padding:12px 18px;text-align:center;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:rgba(255,255,255,.6)">Ação</th>
+            </tr>
+          </thead>
+          <tbody id="finProjList"></tbody>
+        </table>
       </div>
 
     </div>
@@ -1186,7 +1150,7 @@ let DB=[];
 let NXT=1, editId=null, cancId=null, dragId=null;
 
 // ── NAV ──
-const PT={dashboard:'Dashboard Executivo',financeiro:'Financeiro — Orçamentos & Custos',kanban:'Quadro Kanban',projetos:'Lista de Projetos',timeline:'Cronograma',kpis:'KPIs & Indicadores',atrasos:'Relatório de Atrasos',cancelados:'Projetos Cancelados',carga:'Carga da Equipe',historico:'Histórico de Edições',carga:'Carga da Equipe',historico:'Histórico de Edições'};
+const PT={dashboard:'Dashboard Executivo',financeiro:'Financeiro — Orçamentos & Custos',kanban:'Quadro Kanban',projetos:'Lista de Projetos',timeline:'Cronograma',atrasos:'Relatório de Atrasos',cancelados:'Projetos Cancelados',carga:'Carga da Equipe',historico:'Histórico de Edições',carga:'Carga da Equipe',historico:'Histórico de Edições'};
 function nav(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.getElementById('view-'+id).classList.add('on');
@@ -1494,96 +1458,7 @@ function rTimeline(){
 }
 
 // ── KPIs ──
-function rKPIs(){
-  const act=activeDB();
-  if(act.length===0){
-    document.getElementById('kpiGrid').innerHTML='<div style="color:var(--mu);font-size:13px;padding:20px">Nenhum projeto cadastrado ainda.</div>';
-    document.getElementById('etapaBars').innerHTML='<div style="color:var(--mu);font-size:12px;padding:8px 0">Sem dados ainda</div>';
-    document.getElementById('tipoBars').innerHTML='<div style="color:var(--mu);font-size:12px;padding:8px 0">Sem dados ainda</div>';
-    return;
-  }
-  const total=act.length||1;
-  const conc=act.filter(p=>calcSit(p)==='concluido').length;
-  const avg=Math.round(act.reduce((a,p)=>a+p.pct,0)/total);
-  function dn(val,col,lbl,sub){
-    const r=40,c=2*Math.PI*r,pv=(val/100);
-    return`<div class="kk"><div class="kkt">${lbl}</div><div style="text-align:center">
-      <svg viewBox="0 0 100 100" width="110" height="110">
-        <circle cx="50" cy="50" r="${r}" fill="none" stroke="var(--bdr)" stroke-width="10"/>
-        <circle cx="50" cy="50" r="${r}" fill="none" stroke="${col}" stroke-width="10"
-          stroke-dasharray="${pv*c} ${c}" stroke-linecap="round" transform="rotate(-90 50 50)"/>
-      </svg>
-      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;margin-top:-70px">${val}%</div>
-      <div style="font-size:11px;color:var(--mu);margin-top:42px">${sub}</div>
-    </div></div>`;
-  }
-  // distribuição por situação
-  const sits={andamento:0,atrasado:0,concluido:0,aguardando:0};
-  act.forEach(p=>{const s=calcSit(p);if(sits[s]!==undefined)sits[s]++;});
-  const sitCols={andamento:'#D97706',atrasado:'#E8002D',concluido:'#1A8A4A',aguardando:'#9CA3AF'};
-  const sitLbl={andamento:'Em Andamento',atrasado:'Atrasado',concluido:'Concluído',aguardando:'Aguardando'};
-  let off=0,arcs='';
-  Object.entries(sits).forEach(([k,n])=>{
-    const pv=n/total,r=40,c2=2*Math.PI*r;
-    arcs+=`<circle cx="50" cy="50" r="${r}" fill="none" stroke="${sitCols[k]}" stroke-width="10" stroke-dasharray="${pv*c2} ${c2}" stroke-dashoffset="${-off}" stroke-linecap="round" transform="rotate(-90 50 50)"/>`;
-    off+=pv*c2;
-  });
-  const leg=Object.entries(sits).filter(([,n])=>n>0).map(([k,n])=>`<div class="leg"><div class="ld" style="background:${sitCols[k]}"></div>${sitLbl[k]}: <strong>${n}</strong></div>`).join('');
-  document.getElementById('kpiGrid').innerHTML=
-    dn(Math.round(conc/total*100),'var(--green)','Taxa de Conclusão',`${conc} de ${total} concluídos`)+
-    dn(avg,'var(--blue)','Progresso Médio',`média de conclusão`)+
-    `<div class="kk"><div class="kkt">Distribuição por Situação</div><div style="display:flex;align-items:center;gap:16px;padding:6px 0"><svg viewBox="0 0 100 100" width="100" height="100">${arcs}</svg><div>${leg}</div></div></div>`;
 
-  // Calcular tempo médio real de cada etapa a partir de projetos concluídos
-  const etapaMedArr = ETPS_DEF.map((e,i)=>{
-    // Para cada etapa concluída, mede dias entre e.prazo (início previsto) e e.fim (conclusão real)
-    // Etapas sem prazo: conta 1 dia simbólico para aparecer no gráfico
-    const amostras=[];
-    activeDB().concat(cancelDB()).forEach(p=>{
-      const et=(p.etapas||[])[i];
-      if(!et||!et.done||!et.fim) return;
-      const ref=et.prazo||et.inicio;
-      const dias=ref ? Math.max(1,Math.round((new Date(et.fim)-new Date(ref))/(864e5))) : 1;
-      amostras.push(dias);
-    });
-    const media=amostras.length
-      ? Math.round(amostras.reduce((a,b)=>a+b,0)/amostras.length)
-      : null;
-    const nomeAbrev=[
-      'Reunião Inicial','Elaboração PI','Revisão PI','Rev. Textual PI',
-      'Entrega PI','Validação PI','Desenho/Rot.','Valid. DI Ref.',
-      'Prod. Gráficos','Entrega Review','Solic. Ajustes','Impl. Ajustes',
-      'Validação Final','Rev. Textual','Homologação','Instalação SIRH'
-    ][i]||e.lb;
-    return{n:nomeAbrev, d:media, r:e.r, amostras:amostras.length};
-  });
-  const comDados=etapaMedArr.filter(e=>e.d!==null);
-  const mx=comDados.length?Math.max(...comDados.map(e=>e.d),1):1;
-  document.getElementById('etapaBars').innerHTML=etapaMedArr.map(e=>`
-    <div style="margin-bottom:8px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">
-        <span>${e.n}${e.amostras>0?`<span style="color:var(--mu);font-size:10px;margin-left:5px">(${e.amostras} proj.)</span>`:''}</span>
-        <strong>${e.d!==null?e.d+'d':'—'}</strong>
-      </div>
-      <div style="height:5px;background:var(--bdr);border-radius:3px;overflow:hidden">
-        ${e.d!==null?`<div style="height:100%;width:${e.d/mx*100}%;background:${e.r==='cl'?'var(--org)':'var(--blue)'};border-radius:3px"></div>`:''}
-      </div>
-      ${e.d===null?'<div style="font-size:10px;color:var(--mu);margin-top:1px">Sem dados ainda</div>':''}
-    </div>`).join('');
-
-  // Contar projetos por recurso
-  const recCount={};
-  act.forEach(p=>(p.recursos||[]).forEach(r=>{recCount[r]=(recCount[r]||0)+1;}));
-  const tps=Object.entries(recCount).sort((a,b)=>b[1]-a[1]);
-  const mx2=tps.length?Math.max(...tps.map(([,n])=>n),1):1;
-  document.getElementById('tipoBars').innerHTML=tps.length===0
-    ?'<div style="color:var(--mu);font-size:12px;padding:8px 0">Nenhum dado ainda</div>'
-    :tps.map(([rec,n],i)=>`
-    <div style="margin-bottom:9px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span>${rec}</span><strong>${n}</strong></div>
-      <div style="height:6px;background:var(--bdr);border-radius:3px;overflow:hidden"><div style="height:100%;width:${n/mx2*100}%;background:${COLS_AV[i%COLS_AV.length]};border-radius:3px"></div></div>
-    </div>`).join('');
-}
 
 // ── ATRASOS ──
 function rAtrasos(){
@@ -2193,7 +2068,7 @@ function exportCSV(){
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3500)}
 
 // ── RENDER ALL ──
-function renderAll(){rDash();rKanban();rList();rTimeline();rKPIs();rAtrasos();rCancelados();rCarga();rHistorico();if(document.getElementById("view-financeiro")?.classList.contains("on"))rFinanceiro();gerarNotificacoes();renderNotif();if(document.getElementById("view-dashboard")?.classList.contains("on"))rDashboard();}
+function renderAll(){rDash();rKanban();rList();rTimeline();rAtrasos();rCancelados();rCarga();rHistorico();if(document.getElementById("view-financeiro")?.classList.contains("on"))rFinanceiro();gerarNotificacoes();renderNotif();if(document.getElementById("view-dashboard")?.classList.contains("on"))rDashboard();}
 
 // ══════════════════════════════════════════════
 //  FIREBASE — PERSISTÊNCIA EM TEMPO REAL
@@ -2751,33 +2626,7 @@ function calcTotalProjeto(p){
 }
 
 // ── TABELA DE PREÇOS BASE ──
-function rTabelaPrecos(){
-  const el = document.getElementById('tabelaPrecos'); if(!el) return;
-  el.innerHTML = `
-    <thead><tr>
-      <th>Recurso</th>
-      <th style="text-align:right;min-width:120px">Valor/Hora (R$)</th>
-      <th style="text-align:right;min-width:120px">Horas Estimadas</th>
-      <th style="text-align:right;min-width:120px">Custo Base</th>
-    </tr></thead>
-    <tbody>${RECURSOS.map(rec=>{
-      const p = PRECOS_BASE[rec]||{valorHora:0,horasEstimadas:0};
-      return`<tr>
-        <td style="font-weight:500">${rec}</td>
-        <td><input class="preco-inp" type="number" min="0" step="5"
-          id="ph_${rec.replace(/[^a-zA-Z0-9]/g,'_')}"
-          value="${p.valorHora}" aria-label="Valor hora ${rec}"
-          oninput="atualizarCustoBase('${rec.replace(/'/g,"\'")}')"></td>
-        <td><input class="preco-inp" type="number" min="0" step="1"
-          id="pe_${rec.replace(/[^a-zA-Z0-9]/g,'_')}"
-          value="${p.horasEstimadas}" aria-label="Horas estimadas ${rec}"
-          oninput="atualizarCustoBase('${rec.replace(/'/g,"\'")}')"></td>
-        <td id="pc_${rec.replace(/[^a-zA-Z0-9]/g,'_')}" style="text-align:right;font-weight:700;color:var(--green)">
-          ${fBRL(p.valorHora*p.horasEstimadas)}
-        </td>
-      </tr>`;
-    }).join('')}</tbody>`;
-}
+
 function atualizarCustoBase(rec){
   const key = rec.replace(/[^a-zA-Z0-9]/g,'_');
   const vh = parseFloat(document.getElementById('ph_'+key)?.value)||0;
@@ -2788,26 +2637,7 @@ function atualizarCustoBase(rec){
   PRECOS_BASE[rec].valorHora = vh;
   PRECOS_BASE[rec].horasEstimadas = he;
 }
-function salvarTabelaPrecos(){
-  // Ler todos os inputs
-  RECURSOS.forEach(rec=>{
-    const key=rec.replace(/[^a-zA-Z0-9]/g,'_');
-    const vh=parseFloat(document.getElementById('ph_'+key)?.value)||0;
-    const he=parseFloat(document.getElementById('pe_'+key)?.value)||0;
-    if(!PRECOS_BASE[rec]) PRECOS_BASE[rec]={};
-    PRECOS_BASE[rec].valorHora=vh; PRECOS_BASE[rec].horasEstimadas=he;
-  });
-  if(fbPrecosRef){
-    fbPrecosRef.set(PRECOS_BASE)
-      .then(()=>showToast('💾 Tabela de preços salva!'))
-      .catch(()=>showToast('⚠️ Erro ao salvar tabela'));
-  } else {
-    // Sem Firebase: salvar local
-    localStorage.setItem('firjan_precos', JSON.stringify(PRECOS_BASE));
-    showToast('💾 Tabela salva localmente');
-  }
-  atualizarCalcRapida();
-}
+
 
 // ── CALCULADORA RÁPIDA ──
 
@@ -2815,71 +2645,124 @@ function salvarTabelaPrecos(){
 
 // ── PAINEL FINANCEIRO GERAL ──
 function rFinanceiro(){
-  rTabelaPrecos();
-  rCalcRapida();
+  const filtSit=document.getElementById('finFiltSit')?.value||'';
+  let projs=activeDB().concat(cancelDB());
+  if(filtSit) projs=projs.filter(p=>(p.cancelado?'cancelado':calcSit(p))===filtSit);
 
-  const filtSit = document.getElementById('finFiltSit')?.value||'';
-  let projs = activeDB().concat(cancelDB());
-  if(filtSit) projs = projs.filter(p=>(p.cancelado?'cancelado':calcSit(p))===filtSit);
+  const tots=projs.map(p=>calcTotalProjeto(p));
+  const tOrc=tots.reduce((a,t)=>a+t.totalEtapas,0);
+  const tFixo=tots.reduce((a,t)=>a+t.fixo,0);
+  const tGeral=tots.reduce((a,t)=>a+t.total,0);
+  const comVal=tots.filter(t=>t.total>0).length;
 
-  // Cards resumo
-  const totais = projs.map(p=>calcTotalProjeto(p));
-  const totalOrc   = totais.reduce((a,t)=>a+t.totalEtapas,0);
-  const totalFixo  = totais.reduce((a,t)=>a+t.fixo,0);
-  const totalGeral = totais.reduce((a,t)=>a+t.total,0);
-  const projComValor = totais.filter(t=>t.total>0).length;
+  const rEl=document.getElementById('finResumoGrid');
+  if(rEl) rEl.innerHTML=[
+    {l:'Total Geral Orçado',     v:fBRL(tGeral), s:comVal+' projeto(s) com valor', ic:'💰', cls:'fc-green'},
+    {l:'Total Variável (horas)', v:fBRL(tOrc),   s:'etapas × recurso × hora',     ic:'⏱️', cls:'fc-blue'},
+    {l:'Total Fixo',             v:fBRL(tFixo),  s:'parte fixa dos contratos',    ic:'📄', cls:'fc-yel'},
+    {l:'Ticket Médio',           v:comVal?fBRL(tGeral/comVal):'R$ —', s:'por projeto orçado', ic:'📊', cls:'fc-red'},
+  ].map(x=>`<div class="fin-card ${x.cls}">
+    <div class="fin-card-l">${x.l}</div>
+    <div class="fin-card-v">${x.v}</div>
+    <div class="fin-card-s">${x.s}</div>
+    <div class="fin-card-ic">${x.ic}</div>
+  </div>`).join('');
 
-  const resumoEl = document.getElementById('finResumoGrid');
-  if(resumoEl) resumoEl.innerHTML=`
-    <div class="fin-card fc-green">
-      <div class="fin-card-l">Total Geral Orçado</div>
-      <div class="fin-card-v">${fBRL(totalGeral)}</div>
-      <div class="fin-card-s">${projComValor} projeto(s) com valor</div>
-      <div class="fin-card-ic">💰</div>
-    </div>
-    <div class="fin-card fc-blue">
-      <div class="fin-card-l">Total Horas (variável)</div>
-      <div class="fin-card-v">${fBRL(totalOrc)}</div>
-      <div class="fin-card-s">etapas × recurso × hora</div>
-      <div class="fin-card-ic">⏱️</div>
-    </div>
-    <div class="fin-card fc-yel">
-      <div class="fin-card-l">Total Fixo (contratos)</div>
-      <div class="fin-card-v">${fBRL(totalFixo)}</div>
-      <div class="fin-card-s">parte fixa dos projetos</div>
-      <div class="fin-card-ic">📄</div>
-    </div>
-    <div class="fin-card fc-red">
-      <div class="fin-card-l">Ticket Médio por Projeto</div>
-      <div class="fin-card-v">${projComValor?fBRL(totalGeral/projComValor):'R$ —'}</div>
-      <div class="fin-card-s">projetos com orçamento</div>
-      <div class="fin-card-ic">📊</div>
-    </div>
-  `;
-
-  // Lista de projetos
-  const listEl = document.getElementById('finProjList');
-  if(!listEl) return;
+  const tbody=document.getElementById('finProjList');
+  if(!tbody) return;
   if(!projs.length){
-    listEl.innerHTML='<div style="padding:24px;text-align:center;color:var(--mu)">Nenhum projeto encontrado</div>';
+    tbody.innerHTML=`<tr><td colspan="6" style="padding:36px;text-align:center;color:var(--mu)">Nenhum projeto encontrado</td></tr>`;
     return;
   }
-  const maxTotal = Math.max(...totais.map(t=>t.total),1);
-  listEl.innerHTML = projs.map((p,i)=>{
-    const t = totais[i];
-    const sit = p.cancelado?'cancelado':calcSit(p);
-    const pct = Math.round(t.total/maxTotal*100);
-    return`<div class="fin-proj-row" style="cursor:pointer" onclick="openDetFinanceiro(${p.id})" tabindex="0" role="row" aria-label="${p.nome}">
-      <div>
-        <div style="font-weight:600;font-size:13px">${p.nome}</div>
-        <div class="fin-bar-bg"><div class="fin-bar-fill" style="width:${pct}%"></div></div>
-      </div>
-      <div style="font-weight:600;color:var(--blue)">${t.totalEtapas>0?fBRL(t.totalEtapas):'<span style="color:var(--mu);font-size:11px">Não orçado</span>'}</div>
-      <div style="color:var(--mu)">${t.fixo>0?fBRL(t.fixo):'—'}</div>
-      <div style="font-weight:700;color:var(--green)">${t.total>0?fBRL(t.total):'—'}</div>
-      <div>${sitBdg(p)}</div>
-    </div>`;
+
+  tbody.innerHTML=projs.map((p,idx)=>{
+    const t=tots[idx];
+    const finE=(p.financeiro?.etapas)||[];
+    const etps=(p.etapas||[]).map((e,i)=>{
+      const ef=finE[i]||{};
+      return{lb:e.lb, rec:ef.recurso||'', h:parseFloat(ef.horas)||0, vh:parseFloat(ef.valorHora)||0};
+    }).filter(e=>e.h>0||e.rec);
+
+    const detalheRows=etps.length
+      ? etps.map(e=>`
+        <tr style="border-top:1px solid var(--bdr)">
+          <td style="padding:7px 18px 7px 46px;font-size:12px;color:var(--txt)">${e.lb}</td>
+          <td style="padding:7px 18px;text-align:right;color:var(--mu);font-size:12px">${e.rec||'—'}</td>
+          <td style="padding:7px 18px;text-align:right;font-size:12px">${e.h?e.h+'h':'—'}</td>
+          <td style="padding:7px 18px;text-align:right;font-size:12px">${e.vh?fBRL(e.vh):'—'}</td>
+          <td style="padding:7px 18px;text-align:right;font-weight:600;color:var(--blue);font-size:12px" colspan="2">${e.h&&e.vh?fBRL(e.h*e.vh):'—'}</td>
+        </tr>`).join('')
+        + `<tr style="border-top:2px solid var(--bdr);background:var(--s2)">
+          <td colspan="4" style="padding:9px 18px 9px 46px">
+            <button class="btn bg2 bsm" onclick="abrirOrcProj(${p.id})" style="font-size:11.5px">✏️ Editar orçamento</button>
+          </td>
+          <td colspan="2" style="padding:9px 18px;text-align:right;font-weight:800;font-size:14px;color:var(--green)">${fBRL(t.total)}</td>
+        </tr>`
+      : `<tr><td colspan="6" style="padding:14px 18px 14px 46px;color:var(--mu);font-size:12.5px">
+          Nenhum orçamento cadastrado.&nbsp;
+          <button class="btn bg2 bsm" onclick="abrirOrcProj(${p.id})" style="font-size:11.5px">✏️ Adicionar orçamento</button>
+        </td></tr>`;
+
+    return `
+    <tr id="finR_${p.id}" onclick="finToggle(${p.id})"
+        style="cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .15s"
+        onmouseenter="this.style.background='var(--s2)'" onmouseleave="this.style.background=''">
+      <td style="padding:13px 18px">
+        <div style="display:flex;align-items:center;gap:9px">
+          <span id="finC_${p.id}" style="font-size:10px;color:var(--mu);transition:transform .2s;display:inline-block;flex-shrink:0">▶</span>
+          <div>
+            <div style="font-weight:600;font-size:13px">${p.nome}</div>
+            <div style="font-size:11px;color:var(--mu);margin-top:2px">${(p.recursos||[]).slice(0,3).join(', ')||'—'}${(p.recursos||[]).length>3?' +'+((p.recursos||[]).length-3):''}</div>
+          </div>
+        </div>
+      </td>
+      <td style="padding:13px 18px;text-align:right;font-weight:600;color:var(--blue)">
+        ${t.totalEtapas>0?fBRL(t.totalEtapas):'<span style="color:var(--mu);font-size:11.5px;font-weight:400">Não orçado</span>'}
+      </td>
+      <td style="padding:13px 18px;text-align:right;color:var(--mu)">${t.fixo>0?fBRL(t.fixo):'—'}</td>
+      <td style="padding:13px 18px;text-align:right;font-weight:800;font-size:14px;color:${t.total>0?'var(--green)':'var(--mu)'}">
+        ${t.total>0?fBRL(t.total):'—'}
+      </td>
+      <td style="padding:13px 18px;text-align:center">${sitBdg(p)}</td>
+      <td style="padding:13px 18px;text-align:center">
+        <button class="btn bg2 bsm" onclick="event.stopPropagation();abrirOrcProj(${p.id})" style="font-size:11.5px">✏️ Orçar</button>
+      </td>
+    </tr>
+    <tr id="finS_${p.id}" style="display:none">
+      <td colspan="6" style="padding:0;background:var(--s2)">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr style="background:rgba(0,0,0,.05)">
+              <th style="padding:8px 18px 8px 46px;text-align:left;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;width:36%">Etapa</th>
+              <th style="padding:8px 18px;text-align:right;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase">Recurso</th>
+              <th style="padding:8px 18px;text-align:right;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase">Horas</th>
+              <th style="padding:8px 18px;text-align:right;font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase" colspan="3">Valor/h &amp; Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>${detalheRows}</tbody>
+        </table>
+      </td>
+    </tr>`;
   }).join('');
+}
+
+function finToggle(id){
+  const sub=document.getElementById('finS_'+id);
+  const chev=document.getElementById('finC_'+id);
+  const row=document.getElementById('finR_'+id);
+  if(!sub) return;
+  const open=sub.style.display!=='none';
+  sub.style.display=open?'none':'table-row';
+  if(chev) chev.style.transform=open?'':'rotate(90deg)';
+  if(row) row.style.background=open?'':'var(--s2)';
+}
+
+function abrirOrcProj(id){
+  openDet(id);
+  setTimeout(()=>{
+    const el=document.querySelector('#ovDet .fin-secao');
+    if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+  },300);
 }
 
 // ── DETALHE FINANCEIRO (abre modal de detalhes com tab financeiro) ──
@@ -3013,18 +2896,7 @@ function exportCSVFin(){
 }
 
 // ── SINCRONIZAR PREÇOS COM FIREBASE ──
-function sincronizarPrecos(db){
-  fbPrecosRef = db.ref('precos');
-  fbPrecosRef.on('value', snap=>{
-    const remoto = snap.val();
-    if(remoto){
-      PRECOS_BASE = remoto;
-      // Se estiver na view financeiro, atualizar
-      const vf = document.getElementById('view-financeiro');
-      if(vf && vf.classList.contains('on')) rFinanceiro();
-    }
-  });
-}
+
 
 // ══════════════════════════════════════════════
 //  LOGIN — nome + senha
