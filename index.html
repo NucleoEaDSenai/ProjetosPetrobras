@@ -2810,48 +2810,8 @@ function salvarTabelaPrecos(){
 }
 
 // ── CALCULADORA RÁPIDA ──
-function rCalcRapida(){
-  const el = document.getElementById('calcRapidaRows'); if(!el) return;
-  el.innerHTML = RECURSOS.map((rec,i)=>{
-    const p = PRECOS_BASE[rec]||{valorHora:0,horasEstimadas:0};
-    const key = rec.replace(/[^a-zA-Z0-9]/g,'_');
-    return`<div class="fin-etapa-row" ${i===0?'style="padding-top:0"':''}>
-      <span style="font-size:12px">${rec}</span>
-      <div style="display:flex;gap:5px;align-items:center">
-        <input class="fin-inp-sm" type="number" min="0" step="0.5"
-          id="cq_h_${key}" value="0" aria-label="Horas ${rec}"
-          oninput="atualizarCalcRapida()" style="width:60px">
-        <span style="font-size:11px;color:var(--mu)">h</span>
-      </div>
-      <div style="display:flex;gap:5px;align-items:center">
-        <span style="font-size:11px;color:var(--mu)">R$</span>
-        <input class="fin-inp-sm" type="number" min="0" step="5"
-          id="cq_v_${key}" value="${p.valorHora}" aria-label="Valor hora ${rec}"
-          oninput="atualizarCalcRapida()" style="width:70px">
-        <span style="font-size:11px;color:var(--mu)">/h</span>
-      </div>
-      <span id="cq_s_${key}" style="text-align:right;font-weight:600;font-size:12px;color:var(--mu)">—</span>
-    </div>`;
-  }).join('');
-  // Header
-  el.insertAdjacentHTML('afterbegin',`<div class="fin-etapa-row header" style="padding-top:0">
-    <span>Recurso</span><span>Horas</span><span>Valor/h</span><span>Subtotal</span>
-  </div>`);
-}
-function atualizarCalcRapida(){
-  let total = parseFloat(document.getElementById('calcFixo')?.value)||0;
-  RECURSOS.forEach(rec=>{
-    const key=rec.replace(/[^a-zA-Z0-9]/g,'_');
-    const h=parseFloat(document.getElementById('cq_h_'+key)?.value)||0;
-    const v=parseFloat(document.getElementById('cq_v_'+key)?.value)||0;
-    const sub=h*v;
-    const cel=document.getElementById('cq_s_'+key);
-    if(cel) cel.textContent = sub>0 ? fBRL(sub) : '—';
-    total+=sub;
-  });
-  const totEl=document.getElementById('calcRapidaTotal');
-  if(totEl) totEl.textContent=fBRL(total);
-}
+
+
 
 // ── PAINEL FINANCEIRO GERAL ──
 function rFinanceiro(){
