@@ -45,7 +45,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .bsm{padding:4px 10px;font-size:11.5px}
 .bd{background:#FEE2E2;color:#991B1B;border:none}.bd:hover{background:#FECACA}
 /* CONTENT */
-.cnt{padding:22px 26px;flex:1;overflow-y:auto;overflow-x:hidden}
+.cnt{padding:22px 26px;flex:1;overflow-y:auto;overflow-x:auto}
 .view{display:none}.view.on{display:block;width:100%}
 /* STATS */
 .sts{display:grid;grid-template-columns:repeat(6,1fr);gap:11px;margin-bottom:22px}
@@ -2064,7 +2064,21 @@ function exportCSV(){
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),3500)}
 
 // ── RENDER ALL ──
-function renderAll(){rDash();rKanban();rList();rTimeline();rAtrasos();rCancelados();rCarga();rHistorico();if(document.getElementById("view-financeiro")?.classList.contains("on"))rFinanceiro();gerarNotificacoes();renderNotif();if(document.getElementById("view-dashboard")?.classList.contains("on"))rDashboard();}
+function renderAll(){
+
+  const view = document.querySelector('.view.on')?.id;
+
+  if(view === 'view-dashboard') rDashboard();
+  if(view === 'view-kanban') rKanban();
+  if(view === 'view-projetos') rList();
+  if(view === 'view-timeline') rTimeline();
+  if(view === 'view-atrasos') rAtrasos();
+  if(view === 'view-cancelados') rCancelados();
+  if(view === 'view-carga') rCarga();
+  if(view === 'view-historico') rHistorico();
+  if(view === 'view-financeiro') rFinanceiro();
+
+}
 
 // ══════════════════════════════════════════════
 //  FIREBASE — PERSISTÊNCIA EM TEMPO REAL
