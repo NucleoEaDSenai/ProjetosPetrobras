@@ -2186,9 +2186,6 @@ function escutarFirebase(db){
     if(v > NXT) NXT = v;
   });
 
-  // Indicador de conexão
-  sincronizarPrecos(db);
-
   db.ref('.info/connected').on('value', snap => {
     if(snap.val() === true){
       setStatus('online','Online — sync ativo');
