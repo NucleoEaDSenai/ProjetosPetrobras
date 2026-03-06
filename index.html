@@ -133,7 +133,7 @@ tr:hover td{background:#FAFAF9}
 .ff{grid-column:1/-1}
 .fg{display:flex;flex-direction:column;gap:5px}
 .fl{font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.5px}
-.fi,.fs,.fta{padding:8px 12px;border:1px solid var(--bdr);border-radius:7px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--txt);background:var(--bg);outline:none;transition:border-color .15s}
+.fi,.fs,.fta{padding:8px 9px;border:1px solid var(--bdr);border-radius:7px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--txt);background:var(--bg);outline:none;transition:border-color .15s}
 .fi:focus,.fs:focus,.fta:focus{border-color:var(--blue);background:#fff}
 .fta{resize:vertical;min-height:68px}
 /* TABS */
@@ -439,6 +439,8 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
     <div class="sb-sub">Educação a Distância · 2025</div>
   </div>
   <nav class="sb-nav">
+    <div class="sb-sec">Ações</div>
+    <div class="si" role="menuitem" tabindex="0" aria-label="Novo Projeto" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNew()}"" onclick="openNew()"><span class="si-ic">➕</span><span>Novo Projeto</span></div>
     <div class="sb-sec">Principal</div>
     <div class="si" role="menuitem" tabindex="0" aria-label="Kanban — Quadro de projetos" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('kanban')}" on" onclick="nav('kanban')"><span class="si-ic">🗂️</span><span>Kanban</span></div>
     <div class="si" role="menuitem" tabindex="0" aria-label="Lista de Projetos" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('projetos')}"" onclick="nav('projetos')"><span class="si-ic">📋</span><span>Lista de Projetos</span></div>
@@ -447,8 +449,6 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
     <div class="si" role="menuitem" tabindex="0" aria-label="KPIs e Indicadores" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('kpis')}"" onclick="nav('kpis')"><span class="si-ic">📈</span><span>KPIs &amp; Indicadores</span></div>
     <div class="si" role="menuitem" tabindex="0" aria-label="Relatório de Atrasos" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('atrasos')}"" onclick="nav('atrasos')"><span class="si-ic">⚠️</span><span>Rel. de Atrasos</span></div>
     <div class="si" role="menuitem" tabindex="0" aria-label="Projetos Cancelados" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('cancelados')}"" onclick="nav('cancelados')"><span class="si-ic">🚫</span><span>Cancelados</span></div>
-    <div class="sb-sec">Ações</div>
-    <div class="si" role="menuitem" tabindex="0" aria-label="Novo Projeto" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openNew()}"" onclick="openNew()"><span class="si-ic">➕</span><span>Novo Projeto</span></div>
     <div class="sb-sec">Equipe</div>
     <div class="si" role="menuitem" tabindex="0" aria-label="Carga da Equipe" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('carga')}"" onclick="nav('carga')"><span class="si-ic">👥</span><span>Carga da Equipe</span></div>
     <div class="si" role="menuitem" tabindex="0" aria-label="Histórico de Edições" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nav('historico')}"" onclick="nav('historico')"><span class="si-ic">📝</span><span>Histórico</span></div>
@@ -738,8 +738,7 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
           </select>
         </div>
         <div class="fg"><label class="fl">Data de Início Real</label><div style="display:flex;gap:5px"><input class="fi" type="number" id="fi_d" placeholder="DD" min="1" max="31" style="width:58px"><input class="fi" type="number" id="fi_m" placeholder="MM" min="1" max="12" style="width:58px"><input class="fi" type="number" id="fi_a" placeholder="AAAA" min="2020" max="2099" style="width:80px"></div></div>
-        <div class="fg"><label class="fl">Prazo de Entrega (Contrato)</label><div style="display:flex;gap:5px"><input class="fi" type="number" id="fp_d" placeholder="DD" min="1" max="31" style="width:58px"><input class="fi" type="number" id="fp_m" placeholder="MM" min="1" max="12" style="width:58px"><input class="fi" type="number" id="fp_a" placeholder="AAAA" min="2020" max="2099" style="width:80px"></div></div>
-        <div class="fg"><label class="fl">Data de Término Real</label><div style="display:flex;gap:5px"><input class="fi" type="number" id="fte_d" placeholder="DD" min="1" max="31" style="width:58px"><input class="fi" type="number" id="fte_m" placeholder="MM" min="1" max="12" style="width:58px"><input class="fi" type="number" id="fte_a" placeholder="AAAA" min="2020" max="2099" style="width:80px"></div></div>
+        <div class="fg"><label class="fl">Prazo de Entrega</label><div style="display:flex;gap:5px"><input class="fi" type="number" id="fp_d" placeholder="DD" min="1" max="31" style="width:58px"><input class="fi" type="number" id="fp_m" placeholder="MM" min="1" max="12" style="width:58px"><input class="fi" type="number" id="fp_a" placeholder="AAAA" min="2020" max="2099" style="width:80px"></div></div>
         <div class="fg ff"><label class="fl">Observação sobre Prazo</label><textarea class="fta" id="fpo" placeholder="Ex: cliente solicitou extensão..."></textarea></div>
       </div>
     </div>
@@ -1051,11 +1050,11 @@ function rKanban(){
           </div>
           <div class="kcard-t">${p.nome}</div>
           <div class="kdates">
-            <span>📌 ${fd(p.criado)}</span>
-            ${p.inicio?`<span>▶️ ${fd(p.inicio)}</span>`:''}
-            <span class="${sit==='atrasado'?'ov':''}">🏁 ${fd(p.prazo)}</span>
-            ${eq>0?`<span class="ov">⚠️Eq: ${eq} dias</span>`:''}
-            ${cl>0?`<span class="wc">⏳Cl: ${cl} dias</span>`:''}
+            <span>Criado: ${fd(p.criado)}</span>
+            ${p.inicio?`<span>Início ${fd(p.inicio)}</span>`:''}
+            <span class="${sit==='atrasado'?'ov':''}">Prazo: ${fd(p.prazo)}</span>
+            ${eq>0?`<span class="ov">At. Equipe: ${eq} dias</span>`:''}
+            ${cl>0?`<span class="wc">Atras Cliente: ${cl} dias</span>`:''}
           </div>
           <div class="pbar"><div class="pf" style="width:${p.pct}%;background:${p.pct===100?'var(--green)':sit==='atrasado'?'var(--red)':'var(--blue)'}"></div></div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
@@ -2406,6 +2405,7 @@ function duplicarProjeto(id){
 // ══════════════════════════════════════════════
 const USUARIOS = [
   {nome:'Daniel David', senha:'admin'},
+  {nome:'Fatima', senha:'senai123'},
   // Para adicionar membros, copie o padrão abaixo:
   // {nome:'Maria Silva',  senha:'minhasenha'},
   // {nome:'João Souza',   senha:'outrasenha'},
