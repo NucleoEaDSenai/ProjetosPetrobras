@@ -1343,6 +1343,12 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
               <div class="ms-dropdown" id="msDd_kCol"></div>
             </div>
           </div>
+          <div class="fg-sm"><label class="fl-sm" title="Selecione uma data de conclusão para ver todas as tarefas que vencem no mesmo prazo">Data de Conclusão</label>
+            <div class="ms-wrap" id="msWrap_kPrazo">
+              <button class="ms-btn" id="msBtn_kPrazo" onclick="_msToggle('kPrazo')">Todas</button>
+              <div class="ms-dropdown" id="msDd_kPrazo"></div>
+            </div>
+          </div>
           <div class="fg-sm"><label class="fl-sm">Criado após</label>
             <input class="fi-sm" type="date" id="kFiltDe" onchange="applyKFilts()">
           </div>
@@ -1413,6 +1419,12 @@ button:focus-visible,a:focus-visible,.si:focus-visible,.chip:focus-visible,.kcar
             <div class="ms-wrap" id="msWrap_lCol">
               <button class="ms-btn" id="msBtn_lCol" onclick="_msToggle('lCol')">Todas</button>
               <div class="ms-dropdown" id="msDd_lCol"></div>
+            </div>
+          </div>
+          <div class="fg-sm"><label class="fl-sm" title="Selecione uma data de conclusão para ver todas as tarefas que vencem no mesmo prazo">Data de Conclusão</label>
+            <div class="ms-wrap" id="msWrap_lPrazo">
+              <button class="ms-btn" id="msBtn_lPrazo" onclick="_msToggle('lPrazo')">Todas</button>
+              <div class="ms-dropdown" id="msDd_lPrazo"></div>
             </div>
           </div>
           <div class="fg-sm"><label class="fl-sm">Criado após</label>
@@ -2860,14 +2872,41 @@ function populateFiltSelects(){
     ).join('') + '<div class="ms-sep"></div><div class="ms-clear" data-ms-clear="lCol">✕ Limpar</div>';
     _msUpdateBtn('lCol');
   }
+
+  // ── Multi-select Data de Conclusão (Prazo) — lista apenas datas com 2+ tarefas ──
+  // Objetivo: facilitar a identificação de tarefas que compartilham o mesmo prazo final.
+  const _prazoCount = {};
+  activeDB().forEach(p=>{ if(p.prazo) _prazoCount[p.prazo]=(_prazoCount[p.prazo]||0)+1; });
+  const _prazosDup = Object.keys(_prazoCount).filter(d=>_prazoCount[d]>1).sort();
+  const _prazoOptsHtml = (grpId)=> _prazosDup.length
+    ? _prazosDup.map(d=>{
+        const _sel=_msGetVals(grpId);
+        return `<label class="ms-opt"><input type="checkbox" value="${d}" onchange="_msChange('${grpId}')"${_sel.includes(d)?' checked':''}> 📅 ${fd(d)} <span style="color:var(--mu)">(${_prazoCount[d]} tarefas)</span></label>`;
+      }).join('') + `<div class="ms-sep"></div><div class="ms-clear" data-ms-clear="${grpId}">✕ Limpar</div>`
+    : `<div style="padding:8px 10px;font-size:11.5px;color:var(--mu)">Nenhum prazo repetido entre as tarefas</div>`;
+
+  // ── Multi-select Data de Conclusão (Kanban) ──
+  const _ddKPrazo = document.getElementById('msDd_kPrazo');
+  if(_ddKPrazo){
+    _ddKPrazo.innerHTML = _prazoOptsHtml('kPrazo');
+    _msUpdateBtn('kPrazo');
+  }
+
+  // Multi-select Data de Conclusão (Lista)
+  const _ddLPrazo = document.getElementById('msDd_lPrazo');
+  if(_ddLPrazo){
+    _ddLPrazo.innerHTML = _prazoOptsHtml('lPrazo');
+    _msUpdateBtn('lPrazo');
+  }
 }
 
 function getKFilts(){
   return{
-    resps: _msGetVals('kResp'),
-    sits:  _msGetVals('kSit'),
-    acads: _msGetVals('kAcad'),
-    cols:  _msGetVals('kCol'),
+    resps:  _msGetVals('kResp'),
+    sits:   _msGetVals('kSit'),
+    acads:  _msGetVals('kAcad'),
+    cols:   _msGetVals('kCol'),
+    prazos: _msGetVals('kPrazo'),
     de:    document.getElementById('kFiltDe')?.value||'',
     ate:   document.getElementById('kFiltAte')?.value||'',
   };
@@ -2909,10 +2948,10 @@ function _msUpdateBtn(id){
   const btn=document.getElementById('msBtn_'+id);
   if(!btn) return;
   const labels={
-    'lResp':'Todos','lSit':'Todas','lRec':'Todos','lPrio':'Todas','lAcad':'Todas','lCol':'Todas',
+    'lResp':'Todos','lSit':'Todas','lRec':'Todos','lPrio':'Todas','lAcad':'Todas','lCol':'Todas','lPrazo':'Todas',
     'medConf':'Todos','medResp':'Todos','medRec':'Todos','medStat':'Todos',
     'cargaResp':'Todos','cargaStat':'Todos','cargaRec':'Todos','cargaPrio':'Todas',
-    'kResp':'Todos','kSit':'Todas','kAcad':'Todas','kCol':'Todas',
+    'kResp':'Todos','kSit':'Todas','kAcad':'Todas','kCol':'Todas','kPrazo':'Todas',
     'aTipo':'Todos','aRespGeral':'Todos','aRespEt':'Todos',
     'homSol':'Todos','homEnv':'Todos','homMed':'Todos'
   };
@@ -2928,12 +2967,13 @@ document.addEventListener('click', e=>{
 
 function getLFilts(){
   return{
-    resps: _msGetVals('lResp'),
-    sits:  _msGetVals('lSit'),
-    recs:  _msGetVals('lRec'),
-    prios: _msGetVals('lPrio'),
-    acads: _msGetVals('lAcad'),
-    cols:  _msGetVals('lCol'),
+    resps:  _msGetVals('lResp'),
+    sits:   _msGetVals('lSit'),
+    recs:   _msGetVals('lRec'),
+    prios:  _msGetVals('lPrio'),
+    acads:  _msGetVals('lAcad'),
+    cols:   _msGetVals('lCol'),
+    prazos: _msGetVals('lPrazo'),
     de:    document.getElementById('lFiltDe')?.value||'',
     ate:   document.getElementById('lFiltAte')?.value||'',
   };
@@ -2946,6 +2986,7 @@ function applyFilt(data,f){
   if(f.prios&&f.prios.length) r=r.filter(p=>f.prios.includes(p.prioridade));
   if(f.acads&&f.acads.length) r=r.filter(p=>f.acads.some(a=>a==='__sem_academia__'?!p.academia:p.academia===a));
   if(f.cols &&f.cols.length)  r=r.filter(p=>f.cols.includes(String(p.col)));
+  if(f.prazos&&f.prazos.length) r=r.filter(p=>p.prazo&&f.prazos.includes(p.prazo));
   if(f.de)   r=r.filter(p=>p.criado&&p.criado>=f.de);
   if(f.ate)  r=r.filter(p=>p.criado&&p.criado<=f.ate);
   return r;
@@ -2961,7 +3002,7 @@ function _kbUpdateFades(){
 function applyKFilts(){rKanban();}
 function applyLFilts(){rList();}
 function limparKFilts(){
-  ['kResp','kSit','kAcad','kCol'].forEach(id=>{
+  ['kResp','kSit','kAcad','kCol','kPrazo'].forEach(id=>{
     const dd=document.getElementById('msDd_'+id);
     if(dd) dd.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.checked=false);
     _msUpdateBtn(id);
@@ -2970,7 +3011,7 @@ function limparKFilts(){
   rKanban();
 }
 function limparLFilts(){
-  ['lResp','lSit','lRec','lPrio','lAcad','lCol'].forEach(id=>_msClear(id));
+  ['lResp','lSit','lRec','lPrio','lAcad','lCol','lPrazo'].forEach(id=>_msClear(id));
   ['lFiltDe','lFiltAte'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   _listSortCol=''; _listSortDir=1;
   rList();
