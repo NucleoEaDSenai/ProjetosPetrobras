@@ -2258,6 +2258,19 @@ function esc(s){
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
+// ── BUSCA FLEXÍVEL — ignora maiúsculas/minúsculas e acentuação, aceita termos em qualquer ordem ──
+// Ex: buscarFlex('Instalação no SIRH','sirh instalacao') === true (ordem trocada, sem acento)
+function _normBusca(s){
+  return String(s ?? '')
+    .normalize('NFD').replace(/\p{Diacritic}/gu,'') // remove diacríticos (acentos)
+    .toLowerCase();
+}
+function buscarFlex(texto, query){
+  const alvo = _normBusca(texto);
+  const termos = _normBusca(query).trim().split(/\s+/).filter(Boolean);
+  if(!termos.length) return true;
+  return termos.every(t => alvo.includes(t));
+}
 // ── DEBOUNCE — adia execução até o usuário parar de digitar ──
 function debounce(fn, ms){
   let t = null;
@@ -2968,10 +2981,10 @@ function populateFiltSelects(){
 function _msFilterOpts(id,query){
   const container=document.getElementById('msOpts_'+id);
   if(!container) return;
-  const q=(query||'').trim().toLowerCase();
+  const q=(query||'').trim();
   let anyVisible=false;
   container.querySelectorAll('.ms-opt').forEach(opt=>{
-    const match=!q||opt.textContent.toLowerCase().includes(q);
+    const match=!q||buscarFlex(opt.textContent,q);
     opt.classList.toggle('ms-opt-hidden',!match);
     if(match) anyVisible=true;
   });
@@ -6267,8 +6280,8 @@ function rLixeira(){
     if(filtPor && r.usuario !== filtPor) return false;
     if(limiteData && r.ts && new Date(r.ts).getTime() < limiteData) return false;
     if(busca){
-      const alvo = `${r.nome||''} ${r.idProjeto||''} ${r.motivo||''} ${r.usuario||''}`.toLowerCase();
-      if(!alvo.includes(busca)) return false;
+      const alvo = `${r.nome||''} ${r.idProjeto||''} ${r.motivo||''} ${r.usuario||''}`;
+      if(!buscarFlex(alvo,busca)) return false;
     }
     return true;
   });
@@ -8860,10 +8873,10 @@ function rHomologacoes(){
     if(filtroEnvPor.length  && !filtroEnvPor.includes(p.homolog?.enviadaPor  || '')) return false;
     if(filtroMedicao.length && !filtroMedicao.some(l=>_dataEmMedicao(p.homolog?.dtInstalacao, l))) return false;
     if(buscaId){
-      const idProj = String(p.homolog?.idCurso || p.idCurso || '').toLowerCase();
-      if(!idProj.includes(buscaId)) return false;
+      const idProj = String(p.homolog?.idCurso || p.idCurso || '');
+      if(!buscarFlex(idProj,buscaId)) return false;
     }
-    if(buscaNome && !String(p.nome || '').toLowerCase().includes(buscaNome)) return false;
+    if(buscaNome && !buscarFlex(p.nome || '', buscaNome)) return false;
     return true;
   });
 
@@ -9498,20 +9511,20 @@ function initDark(){
 function buscarGlobal(q){
   const drop = document.getElementById('searchDrop');
   if(!drop) return;
-  if(!q || q.length < 2){ drop.classList.remove('on'); return; }
-  const ql = q.toLowerCase();
+  if(!q || q.trim().length < 2){ drop.classList.remove('on'); return; }
   const todos = activeDB().concat(cancelDB());
-  const res = todos.filter(p =>
-    p.nome.toLowerCase().includes(ql) ||
-    (p.desc||'').toLowerCase().includes(ql) ||
-    (p.resps||[]).some(r => r.toLowerCase().includes(ql)) ||
-    (p.recursos||[]).some(r => r.toLowerCase().includes(ql))
-  ).slice(0, 8);
+  const res = todos.filter(p => buscarFlex(
+    [p.nome, p.desc||'', ...(p.resps||[]), ...(p.recursos||[])].join(' '), q
+  )).slice(0, 8);
+  // Destaca cada termo buscado individualmente (case-insensitive) — a busca em si
+  // já ignora acentos e ordem via buscarFlex, aqui é só o realce visual do resultado.
+  const _termosHl = q.trim().split(/\s+/).filter(Boolean).map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+  const _hlRe = _termosHl.length ? new RegExp('('+_termosHl.join('|')+')','gi') : null;
   function hl(str){
     if(!str) return '';
     // Escapa HTML ANTES de destacar — impede XSS via nome de projeto na busca
-    return esc(str).replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),
-      m => `<span class="sri-hl">${m}</span>`);
+    const escaped = esc(str);
+    return _hlRe ? escaped.replace(_hlRe, m => `<span class="sri-hl">${m}</span>`) : escaped;
   }
   if(!res.length){
     drop.innerHTML = '<div style="padding:14px;text-align:center;color:var(--mu);font-size:12.5px">Nenhum resultado</div>';
@@ -10858,7 +10871,7 @@ carregarSDKeFire({
   databaseURL: savedUrl     || DEFAULT_FB_CONFIG.databaseURL,
   projectId:   savedProject || DEFAULT_FB_CONFIG.projectId,
 });
- 
+
 </script>
 
 </body>
